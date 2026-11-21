@@ -5,6 +5,7 @@ import { WriteQueue, type WriteOutcome } from "../ble/write-queue.ts";
 import type { ModelVariant } from "../protocol/variant.ts";
 import type { Clock, TimerId } from "./clock.ts";
 import { InitSequencer } from "./init-sequencer.ts";
+import { LinkKeeper } from "./link-keeper.ts";
 import type { FrameTag, SectionLog } from "./packet-log.ts";
 import { UnlockFlow, type UnlockListener } from "./unlock-flow.ts";
 
@@ -14,6 +15,7 @@ export class Run {
   readonly abort = new AbortController();
   readonly init: InitSequencer;
   readonly unlock: UnlockFlow;
+  readonly keeper: LinkKeeper;
   link: TreadmillLink | null = null;
   queue: WriteQueue<FrameTag> | null = null;
   private live = true;
@@ -27,6 +29,11 @@ export class Run {
     this.clock = clock;
     this.init = new InitSequencer(this);
     this.unlock = new UnlockFlow(this, unlockListener);
+    this.keeper = new LinkKeeper(this);
+  }
+
+  now(): number {
+    return this.clock.now();
   }
 
   /** A method, not a getter, so callers re-check it after every await. */

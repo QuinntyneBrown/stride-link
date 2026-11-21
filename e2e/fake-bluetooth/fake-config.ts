@@ -86,4 +86,5 @@ export interface FakeSnapshot {
   overlaps: number;
   realRequestDeviceReached: boolean;
   unhandledRejections: string[];
+  handlerMs: number[];
 }

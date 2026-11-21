@@ -149,6 +149,7 @@ export class RunController {
     this.state.update({ status: "initialising", disconnectVisible: true });
     const result = await run.init.start();
     if (result.status === "cancelled" || !run.isAlive()) return;
+    run.keeper.start();
     this.state.update({ status: "awaiting-verdict" });
   }
 
@@ -158,6 +159,7 @@ export class RunController {
     const frame = parseFrame(bytes);
     run.log.recordRx(char, bytes, rxNote(frame));
     run.init.notifyReceived();
+    run.keeper.onFrame(frame);
     if (frame.kind === "E0") run.unlock.onE0(frame);
   }
 

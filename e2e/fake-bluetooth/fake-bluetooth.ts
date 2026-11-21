@@ -1,6 +1,9 @@
 // Fake navigator.bluetooth. Bundled to an IIFE and installed with addInitScript
 // before any page script runs (L2-070). It records every call and write, detects
 // overlapping GATT writes, and plays a scripted treadmill on the page clock.
+// It runs before Playwright installs its clock, so it keeps the real clock to
+// measure how long the page's notification handler takes (L2-055).
+const realNow = performance.now.bind(performance);
 import type { CharName, FakeCall, FakeConfig, FakeSnapshot, FakeWrite, ScriptedNotification } from "./fake-config.ts";
 
 const SERVICE = "0bf669f1-45f2-11e7-9598-0800200c9a66";
@@ -150,6 +153,8 @@ class FakeBluetooth extends EventTarget {
   readonly calls: FakeCall[] = [];
   readonly notifications: FakeSnapshot["notifications"] = [];
   readonly unhandledRejections: string[] = [];
+  /** Real milliseconds each notification's synchronous dispatch took. */
+  readonly handlerMs: number[] = [];
   realRequestDeviceReached = false;
   overlaps = 0;
   private inFlight = 0;
@@ -257,7 +262,21 @@ class FakeBluetooth extends EventTarget {
   notify(char: "f3" | "f4", hex: string): void {
     if (!this.device.gatt.connected || !this.subscribed.has(char)) return;
     this.notifications.push({ t: performance.now(), char, hex });
+    const started = realNow();
     this.chars[char].notify(fromHex(hex));
+    this.handlerMs.push(realNow() - started);
+  }
+
+  /** Test control: `count` notifications, one every `intervalMs`, on the page clock. */
+  notifyEvery(char: "f3" | "f4", hex: string, intervalMs: number, count: number): void {
+    let sent = 0;
+    const next = (): void => {
+      if (sent >= count) return;
+      sent += 1;
+      this.notify(char, hex);
+      setTimeout(next, intervalMs);
+    };
+    setTimeout(next, intervalMs);
   }
 
   /** Test control: the treadmill drops the link. */
@@ -277,6 +296,7 @@ class FakeBluetooth extends EventTarget {
       overlaps: this.overlaps,
       realRequestDeviceReached: this.realRequestDeviceReached,
       unhandledRejections: [...this.unhandledRejections],
+      handlerMs: [...this.handlerMs],
     };
   }
 }

@@ -35,7 +35,7 @@ until their complete path lands. No architecture tests or specification scans.
 | 3 | GATT discovery/subscriptions, timeout, disconnect and serialized writes with failure recovery | 010–012, 056, 058 | Done |
 | 4 | Pure encoding/parsing and standard/Stride 4 paced init through the real fake transport | 013–019, 069 | Done |
 | 5 | Challenge arithmetic, unlock response/acknowledgement, timeout and retry handling | 020–025, 069 | Done |
-| 6 | Keepalive and echo scheduling, cancellation and concurrent queue behavior | 026–027, 055–056 | Pending |
+| 6 | Keepalive and echo scheduling, cancellation and concurrent queue behavior | 026–027, 055–056 | Done |
 | 7 | Telemetry rendering, all four verdicts and exact explanatory copy | 028–036 | Pending |
 | 8 | Bounded packet log, filters, follow/pause, clear, downloads and metadata | 037–041, 057 | Pending |
 | 9 | Unlock-only belt gate, standing-clear interlock, start sequence, priority Stop/Escape and disconnect safety | 042–045, 048 | Pending |
@@ -106,3 +106,8 @@ does not establish completion. Record any unavailable external gate candidly.
   checksum first) so a 7- or 9-byte frame always reports `challenge length N` as
   L2-020 criterion 3 requires. Verdict effects land in slice 7. 46 acceptance and
   105 unit tests pass.
+- Slice 6: `LinkKeeper` schedules keepalives against target times (no drift over
+  256 ticks) and echoes D0/D2/D3 unchanged. The fake keeps the real
+  `performance.now` (captured before Playwright's clock) to time the page's
+  notification handler; p95 under 10 ms with 1,200 echoes and none dropped; a
+  full run with 15 ms writes shows zero overlaps. 54 acceptance tests pass.
