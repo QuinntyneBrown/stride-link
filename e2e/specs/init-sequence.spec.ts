@@ -3,6 +3,8 @@ import { test, expect } from "../fixtures.ts";
 import { F, STANDARD_INIT, STRIDE4_INIT } from "../fake-bluetooth/frames.ts";
 
 const LATENCY = 5;
+/** Keepalives start 2 s after init complete; these specs look at init alone. */
+const notKeepalive = (w: { hex: string }): boolean => !w.hex.startsWith("F0 A0 01");
 const replyToInit = (delayMs: number) =>
   [F.A4, F.A1, F.A3, F.STRIDE4_E0].map((frame) => ({ whenHexStartsWith: frame, notify: [{ char: "f4" as const, hex: F.D3_ZERO, delayMs }] }));
 
@@ -11,11 +13,11 @@ test.describe("standard init sequence", () => {
     await app.open();
     await app.connection.connect();
     await app.advance(5_000);
-    expect(await app.fake.writtenHex()).toEqual(STANDARD_INIT);
+    expect((await app.fake.writtenHex()).filter((hex) => notKeepalive({ hex }))).toEqual(STANDARD_INIT);
     const calls = await app.fake.callNames();
     expect(calls.lastIndexOf("startNotifications")).toBeLessThan(calls.indexOf("writeValueWithResponse"));
     const rows = await app.log.rowTexts();
-    const tx = rows.filter((row) => / TX f2 /.test(row));
+    const tx = rows.filter((row) => / TX f2 /.test(row) && !row.endsWith(" keepalive"));
     expect(tx).toHaveLength(7);
     for (const row of tx) expect(row).toMatch(/ init$/);
     expect(rows.some((row) => row.endsWith("EV Init complete"))).toBe(true);
@@ -25,7 +27,7 @@ test.describe("standard init sequence", () => {
     await app.open();
     await app.connection.connect();
     await app.advance(5_000);
-    const writes = (await app.fake.snapshot()).writes;
+    const writes = (await app.fake.snapshot()).writes.filter(notKeepalive);
     for (let i = 1; i < writes.length; i += 1) {
       const gap = (writes[i]?.t ?? 0) - ((writes[i - 1]?.t ?? 0) + LATENCY);
       expect(gap).toBeGreaterThanOrEqual(280);
@@ -54,8 +56,8 @@ test.describe("standard init sequence", () => {
     await app.open({ failWrites: [3] });
     await app.connection.connect();
     await app.advance(5_000);
-    expect(await app.fake.writtenHex()).toEqual(STANDARD_INIT);
-    const writes = (await app.fake.snapshot()).writes;
+    expect((await app.fake.writtenHex()).filter((hex) => notKeepalive({ hex }))).toEqual(STANDARD_INIT);
+    const writes = (await app.fake.snapshot()).writes.filter(notKeepalive);
     const gap = (writes[3]?.t ?? 0) - ((writes[2]?.t ?? 0) + LATENCY);
     expect(gap).toBeGreaterThanOrEqual(280);
     expect(gap).toBeLessThanOrEqual(320);
@@ -78,8 +80,8 @@ test.describe("Stride 4 init sequence", () => {
     await app.open({ deviceName: "STRIDE4-ABC" });
     await app.connection.connect();
     await app.advance(5_000);
-    expect(await app.fake.writtenHex()).toEqual(STRIDE4_INIT);
-    const writes = (await app.fake.snapshot()).writes;
+    expect((await app.fake.writtenHex()).filter((hex) => notKeepalive({ hex }))).toEqual(STRIDE4_INIT);
+    const writes = (await app.fake.snapshot()).writes.filter(notKeepalive);
     for (let i = 1; i < writes.length; i += 1) {
       const gap = (writes[i]?.t ?? 0) - ((writes[i - 1]?.t ?? 0) + LATENCY);
       expect(gap).toBeGreaterThanOrEqual(280);

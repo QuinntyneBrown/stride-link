@@ -110,4 +110,6 @@ does not establish completion. Record any unavailable external gate candidly.
   256 ticks) and echoes D0/D2/D3 unchanged. The fake keeps the real
   `performance.now` (captured before Playwright's clock) to time the page's
   notification handler; p95 under 10 ms with 1,200 echoes and none dropped; a
-  full run with 15 ms writes shows zero overlaps. 54 acceptance tests pass.
+  full run with 15 ms writes shows zero overlaps. The slice 6 commit went out with
+  four init specs failing (keepalives now appear in their window; only the last
+  line of the run was checked); fixed in the next commit. 54 acceptance tests pass.
