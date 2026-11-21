@@ -43,7 +43,7 @@ until their complete path lands. No architecture tests or specification scans.
 | 11 | Complete responsive/accessibility states, keyboard/touch/zoom checks and axe audits | 060–067 | Done |
 | 12 | Offline/privacy/CSP runtime checks, startup/load/one-hour performance verification | 001, 049–055, 057–058 | Done |
 | 13 | CI, release integrity, hosted deployment configuration, human-only hardware documentation | 005, 053, 059, 068–071 | Done (L2-053 awaits a host) |
-| 14 | Requirement-by-requirement completion audit and full `npm run check`; verify pushed commits and release/deployment evidence where authorized | 001–071 | Pending |
+| 14 | Requirement-by-requirement completion audit and full `npm run check`; verify pushed commits and release/deployment evidence where authorized | 001–071 | Done (L2-053 and slice 0 open) |
 
 Slices may be split further when verification reveals independent work; retain
 the full scope and record each additional commit here. Shared foundational code
@@ -183,3 +183,19 @@ does not establish completion. Record any unavailable external gate candidly.
   `https://quinntynebrown.github.io/stride-link/stride-link.html`, and GitHub Pages
   cannot set these headers). `docs/manual-hardware-test.md` already lists the
   L2-071 steps in order and records browser, version and OS (L2-005 c2).
+- Slice 14 audit: every L2 requirement from 001 to 069 is named by at least one
+  unit or acceptance test; L2-070 and L2-071 constrain the harness, CI and docs and
+  were checked by review, as AGENTS.md forbids architecture tests: every spec file
+  opens with `// Traces to: L2-xxx`, the fixture fails any test that reaches the
+  real `requestDevice`, no workflow or Playwright project grants Bluetooth
+  permission, `docs/manual-hardware-test.md` lists the six steps in order, and
+  AGENTS.md states the hardware rule. Local `npm run check`: typecheck, lint, 154
+  unit tests (protocol 100 % lines and branches), build at 183,966 bytes, 252
+  acceptance tests. GitHub Actions CI run 44848597636 on 491e35d passed, including
+  the byte-identical rebuild and the sha256sum check; the actions moved to v5 after
+  it warned about Node 20. Open items, both outside an agent's authority:
+  - L2-053: the owner must name the static host and hosted URL; then add the deploy
+    step and set `STRIDE_LINK_HOSTED_URL`. No release was tagged or published.
+  - Slice 0: two sessions wrote conflicting mock sets into `docs/mocks/` (see the
+    slice 0 note above). The owner must choose which set to keep before the design
+    system is extracted. `docs/mocks/` was not staged by this work.
