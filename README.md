@@ -1,3 +1,10 @@
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/stride-link-logo-dark.svg">
+    <img src="docs/assets/stride-link-logo.svg" alt="Stride Link" width="480">
+  </picture>
+</p>
+
 # Stride Link
 
 [![CI](https://github.com/QuinntyneBrown/beltcheck/actions/workflows/ci.yml/badge.svg)](https://github.com/QuinntyneBrown/beltcheck/actions/workflows/ci.yml)
