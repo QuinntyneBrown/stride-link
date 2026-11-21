@@ -208,6 +208,7 @@ class FakeBluetooth extends EventTarget {
     const bytes = value instanceof ArrayBuffer ? new Uint8Array(value.slice(0)) : new Uint8Array(value.buffer.slice(value.byteOffset, value.byteOffset + value.byteLength));
     const hex = toHex(bytes);
     const t = performance.now();
+    this.call(method === "withResponse" ? "writeValueWithResponse" : "writeValueWithoutResponse", hex);
     if (this.inFlight > 0) {
       this.overlaps += 1;
       this.writes.push({ t, char: char.name, hex, method, ok: false });

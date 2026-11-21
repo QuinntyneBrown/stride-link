@@ -19,6 +19,8 @@ export const statusMessages: Record<StatusKey, string> = {
   "connect-failed": "Couldn't connect to the treadmill. Move closer and press Connect to try again.",
   "subscribe-failed": "Couldn't turn on treadmill notifications.",
   connected: "Connected to the treadmill.",
+  initialising: "Connected. Sending the init sequence…",
+  "awaiting-verdict": "Init sent. Waiting for the treadmill to answer…",
   disconnected: "Disconnected",
   "export-failed": "Couldn't save the log file. Press Export log to try again.",
 };

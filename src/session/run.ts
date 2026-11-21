@@ -4,22 +4,26 @@ import type { TreadmillLink } from "../ble/treadmill-link.ts";
 import { WriteQueue, type WriteOutcome } from "../ble/write-queue.ts";
 import type { ModelVariant } from "../protocol/variant.ts";
 import type { Clock, TimerId } from "./clock.ts";
+import { InitSequencer } from "./init-sequencer.ts";
 import type { FrameTag, SectionLog } from "./packet-log.ts";
 
 export class Run {
   readonly log: SectionLog;
   readonly variant: ModelVariant;
   readonly abort = new AbortController();
+  readonly init: InitSequencer;
   link: TreadmillLink | null = null;
   queue: WriteQueue<FrameTag> | null = null;
   private live = true;
   private readonly clock: Clock;
   private readonly timers = new Set<TimerId>();
+  private readonly endListeners: (() => void)[] = [];
 
   constructor(log: SectionLog, variant: ModelVariant, clock: Clock) {
     this.log = log;
     this.variant = variant;
     this.clock = clock;
+    this.init = new InitSequencer(this);
   }
 
   /** A method, not a getter, so callers re-check it after every await. */
@@ -41,6 +45,32 @@ export class Run {
     if (id === null) return;
     this.clock.clearTimeout(id);
     this.timers.delete(id);
+  }
+
+  /** Runs once when the run ends, so pending waits can settle as cancelled. */
+  onEnd(listener: () => void): void {
+    if (this.live) this.endListeners.push(listener);
+    else listener();
+  }
+
+  /**
+   * Waits `ms`, or until `wake` is called, whichever comes first. Settles
+   * "cancelled" if the run ends first.
+   */
+  wait(ms: number): { done: Promise<"elapsed" | "woken" | "cancelled">; wake: () => void } {
+    let finish: (how: "elapsed" | "woken" | "cancelled") => void = () => undefined;
+    const done = new Promise<"elapsed" | "woken" | "cancelled">((resolve) => {
+      let settled = false;
+      finish = (how) => {
+        if (settled) return;
+        settled = true;
+        this.cancel(id);
+        resolve(how);
+      };
+    });
+    const id = this.after(ms, () => { finish("elapsed"); });
+    this.onEnd(() => { finish("cancelled"); });
+    return { done, wake: () => { finish("woken"); } };
   }
 
   /** Every write to f2 goes through the run's queue; TX is logged when it settles. */
@@ -74,6 +104,7 @@ export class Run {
     for (const id of this.timers) this.clock.clearTimeout(id);
     this.timers.clear();
     this.queue?.clear(reason);
+    for (const listener of this.endListeners.splice(0)) listener();
     return true;
   }
 }

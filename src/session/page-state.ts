@@ -15,6 +15,8 @@ export type StatusKey =
   | "connect-failed"
   | "subscribe-failed"
   | "connected"
+  | "initialising"
+  | "awaiting-verdict"
   | "disconnected"
   | "export-failed";
 

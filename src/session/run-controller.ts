@@ -4,6 +4,7 @@ import { ConnectionFailure, type BluetoothGateway, type SupportStatus } from "..
 import type { TreadmillLink } from "../ble/treadmill-link.ts";
 import { chooserOptions } from "../protocol/chooser-filters.ts";
 import { errorFacts, type ErrorFacts } from "../protocol/errors.ts";
+import { parseFrame, type ParsedFrame } from "../protocol/frame-parser.ts";
 import type { NotifyChar } from "../protocol/uuids.ts";
 import { detectVariant, displayName, isBikeName, variantLabel } from "../protocol/variant.ts";
 import type { Clock } from "./clock.ts";
@@ -142,12 +143,18 @@ export class RunController {
     run.log.recordEvent(`isNotifying f3: ${String(link.isNotifying("f3"))}`);
     run.log.recordEvent(`isNotifying f4: ${String(link.isNotifying("f4"))}`);
     run.log.recordEvent(`Write method: ${link.writeMethod}`);
-    this.state.update({ status: "connected", disconnectVisible: true });
+    this.state.update({ status: "initialising", disconnectVisible: true });
+    const result = await run.init.start();
+    if (result.status === "cancelled" || !run.isAlive()) return;
+    this.state.update({ status: "awaiting-verdict" });
   }
 
+  /** Every notification: logged, then counted for pacing, then handled by kind. */
   private onNotification(run: Run, char: NotifyChar, bytes: Uint8Array): void {
     if (!run.isAlive()) return;
-    run.log.recordRx(char, bytes);
+    const frame = parseFrame(bytes);
+    run.log.recordRx(char, bytes, rxNote(frame));
+    run.init.notifyReceived();
   }
 
   /** A failure before the run got going: logged, disconnected, back to idle. */
@@ -180,4 +187,9 @@ export class RunController {
     const keep = support === "supported" && current !== "checking" && current !== "adapter-unavailable" && current !== "no-web-bluetooth";
     this.state.update({ status: keep ? current : support, connectEnabled: support === "supported" && !this.busy });
   }
+}
+
+function rxNote(frame: ParsedFrame): "malformed" | "unknown" | undefined {
+  if (frame.kind === "unknown") return "unknown";
+  return frame.malformed ? "malformed" : undefined;
 }

@@ -33,7 +33,7 @@ until their complete path lands. No architecture tests or specification scans.
 | 1 | Strict TS tooling, deterministic single-file build, CSP/size enforcement, fake-only acceptance harness and initial support screen | 001–005, 049–052, 068, 070 | Done |
 | 2 | Chooser, variant/bike handling, cancel/security errors and basic exportable diagnostics | 004, 006–009, 037–041 | Done |
 | 3 | GATT discovery/subscriptions, timeout, disconnect and serialized writes with failure recovery | 010–012, 056, 058 | Done |
-| 4 | Pure encoding/parsing and standard/Stride 4 paced init through the real fake transport | 013–019, 069 | Pending |
+| 4 | Pure encoding/parsing and standard/Stride 4 paced init through the real fake transport | 013–019, 069 | Done |
 | 5 | Challenge arithmetic, unlock response/acknowledgement, timeout and retry handling | 020–025, 069 | Pending |
 | 6 | Keepalive and echo scheduling, cancellation and concurrent queue behavior | 026–027, 055–056 | Pending |
 | 7 | Telemetry rendering, all four verdicts and exact explanatory copy | 028–036 | Pending |
@@ -96,3 +96,7 @@ does not establish completion. Record any unavailable external gate candidly.
   `Run` that owns timers and invalidates them on end. Playwright's clock is now
   paused after install, because an installed clock otherwise keeps flowing in real
   time and broke the 10 s boundary assertion. 25 acceptance and 30 unit tests pass.
+- Slice 4: pure checksum, encoder (refuses speeds above 3 km/h as defence in depth
+  behind the input validator), parser and a 10,000-array fuzz test; `InitSequencer`
+  paces on reply or 300 ms and waits the full 300 ms after a failed write. 33
+  acceptance and 86 unit tests pass; protocol coverage 100 % lines and branches.
