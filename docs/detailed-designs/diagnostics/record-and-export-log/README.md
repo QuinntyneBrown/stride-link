@@ -31,7 +31,7 @@ Success, as the PRD defines it, includes every verdict coming with an export tha
   - It batches new entries until the next animation frame and renders them as text nodes.
   - It keeps only the latest 500 rows in the DOM.
   - It follows new entries while the tester is at the bottom, and keeps the scroll position otherwise.
-- **`LogExporter`** — `build(log, env)` writes a header, then each run section, then each run's verdict line:
+- **`LogExporter`** — `build(snapshot, env)` writes a header, then each run section, then each run's verdict line:
   - The header holds the Stride Link version and commit, `navigator.userAgent`, the `navigator.userAgentData` brands and platform where available, and the start time.
   - Each run section holds `Run <n>`, the device name, the model variant and every entry.
   - The closing line is `Verdict: <word>` with its reason, or `Verdict: none`.
@@ -39,6 +39,9 @@ Success, as the PRD defines it, includes every verdict coming with an export tha
   Lines end with LF, and the file has no byte-order mark. `fileName()` gives `stride-link-<device>-<YYYYMMDD-HHMMSS>.txt`, with every character of the device name outside `[A-Za-z0-9_-]` replaced by `_`, or `unknown`.
 - **`FileDownloader`** — creates a `Blob` of type `text/plain;charset=utf-8` and an object URL, and clicks a temporary `<a download>`. It revokes the URL after the download starts. No network request is made.
 - **`UnloadGuard`** — triggers the browser's `beforeunload` confirmation only while `PacketLog.hasUnexported()` is true. The log is not persisted, so closing the tab discards it.
+- **Export snapshot** — `PacketLog.snapshot()` captures the entry count, run metadata, verdicts and each run's entry boundary synchronously. The formatter reads only that snapshot. Immutable stored entries can be shared without copying their byte arrays. `markExported(snapshot.entryCount)` advances the exported count with `max(previous, snapshot.entryCount)` only after download initiation succeeds. Newer entries remain unexported, including when two exports complete in reverse order (L2-040, L2-041).
+- **Download failure** — Blob creation, URL creation and click errors propagate to the UI error boundary, which records their name and message and shows a plain-language failure. Failed initiation does not advance the exported count. The downloader removes its temporary anchor and revokes any allocated URL on failure; successful initiation schedules URL revocation after the click. Browser download initiation is the observable boundary, since the page cannot confirm that the user saved the file (L2-058).
+- **Entry ownership** — `PacketLog.record()` copies exactly the supplied byte range into log-owned storage before returning. Callers cannot mutate recorded bytes through a reused notification buffer. Readers receive immutable entry views; snapshots expose bounded iteration rather than mutable `RunLog` arrays (L2-037, L2-040).
 - **Export availability** — Export log is available whenever the log has at least one entry, including after a failure before any verdict.
 
 ## Requirements

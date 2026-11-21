@@ -26,19 +26,28 @@ box "Frontend — Stride Link protocol module" #ECFDF3
   participant "TelemetryDecoder" as dec
 end box
 run -> dec : decode(parsed, variant)
-alt D3, length >= 5
-  dec --> run : speedKmh = ((b3 << 8) | b4) / 1000\nF0 D3 02 0B B8 88 -> 3.000 (L2-028)
-else D1, Stride 4, length >= 9
-  dec --> run : speedKmh = ((b7 << 8) | b8) / 100 -> 3.00 (L2-029)
-else D2, length >= 4
-  dec --> run : incline = b3; F0 D2 01 05 C8 -> 5 (L2-030)
-else D1, length >= 12 and b11 > 0 (any variant)
-  dec --> run : heartRateBpm = b11; 0x48 -> 72 (L2-031)
-else malformed or other kind
-  dec --> run : empty update (frame already logged as malformed)
+alt malformed or unrelated kind
+  dec --> run : empty update
+else supported telemetry kind
+  alt D3, length >= 5
+    dec -> dec : speedKmh = ((b3 << 8) | b4) / 1000 (L2-028)
+  else D2, length >= 4
+    dec -> dec : incline = b3 (L2-030)
+  else D1
+    opt Stride 4 and length >= 9
+      dec -> dec : speedKmh = ((b7 << 8) | b8) / 100 (L2-029)
+    end
+    opt length >= 12 and b11 > 0, either variant
+      dec -> dec : heartRateBpm = b11 (L2-031)
+    end
+  end
+  dec --> run : combined update with all decoded fields
 end
-note right of dec : One D1 frame can carry both speed (Stride 4) and heart rate.
+note right of dec : D1 speed and heart rate are independent checks.
+A zero heart-rate byte omits that field.
 run -> state : apply(update)
+note over state : Apply defined fields, including zero speed and incline.
+Omitted fields preserve their last value.
 alt any value changed
   state -> panel : render(state) within 100 ms (L2-032)
   panel --> actor : "3.00 km/h", "5", "72 bpm"; dash before the first value

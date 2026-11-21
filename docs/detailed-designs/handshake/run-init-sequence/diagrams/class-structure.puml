@@ -35,15 +35,17 @@ class InitSequencer {
   +cancel(): void
 }
 
-class InitResult {
+class InitResult <<discriminated union>> {
+  +status: completed | cancelled
   +framesWritten: number
   +failures: number
-  +completedAt: number
+  +completedAt: number (completed only)
 }
 
 enum WaitOutcome {
   Reply
   Timeout
+  Cancelled
 }
 
 class WriteQueue {

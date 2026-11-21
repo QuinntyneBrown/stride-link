@@ -19,8 +19,8 @@ This feature decodes those frames and shows the values. Echoing `D2` and `D3` ba
   - `D2` with at least 4 bytes gives incline. `F0 D2 01 05 C8` gives 5.
   - `D1` with at least 12 bytes and byte 11 above 0 gives heart rate, for both variants. `0x48` gives 72.
 
-  One `D1` frame can carry both speed and heart rate. Frames marked `malformed` by `FrameParser` give an empty update, because they were already logged.
-- **`TelemetryState`** — `apply(update)` stores the present fields and reports whether anything changed. `reset()` clears all three values at the start of each run. Values are never cleared for staleness (L2-032). Listeners are `TelemetryPanel` and `BeltController`, which treats a speed above 0 as an active belt.
+  One `D1` frame can carry both speed and heart rate. The decoder evaluates those fields independently and returns one combined update; decoding speed does not return early. Frames marked `malformed` by `FrameParser` give an empty update, because they were already logged.
+- **`TelemetryState`** — `apply(update)` stores the present fields and reports whether anything changed. Presence means a field is defined, not truthy: zero speed and zero incline replace previous values. An omitted heart-rate field preserves the previous value, including when a D1 packet contains zero at byte 11. `reset()` clears all three values at the start of each run. Values are never cleared for staleness (L2-032). Listeners are `TelemetryPanel` and `BeltController`, which treats a speed above 0 as an active belt.
 - **`TelemetryPanel`** — renders speed with two decimals and `km/h` (`3.00 km/h`), incline as a whole number (`5`), and heart rate with `bpm` (`72 bpm`). Each shows `—` before its first value. Updates land within 100 ms of receipt. They are not announced to screen readers, to avoid flooding the live region (L2-063).
 
 ## Requirements

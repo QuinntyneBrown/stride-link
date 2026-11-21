@@ -14,12 +14,12 @@ The feature sits in the `handshake` subsystem. The `unlock-treadmill` feature ru
 
 - **`InitSequencer`** — `run(variant)` gets the frames from `FrameEncoder.init(variant)` and writes them one at a time through `WriteQueue`, each tagged `init`.
   - Before each write it clears `replySeen`.
-  - After the write resolves, it waits until `replySeen` is set or until `Clock` fires a 300 ms timer.
+  - After a successful non-final write resolves, it waits until `replySeen` is set or until `Clock` fires a 300 ms timer. The final write settlement completes init immediately; there is no trailing pacing wait.
   - `RunController` calls `notifyReceived()` on every notification, so a reply that arrives while the write is in flight also counts.
-  - `cancel()` stops the sequence on disconnection.
+  - `cancel()` invalidates the sequence, clears its pacing timer and settles its pending wait as `Cancelled`. Every continuation checks cancellation before enqueueing or publishing completion. A cancelled run returns a cancelled result and never starts verdict timers or keepalive. A late in-flight write settlement cannot resume it.
 - **Frame lists** — the standard variant writes 7 frames: `A4`, `A1` x4, `A3`, `A1`. The Stride 4 variant writes 9 frames: `A4`, `A4`, `E0 FD 3E 65 48 D5 8D`, `A4`, `A1` x4, `A3`. The bytes are in the `encode-and-parse-frames` design.
-- **Write failure** — a rejected write resolves its `WriteOutcome` with `ok: false`. `InitSequencer` logs the frame hex, `write failed`, and the error name and message. It then waits the 300 ms and continues, so init always completes and the run always reaches a verdict (L2-019).
-- **`InitResult`** — frames written, failures and completion time. `InitSequencer` logs `Init complete`.
+- **Write failure** — a rejected write resolves its `WriteOutcome` with `ok: false`. `InitSequencer` logs the frame hex, `write failed`, and the error name and message. For a non-final failed write it then waits the full 300 ms, ignoring notifications for pacing, and continues (L2-019). A failed final write completes init immediately. Completion applies only while the run remains connected; disconnection takes the cancellation path.
+- **`InitResult`** — discriminated result: `completed` carries frames written, failures and completion time; `cancelled` carries no completion time. `InitSequencer` logs `Init complete`.
 - **`Clock`** — interface over `performance.now()` and timers. `MonotonicClock` is the production implementation. Playwright's clock API replaces it in tests, so the 300 ms (+/- 20 ms) and 20 ms tolerances can be asserted.
 - **Stride 4 `E0` frame** — it is outbound, so it never passes through `UnlockFlow` as a challenge (L2-018).
 

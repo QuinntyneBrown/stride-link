@@ -29,6 +29,9 @@ end box
 box "External — Chrome or Edge" #F2F4F7
   participant "Web Bluetooth GATT" as gatt
 end box
+note over run, gateway : Attempt token guards every continuation.
+Invalidation precedes cleanup; late connections are disconnected.
+Same-device retries wait for pending cleanup to settle.
 run -> gateway : connect(device, 10000)
 gateway -> gatt : gatt.connect(), getPrimaryService(ECHELON_SERVICE)
 alt service missing
@@ -48,6 +51,8 @@ else service found
   gateway --> run : TreadmillLink
   run -> log : record Connected, Service found, UUIDs and properties
   run -> link : subscribe(onFrame)
+  note over link : Install disconnect and notification listeners before subscription.
+Partial failure removes listeners; teardown is idempotent.
   link -> gatt : f3.startNotifications()
   link -> gatt : f4.startNotifications()
   alt either rejects

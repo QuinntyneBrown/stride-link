@@ -28,10 +28,12 @@ box "External — Chrome or Edge" #F2F4F7
   participant "Downloads" as files
 end box
 actor -> panel : Press Export log
-panel -> exp : build(log, env)
+panel -> log : snapshot()
+log --> panel : snapshot with entryCount and fixed run boundaries
+panel -> exp : build(snapshot, env)
 exp -> exp : Header: version, commit, userAgent, UA brands and platform, run start ISO 8601 (L2-040)
 loop each RunLog
-  exp -> log : runs()
+  exp -> exp : read snapshot runs only
   exp -> exp : "Run n", device name, model variant
   loop each entry
     exp -> fmt : line(entry)
@@ -46,6 +48,15 @@ panel -> dl : save(text, fileName)
 dl -> dl : new Blob([text], text/plain;charset=utf-8); URL.createObjectURL()
 dl -> files : <a download> click; no network request (L2-040)
 dl -> dl : URL.revokeObjectURL() after the download starts
-panel -> log : markExported()
+alt download initiation succeeded
+  panel -> log : markExported(snapshot.entryCount)
+  note over log : exportedCount = max(previous, snapshot.entryCount)
+  Newer entries remain unexported.
+else Blob, URL or click failure
+  dl --> panel : error
+  panel -> log : record error name and message; retain unexported status
+  panel -> panel : Show plain-language failure (L2-058)
+  dl -> dl : Remove anchor; revoke any allocated URL
+end
 note over log : UnloadGuard triggers beforeunload only while hasUnexported() (L2-041)
 @enduml

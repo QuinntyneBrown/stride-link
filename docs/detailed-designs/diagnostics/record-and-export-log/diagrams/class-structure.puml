@@ -20,10 +20,15 @@ class PacketLog {
   +startRun(deviceName: string, variant: ModelVariant): RunLog
   +record(entry: LogEntry): void
   +recordEvent(text: string): void
-  +runs(): readonly RunLog[]
+  +snapshot(): LogSnapshot
   +hasUnexported(): boolean
-  +markExported(): void
+  +markExported(entryCount: number): void
   +subscribe(listener: (e: LogEntry) => void): void
+}
+
+class LogSnapshot {
+  +entryCount: number
+  +runs: readonly RunSnapshot[]
 }
 
 class RunLog {
@@ -62,7 +67,7 @@ class LogFormatter <<module>> {
 }
 
 class LogExporter {
-  +build(log: PacketLog, env: ExportEnvironment): string
+  +build(snapshot: LogSnapshot, env: ExportEnvironment): string
   +fileName(deviceName: string?, now: Date): string
 }
 
@@ -92,7 +97,8 @@ PacketLog "1" *-- "*" RunLog
 RunLog "1" *-- "*" LogEntry
 LogEntry --> Direction
 LogEntry --> CharId
-LogExporter ..> PacketLog : reads
+LogExporter ..> LogSnapshot : reads
+PacketLog ..> LogSnapshot : captures
 LogExporter ..> LogFormatter : uses
 LogExporter ..> ExportEnvironment : reads
 LogView ..> LogFormatter : uses

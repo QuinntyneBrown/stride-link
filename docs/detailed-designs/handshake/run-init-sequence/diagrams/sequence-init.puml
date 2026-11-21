@@ -43,16 +43,25 @@ loop each frame, in order
   else write resolves
     queue --> init : WriteOutcome { ok: true }
   end
-  alt notification arrives (or arrived since issue)
-    stride -> run : notification
-    run -> init : notifyReceived()
-    init -> init : next frame within 20 ms (L2-017)
-  else no notification
-    init -> clock : setTimeout(300)
-    clock --> init : timeout; next frame 300 ms after resolution (L2-017)
+  opt another init frame remains and sequence is active
+    alt previous write failed
+      init -> clock : Wait full 300 ms; notifications do not shorten wait (L2-019)
+    else previous write succeeded
+      alt notification arrives (or arrived since issue)
+        stride -> run : notification
+        run -> init : notifyReceived()
+        init -> init : next frame within 20 ms (L2-017)
+      else no notification
+        init -> clock : setTimeout(300)
+        clock --> init : timeout; next frame 300 ms after resolution (L2-017)
+      end
+    end
   end
 end
-init -> log : record EV Init complete
+note over init, clock : Cancellation clears and settles the pending wait.
+Every continuation checks cancellation; cancelled sequences exit
+without completion, verdict timers or keepalive.
+init -> log : record EV Init complete immediately at final settlement
 init --> run : InitResult
 run -> verdict : onInitComplete() (determine-verdict)
 run -> run : Start LinkKeeper keepalive (keep-link-alive)

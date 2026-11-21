@@ -4,7 +4,7 @@ Stride Link is a single downloadable web page that connects to an Echelon Stride
 
 ## Architecture in one page
 
-Stride Link has no backend. Everything runs in Chrome or Edge from one HTML file, and nothing leaves the device (L2-049). The TypeScript source is split into four layers, and each layer depends only on the layers below it in this table:
+Stride Link has no backend. Everything runs in Chrome or Edge from one HTML file, and nothing leaves the device (L2-049). The TypeScript source is split into four layers. The table lists responsibilities; dependency direction is defined below it:
 
 | Layer | Folder | Responsibility | Examples |
 |-------|--------|----------------|----------|
@@ -12,6 +12,8 @@ Stride Link has no backend. Everything runs in Chrome or Edge from one HTML file
 | Session core | `src/session/` | Run orchestration, timing, verdict, log, belt safety; no DOM | `RunController`, `InitSequencer`, `UnlockFlow`, `LinkKeeper`, `VerdictEngine`, `BeltController`, `PacketLog`, `Clock` |
 | Protocol module | `src/protocol/` | Pure codec: frames, checksum, unlock arithmetic, telemetry; no DOM, Bluetooth, timers or clock | `FrameEncoder`, `FrameParser`, `UnlockCodec`, `TelemetryDecoder`, `ChooserFilters` |
 | Bluetooth adapter | `src/ble/` | The only code that touches `navigator.bluetooth` | `BluetoothGateway`, `TreadmillLink`, `WriteQueue` |
+
+The pure protocol module has no dependency on the other three layers. The Bluetooth adapter depends on protocol types and exposes transport operations to the session core. The session core uses those transport operations and pure protocol functions. The UI invokes session operations and renders their results. Bluetooth and protocol code do not import UI or session implementations. Transport callbacks report bytes and write outcomes; session-owned handlers turn those reports into log entries and state transitions. This keeps transport independent of verdict and logging policy.
 
 The session core reaches time only through the `Clock` interface, so Playwright's clock API can drive every timing requirement.
 
