@@ -1,0 +1,53 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Set speed and incline
+
+class BeltCommandValidator <<module>> {
+  +MAX_SPEED_KMH: number = 3
+  +MIN_INCLINE: number = 0
+  +MAX_INCLINE: number = 15
+  +parseSpeed(raw: string): ValidationResult
+  +parseIncline(raw: string): ValidationResult
+}
+
+class ValidationResult {
+  +ok: boolean
+  +value: number?
+  +message: string?
+}
+
+class BeltController {
+  +setSpeed(raw: string): Promise<ValidationResult>
+  +setIncline(raw: string): Promise<ValidationResult>
+}
+
+class BeltPanel {
+  -speedInput: HTMLInputElement
+  -inclineInput: HTMLInputElement
+  -speedMessage: HTMLElement
+  -inclineMessage: HTMLElement
+  +showResult(field: string, r: ValidationResult): void
+}
+
+class FrameEncoder <<module>> {
+  +targetSpeed(kmh: number): Uint8Array
+  +targetIncline(level: number): Uint8Array
+}
+
+BeltController ..> BeltCommandValidator : validates with
+BeltCommandValidator ..> ValidationResult : returns
+BeltController ..> FrameEncoder : encodes with
+BeltPanel --> BeltController : calls
+BeltPanel ..> ValidationResult : renders message
+@enduml

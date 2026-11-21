@@ -1,0 +1,69 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Select a treadmill
+
+enum ModelVariant {
+  Standard
+  Stride4
+}
+
+enum RunPhase {
+  Idle
+  Selecting
+  Connecting
+  Subscribing
+  Initialising
+  AwaitingVerdict
+  Concluded
+  Failed
+}
+
+class ChooserFilters <<module>> {
+  +ECHELON_SERVICE: string
+  +NAME_PREFIXES: string[] = ["STRIDE", "Stride", "stride"]
+  +EXCLUDED_PREFIXES: string[] = ["ECH", "Ech", "ech"]
+  +build(): RequestDeviceOptions
+}
+
+class VariantDetector <<module>> {
+  +isBikeName(name: string?): boolean
+  +detectVariant(name: string?): ModelVariant
+  +displayName(name: string?): string
+}
+
+class RunController {
+  -phase: RunPhase
+  -device: BluetoothDevice?
+  -variant: ModelVariant
+  +connect(): Promise<void>
+  -select(): Promise<BluetoothDevice?>
+}
+
+class BluetoothGateway {
+  +requestTreadmill(): Promise<BluetoothDevice>
+}
+
+class PacketLog {
+  +startRun(deviceName: string, variant: ModelVariant): RunLog
+  +recordEvent(text: string): void
+}
+
+RunController --> RunPhase : has
+RunController --> ModelVariant : has
+RunController --> BluetoothGateway : selects with
+RunController ..> VariantDetector : uses
+RunController --> PacketLog : records to
+BluetoothGateway ..> ChooserFilters : uses
+VariantDetector ..> ModelVariant : returns
+@enduml

@@ -1,0 +1,101 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Record and export the packet log
+
+class PacketLog {
+  -runs: RunLog[]
+  -exportedCount: number
+  -totalCount: number
+  +startRun(deviceName: string, variant: ModelVariant): RunLog
+  +record(entry: LogEntry): void
+  +recordEvent(text: string): void
+  +runs(): readonly RunLog[]
+  +hasUnexported(): boolean
+  +markExported(): void
+  +subscribe(listener: (e: LogEntry) => void): void
+}
+
+class RunLog {
+  +number: number
+  +deviceName: string
+  +variant: ModelVariant
+  +startedAtIso: string
+  +startedAtMs: number
+  +entries: LogEntry[]
+  +verdict: Verdict?
+}
+
+class LogEntry {
+  +t: number
+  +dir: Direction
+  +char: CharId?
+  +bytes: Uint8Array?
+  +tag: FrameTag?
+  +text: string?
+}
+
+enum Direction {
+  TX
+  RX
+  EV
+}
+
+enum CharId {
+  f2
+  f3
+  f4
+}
+
+class LogFormatter <<module>> {
+  +line(entry: LogEntry): string
+}
+
+class LogExporter {
+  +build(log: PacketLog, env: ExportEnvironment): string
+  +fileName(deviceName: string?, now: Date): string
+}
+
+class ExportEnvironment {
+  +version: string
+  +commit: string
+  +userAgent: string
+  +uaBrands: string?
+  +uaPlatform: string?
+}
+
+class LogView {
+  +MAX_ROWS: number = 500
+  -followTail: boolean
+  +append(entries: LogEntry[]): void
+}
+
+class FileDownloader {
+  +save(text: string, fileName: string): void
+}
+
+class UnloadGuard {
+  +install(log: PacketLog, belt: BeltController): void
+}
+
+PacketLog "1" *-- "*" RunLog
+RunLog "1" *-- "*" LogEntry
+LogEntry --> Direction
+LogEntry --> CharId
+LogExporter ..> PacketLog : reads
+LogExporter ..> LogFormatter : uses
+LogExporter ..> ExportEnvironment : reads
+LogView ..> LogFormatter : uses
+LogView --> PacketLog : observes
+UnloadGuard --> PacketLog : checks
+@enduml

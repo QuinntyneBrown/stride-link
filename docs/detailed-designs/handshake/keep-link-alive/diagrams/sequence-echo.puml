@@ -1,0 +1,53 @@
+@startuml
+title UML sequence behaviour — Echo D0, D2 and D3 through the serialised queue
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+box "Device — Echelon Stride treadmill" #F2F4F7
+  participant "Stride" as stride
+end box
+box "Frontend — Stride Link Bluetooth adapter" #FFF4E5
+  participant "TreadmillLink" as link
+  participant "WriteQueue" as queue
+end box
+box "Frontend — Stride Link session core" #D1FADF
+  participant "RunController" as run
+  participant "LinkKeeper" as keeper
+end box
+box "External — Chrome or Edge" #F2F4F7
+  participant "f2 characteristic" as f2
+end box
+stride -> link : notify F0 D3 02 0B B8 88 on f3
+link -> run : onFrame(f3, bytes)
+run -> run : parse, log RX (encode-and-parse-frames)
+run -> keeper : onFrame(parsed)
+alt kind is D0, D2 or D3 (any verdict, any checksum)
+  keeper -> queue : enqueue(same bytes, echo) within 50 ms (L2-027)
+else D1, E0, Unknown, Empty
+  keeper -> keeper : no echo
+end
+note over run, keeper : Handler path p95 < 10 ms at 20 notifications/s; no echo dropped (L2-055)
+queue -> queue : pump(): at most one write in flight (L2-056)
+alt f2 properties.write
+  queue -> f2 : writeValueWithResponse(bytes)
+else
+  queue -> f2 : writeValueWithoutResponse(bytes)
+end
+alt write rejects
+  f2 --> queue : error; logged, next item proceeds (L2-056)
+else
+  f2 --> queue : resolved
+end
+queue -> queue : pump next item in FIFO order
+@enduml

@@ -1,0 +1,43 @@
+@startuml
+title UML sequence behaviour — Counting keepalive
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+box "Frontend — Stride Link session core" #D1FADF
+  participant "RunController" as run
+  participant "LinkKeeper" as keeper
+  participant "Clock" as clock
+end box
+box "Frontend — Stride Link protocol module" #ECFDF3
+  participant "FrameEncoder" as enc
+end box
+box "Frontend — Stride Link Bluetooth adapter" #FFF4E5
+  participant "WriteQueue" as queue
+end box
+box "Device — Echelon Stride treadmill" #F2F4F7
+  participant "Stride" as stride
+end box
+run -> keeper : start() at init complete (L2-026)
+keeper -> clock : nextDueAt = now() + 2000; setTimeout(nextDueAt - now())
+loop until stop()
+  clock --> keeper : tick
+  keeper -> keeper : n = counter == 255 ? 1 : counter + 1 (never 0)
+  keeper -> enc : keepalive(n)
+  enc --> keeper : F0 A0 01 n ck (n = 1: ... 01 92; n = 255: ... FF 90)
+  keeper -> queue : enqueue(frame, keepalive)
+  queue -> stride : write to f2
+  keeper -> clock : nextDueAt += 2000; setTimeout(nextDueAt - now()) keeps +/- 50 ms
+end
+run -> keeper : stop() on disconnect; no further keepalive (L2-026)
+@enduml

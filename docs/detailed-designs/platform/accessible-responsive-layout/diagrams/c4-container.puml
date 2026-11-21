@@ -1,0 +1,13 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Accessible, responsive layout
+
+Person(tester, "Stride tester", "Owns a Stride; runs the smoke test beside it on a laptop or Android phone")
+System_Boundary(sl, "Stride Link") {
+  Container(page, "Stride Link page", "TypeScript bundled into stride-link.html", "UI layer, session core, protocol module and Bluetooth adapter")
+}
+
+
+Rel(tester, page, "Uses from 320 px to 1920 px wide", "HTML, CSS, ARIA")
+@enduml

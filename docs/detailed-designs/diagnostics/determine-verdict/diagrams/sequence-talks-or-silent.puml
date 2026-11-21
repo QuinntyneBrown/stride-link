@@ -1,0 +1,52 @@
+@startuml
+title UML sequence behaviour — Reach Talks or Silent
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Stride tester" as actor
+box "Frontend — Stride Link UI layer" #E0F2FE
+  participant "VerdictPanel" as panel
+  participant "StatusAnnouncer" as ann
+end box
+box "Frontend — Stride Link session core" #D1FADF
+  participant "RunController" as run
+  participant "VerdictEngine" as engine
+  participant "Clock" as clock
+  participant "PacketLog" as log
+end box
+run -> engine : onInitComplete()
+engine -> clock : setTimeout(3000) settle
+engine -> clock : setTimeout(20000) silent
+opt notifications during init or settle
+  run -> engine : onNotification(D3 ...)
+  engine -> engine : notificationCount++
+end
+clock --> engine : settle elapsed (init complete + 3,000 ms)
+alt notificationCount > 0 and no challenge
+  engine -> engine : conclude(Talks) (L2-034)
+else nothing yet
+  alt first notification before 20,000 ms, not a challenge
+    run -> engine : onNotification(D2 ...) at + 8,000 ms
+    engine -> engine : conclude(Talks) at once (L2-034)
+  else silent timer fires
+    clock --> engine : init complete + 20,000 ms (+/- 50 ms)
+    engine -> engine : conclude(Silent, "no notification within 20 s of init") (L2-033)
+  end
+end
+engine -> clock : clearTimeout(remaining timers)
+engine -> log : record EV verdict and reason
+engine -> panel : render(verdict)
+panel --> actor : Word, meaning, reason, next step, Export log (L2-036)
+panel -> ann : announce("Verdict: Talks") via aria-live polite
+@enduml

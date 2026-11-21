@@ -1,0 +1,66 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Start and stop the belt
+
+class BeltController {
+  +STOP_DISCONNECT_TIMEOUT_MS: number = 1000
+  -startRequested: boolean
+  -latestSpeedKmh: number?
+  -speedSeenSinceStop: boolean
+  +start(): Promise<void>
+  +stop(): Promise<WriteOutcome>
+  +stopBeforeDisconnect(): Promise<void>
+  +stopBestEffort(): void
+  +onSpeed(kmh: number): void
+  +isBeltActive(): boolean
+  +onDisconnected(): void
+}
+
+class StopBar {
+  -button: HTMLButtonElement
+  +render(view: BeltView): void
+  -onKeyDown(e: KeyboardEvent): void
+}
+
+class ConnectionLostBanner {
+  +show(): void
+  +dismiss(): void
+}
+
+class UnloadGuard {
+  -onPageHide(): void
+  -onBeforeUnload(e: BeforeUnloadEvent): void
+}
+
+class WriteQueue {
+  +enqueue(bytes: Uint8Array, tag: FrameTag): Promise<WriteOutcome>
+  +enqueueFirst(bytes: Uint8Array, tag: FrameTag): Promise<WriteOutcome>
+}
+
+class FrameEncoder <<module>> {
+  +beltStart(variant: ModelVariant): Uint8Array[]
+  +beltStop(): Uint8Array
+}
+
+note right of BeltController
+  isBeltActive() =
+    (startRequested and no successful Stop since)
+    or latestSpeedKmh > 0
+end note
+
+BeltController --> WriteQueue : writes through
+BeltController ..> FrameEncoder : builds frames
+StopBar --> BeltController : stop()
+UnloadGuard --> BeltController : stopBestEffort()
+@enduml

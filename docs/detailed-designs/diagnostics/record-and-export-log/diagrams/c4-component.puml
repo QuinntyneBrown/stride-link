@@ -1,0 +1,31 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Record and export the packet log
+
+Person(tester, "Stride tester", "Watches the log and exports it")
+Container_Boundary(page, "Stride Link page") {
+  Component(queue, "WriteQueue", "ble/write-queue.ts", "Reports each TX and its outcome")
+  Component(run, "RunController", "session/run-controller.ts", "Reports each RX and event")
+  Component(log, "PacketLog", "session/packet-log.ts", "In-memory runs and entries; export watermark")
+  Component(fmt, "LogFormatter", "session/log-formatter.ts", "One fixed line format")
+  Component(view, "LogView", "ui/log-view.ts", "role=log; latest 500 rows; follows tail")
+  Component(exporter, "LogExporter", "session/log-exporter.ts", "Header, runs, verdicts; file name")
+  Component(dl, "FileDownloader", "ui/file-downloader.ts", "Blob, object URL, revoke")
+  Component(guard, "UnloadGuard", "ui/unload-guard.ts", "beforeunload when unexported")
+  Component(info, "BuildInfo", "build-time constants", "Version and commit")
+}
+System_Ext(files, "Device file system", "Downloads folder")
+
+Rel(queue, log, "record(TX)")
+Rel(run, log, "record(RX, EV)")
+Rel(log, view, "Notifies appended entries")
+Rel(view, fmt, "line(entry)")
+Rel(tester, exporter, "Presses Export log")
+Rel(exporter, log, "Reads all runs")
+Rel(exporter, fmt, "line(entry)")
+Rel(exporter, info, "Reads")
+Rel(exporter, dl, "save(text, fileName)")
+Rel(dl, files, "Downloads .txt", "Blob")
+Rel(guard, log, "hasUnexported()")
+@enduml

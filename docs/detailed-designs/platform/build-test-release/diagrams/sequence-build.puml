@@ -1,0 +1,34 @@
+@startuml
+title UML sequence behaviour — Build stride-link.html
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Maintainer or CI" as actor
+box "Build — Node.js build pipeline" #FFF4E5
+  participant "build.mjs" as build
+  participant "esbuild" as esb
+  participant "CspBuilder" as csp
+  participant "BundleScanner" as scan
+end box
+actor -> build : npm run build
+build -> build : tsc --noEmit with strict: true; zero errors (L2-068)
+build -> esb : bundle src/main.ts with define BuildInfo (version, short commit, hostedUrl)
+esb --> build : one JS string, one CSS string
+build -> build : Inline JS, CSS and fonts (data: URIs) into src/index.html (L2-001)
+build -> csp : hashes and policy (protect-privacy)
+build -> scan : scan(html)
+build -> build : assertSize(html) < 204,800 bytes, else exit 1 with the size (L2-001)
+build -> build : No timestamps or random ids in output; byte-identical per commit (L2-068)
+build --> actor : dist/stride-link.html
+@enduml

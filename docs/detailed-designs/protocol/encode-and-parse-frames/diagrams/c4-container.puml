@@ -1,0 +1,18 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Encode and parse frames
+
+
+System_Boundary(sl, "Stride Link") {
+  Container(page, "Stride Link page", "TypeScript bundled into stride-link.html", "UI layer, session core, protocol module and Bluetooth adapter")
+  Container(unit, "Unit suite", "Vitest", "Tests the pure protocol module")
+}
+Container_Ext(webbt, "Web Bluetooth", "Chrome or Edge", "Device chooser and GATT client")
+System_Ext(treadmill, "Echelon Stride treadmill", "Bluetooth Low Energy peripheral exposing the Echelon GATT service")
+
+Rel(page, webbt, "writeValue*() with encoded bytes", "JavaScript API")
+Rel(webbt, page, "Fires characteristicvaluechanged", "DOM event")
+Rel(webbt, treadmill, "Carries frames", "BLE")
+Rel(unit, page, "Tests the protocol module of", "Vitest")
+@enduml

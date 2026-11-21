@@ -1,0 +1,53 @@
+@startuml
+title UML sequence behaviour — Load the page and check Bluetooth support
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Stride tester" as actor
+box "Frontend — Stride Link UI layer" #E0F2FE
+  participant "AppShell" as shell
+  participant "ConnectPanel" as panel
+  participant "StatusAnnouncer" as announcer
+end box
+box "Frontend — Stride Link Bluetooth adapter" #FFF4E5
+  participant "BluetoothGateway" as gateway
+end box
+box "External — Chrome or Edge" #F2F4F7
+  participant "navigator.bluetooth" as bt
+end box
+actor -> shell : Open stride-link.html
+shell -> panel : Render Connect (disabled) and ownership notice (L2-002)
+shell -> gateway : checkSupport()
+alt navigator.bluetooth is undefined
+  gateway --> shell : NoWebBluetooth
+  shell -> panel : showSupport(NoWebBluetooth): exact L2-003 text, Connect stays disabled
+  shell -> announcer : announce(message)
+else Web Bluetooth present
+  gateway -> bt : getAvailability()
+  alt adapter off or unavailable
+    bt --> gateway : false
+    gateway --> shell : AdapterUnavailable
+    shell -> panel : showSupport(AdapterUnavailable) (L2-004)
+    shell -> gateway : onAvailabilityChanged(listener)
+    bt -> gateway : availabilitychanged { value: true }
+    gateway -> shell : listener(true)
+    shell -> panel : Clear message, setConnectEnabled(true)
+  else adapter available
+    bt --> gateway : true
+    gateway --> shell : Supported
+    shell -> panel : setConnectEnabled(true) within 1,000 ms of navigation (L2-054)
+  end
+end
+panel --> actor : Connect state and any message shown as text
+@enduml

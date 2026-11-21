@@ -1,0 +1,19 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Record and export the packet log
+
+Person(tester, "Stride tester", "Owns a Stride; runs the smoke test beside it on a laptop or Android phone")
+System_Boundary(sl, "Stride Link") {
+  Container(page, "Stride Link page", "TypeScript bundled into stride-link.html", "UI layer, session core, protocol module and Bluetooth adapter")
+}
+Container_Ext(webbt, "Web Bluetooth", "Chrome or Edge", "Device chooser and GATT client")
+System_Ext(treadmill, "Echelon Stride treadmill", "Bluetooth Low Energy peripheral exposing the Echelon GATT service")
+System_Ext(files, "Device file system", "Receives the exported log as a browser download")
+
+Rel(webbt, page, "Delivers every notification", "DOM event")
+Rel(page, webbt, "Writes every frame", "JavaScript API")
+Rel(webbt, treadmill, "Carries frames", "BLE")
+Rel(tester, page, "Presses Export log")
+Rel(page, files, "Saves the .txt export", "Blob and object URL")
+@enduml

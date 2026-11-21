@@ -1,0 +1,19 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Accessible, responsive layout
+
+Person(tester, "Stride tester", "Keyboard, mouse, touch or screen reader")
+Container_Boundary(page, "Stride Link page") {
+  Component(css, "Layout stylesheet", "styles/layout.css", "Breakpoints, grid, fixed Stop bar, focus ring, reduced motion")
+  Component(tokens, "Design tokens", "styles/tokens.css", "Colours meeting WCAG 2.2 AA, sizes, spacing")
+  Component(shell, "AppShell", "ui/app-shell.ts", "Landmarks and region order")
+  Component(announcer, "StatusAnnouncer", "ui/status-announcer.ts", "aria-live polite region")
+  Component(panels, "Panels", "ui/*", "ConnectPanel, VerdictPanel, TelemetryPanel, BeltPanel, LogView, StopBar")
+}
+Rel(tester, panels, "Operates")
+Rel(shell, panels, "Places in reading order")
+Rel(css, panels, "Lays out and sizes")
+Rel(css, tokens, "Reads")
+Rel(panels, announcer, "announce(status or verdict)")
+@enduml

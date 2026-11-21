@@ -1,0 +1,15 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Protect privacy and integrity
+
+Person(tester, "Stride tester", "Owns a Stride; runs the smoke test beside it on a laptop or Android phone")
+System(sl, "Stride Link", "Single-file web page that tests whether a browser can talk to a Stride")
+System_Ext(treadmill, "Echelon Stride treadmill", "Bluetooth Low Energy peripheral exposing the Echelon GATT service")
+System_Ext(host, "Static HTTPS host", "Serves the byte-identical hosted fallback copy")
+System_Ext(files, "Device file system", "Receives the exported log as a browser download")
+
+Rel(tester, host, "Loads the hosted copy from", "HTTPS only")
+Rel(sl, treadmill, "Talks only over local Bluetooth to", "BLE GATT")
+Rel(sl, files, "Writes the log only when the tester exports it to", "Blob download")
+@enduml

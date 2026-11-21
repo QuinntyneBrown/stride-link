@@ -1,0 +1,36 @@
+@startuml
+title UML sequence behaviour — Release
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Maintainer" as actor
+box "CI — GitHub Actions release.yml" #D1FADF
+  participant "release job" as job
+end box
+box "Hosting — distribution" #FFF4E5
+  participant "GitHub Releases" as rel
+  participant "Static HTTPS host" as host
+end box
+actor -> job : git push tag v1.0.0
+job -> job : npm ci; npm run build; unit, acceptance and lint
+alt any test fails or size limit exceeded
+  job --> actor : fail; nothing published (L2-059)
+else all pass
+  job -> job : sha256sum stride-link.html > stride-link.html.sha256
+  job -> rel : Create release with stride-link.html and stride-link.html.sha256 (L2-059)
+  job -> host : Deploy the same file
+  job -> host : GET over HTTPS; compare SHA-256 with the release hash (L2-053)
+end
+actor -> actor : Run docs/manual-hardware-test.md on a real Stride (human only) (L2-071)
+@enduml

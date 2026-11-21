@@ -1,0 +1,17 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Select a treadmill
+
+Person(tester, "Stride tester", "Owns a Stride; runs the smoke test beside it on a laptop or Android phone")
+System_Boundary(sl, "Stride Link") {
+  Container(page, "Stride Link page", "TypeScript bundled into stride-link.html", "UI layer, session core, protocol module and Bluetooth adapter")
+}
+Container_Ext(webbt, "Web Bluetooth", "Chrome or Edge", "Device chooser and GATT client")
+System_Ext(treadmill, "Echelon Stride treadmill", "Bluetooth Low Energy peripheral exposing the Echelon GATT service")
+
+Rel(tester, page, "Presses Connect")
+Rel(page, webbt, "requestDevice() with filters and exclusionFilters", "JavaScript API")
+Rel(tester, webbt, "Picks a device in the chooser")
+Rel(webbt, treadmill, "Scans advertisements", "BLE")
+@enduml

@@ -1,0 +1,51 @@
+@startuml
+title UML sequence behaviour — Export the log
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Stride tester" as actor
+box "Frontend — Stride Link UI layer" #E0F2FE
+  participant "VerdictPanel" as panel
+  participant "FileDownloader" as dl
+end box
+box "Frontend — Stride Link session core" #D1FADF
+  participant "LogExporter" as exp
+  participant "PacketLog" as log
+  participant "LogFormatter" as fmt
+end box
+box "External — Chrome or Edge" #F2F4F7
+  participant "Downloads" as files
+end box
+actor -> panel : Press Export log
+panel -> exp : build(log, env)
+exp -> exp : Header: version, commit, userAgent, UA brands and platform, run start ISO 8601 (L2-040)
+loop each RunLog
+  exp -> log : runs()
+  exp -> exp : "Run n", device name, model variant
+  loop each entry
+    exp -> fmt : line(entry)
+    fmt --> exp : "      12.3 TX f2 F0 A4 00 94 init" (L2-038)
+  end
+  exp -> exp : "Verdict: <word>" and reason, or "Verdict: none"
+end
+exp --> panel : text, LF line endings, no BOM
+panel -> exp : fileName(deviceName, now)
+exp --> panel : stride-link-<device sanitised to [A-Za-z0-9_-]>-YYYYMMDD-HHMMSS.txt
+panel -> dl : save(text, fileName)
+dl -> dl : new Blob([text], text/plain;charset=utf-8); URL.createObjectURL()
+dl -> files : <a download> click; no network request (L2-040)
+dl -> dl : URL.revokeObjectURL() after the download starts
+panel -> log : markExported()
+note over log : UnloadGuard triggers beforeunload only while hasUnexported() (L2-041)
+@enduml

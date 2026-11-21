@@ -1,0 +1,11 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Keep the link alive
+
+System(sl, "Stride Link", "Single-file web page that tests whether a browser can talk to a Stride")
+System_Ext(treadmill, "Echelon Stride treadmill", "Bluetooth Low Energy peripheral exposing the Echelon GATT service")
+
+Rel(sl, treadmill, "Writes a counting keepalive every 2 s and echoes D0, D2, D3", "BLE GATT write")
+Rel(treadmill, sl, "Notifies D0, D2 and D3", "BLE GATT notify")
+@enduml

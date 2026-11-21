@@ -1,0 +1,46 @@
+@startuml
+title UML sequence behaviour — Start the belt
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Stride tester" as actor
+box "Frontend — Stride Link UI layer" #E0F2FE
+  participant "BeltPanel" as panel
+  participant "StopBar" as stop
+end box
+box "Frontend — Stride Link session core" #D1FADF
+  participant "BeltController" as belt
+  participant "PacketLog" as log
+end box
+box "Frontend — Stride Link protocol module" #ECFDF3
+  participant "FrameEncoder" as enc
+end box
+box "Frontend — Stride Link Bluetooth adapter" #FFF4E5
+  participant "WriteQueue" as queue
+end box
+actor -> panel : Press Start (gate open)
+panel -> belt : start()
+belt -> log : record "Belt start requested" (L2-043)
+belt -> belt : startRequested = true; belt active
+belt -> stop : render({ stopVisible: true }) fixed in viewport (L2-045)
+belt -> enc : beltStart(variant)
+alt standard variant
+  enc --> belt : F0 B0 01 01 A2, F0 D0 01 00 C1, F0 D0 01 11 D2
+else Stride 4
+  enc --> belt : the three above, then F0 A5 00 95, F0 D3 02 01 F4 BA
+end
+loop each frame in order
+  belt -> queue : enqueue(frame, belt)
+end
+@enduml

@@ -1,0 +1,28 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Manage the connection
+
+Person(tester, "Stride tester", "Presses Disconnect")
+Container_Boundary(page, "Stride Link page") {
+  Component(panel, "ConnectPanel", "ui/connect-panel.ts", "Connect, Disconnect and status text")
+  Component(run, "RunController", "session/run-controller.ts", "Connects, subscribes, tears down, reports failures")
+  Component(failures, "FailureMessages", "session/failure-messages.ts", "Maps failures to plain-language messages")
+  Component(gateway, "BluetoothGateway", "ble/bluetooth-gateway.ts", "connect(device, timeoutMs)")
+  Component(link, "TreadmillLink", "ble/treadmill-link.ts", "Holds f2, f3, f4; subscribes; disconnects")
+  Component(queue, "WriteQueue", "ble/write-queue.ts", "Serialised writes; cleared on disconnect")
+  Component(log, "PacketLog", "session/packet-log.ts", "Records events and errors")
+}
+Container_Ext(webbt, "Web Bluetooth", "Chrome or Edge", "GATT client")
+
+Rel(tester, panel, "Presses Disconnect")
+Rel(panel, run, "disconnect()")
+Rel(run, gateway, "connect(device, 10000)")
+Rel(gateway, webbt, "gatt.connect(), getPrimaryService(), getCharacteristic()", "JavaScript API")
+Rel(gateway, link, "Creates")
+Rel(run, link, "subscribe(), disconnect(), onDisconnected()")
+Rel(link, webbt, "startNotifications() on f3 and f4", "JavaScript API")
+Rel(run, queue, "clear() on disconnect")
+Rel(run, failures, "Looks up message for")
+Rel(run, log, "Records connect, isNotifying, errors, Disconnected")
+@enduml

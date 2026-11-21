@@ -1,0 +1,18 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Build, test and release
+
+Person(maint, "Maintainer", "Tags releases of Stride Link")
+Person(tester, "Stride tester", "Owns a Stride; runs the smoke test beside it on a laptop or Android phone")
+System(sl, "Stride Link", "Single-file web page that tests whether a browser can talk to a Stride")
+System_Ext(ci, "CI service", "Builds, tests and releases; never drives real Bluetooth hardware")
+System_Ext(release, "GitHub Releases", "Publishes stride-link.html and stride-link.html.sha256")
+System_Ext(host, "Static HTTPS host", "Serves the byte-identical hosted fallback copy")
+
+Rel(maint, ci, "Pushes a version tag to", "git")
+Rel(ci, sl, "Builds and tests")
+Rel(ci, release, "Publishes stride-link.html and its .sha256 to", "GitHub API")
+Rel(ci, host, "Deploys the identical file to", "HTTPS")
+Rel(tester, release, "Downloads and verifies from", "HTTPS")
+@enduml

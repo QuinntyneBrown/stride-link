@@ -1,0 +1,44 @@
+@startuml
+title UML sequence behaviour — Offer, open and close the belt-control gate
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Stride tester" as actor
+box "Frontend — Stride Link UI layer" #E0F2FE
+  participant "BeltPanel" as panel
+  participant "StopBar" as stop
+end box
+box "Frontend — Stride Link session core" #D1FADF
+  participant "VerdictEngine" as engine
+  participant "BeltController" as belt
+end box
+belt -> belt : resetForRun(): gateOpen = false (L2-042)
+engine -> belt : onVerdict(Talks or Unlocked)
+belt -> panel : render({ gateOffered: true, gateOpen: false, controlsVisible: false })
+panel --> actor : Unticked "I am standing clear of the belt"; controls carry the hidden attribute
+note right of panel : hidden removes Start, speed and incline from the\naccessibility tree and the Tab order (L2-042)
+actor -> panel : Tick the checkbox
+panel -> belt : setGate(true)
+belt -> panel : render({ controlsVisible: true })
+panel --> actor : Start, speed and incline appear
+opt tester unticks while the belt is active
+  actor -> panel : Untick
+  panel -> belt : setGate(false)
+  belt -> panel : render({ controlsVisible: false })
+  belt -> stop : render({ stopVisible: true }) Stop stays (L2-042)
+end
+opt verdict is Silent or Locked, or no verdict
+  belt -> panel : render({ gateOffered: false }): neither checkbox nor controls
+end
+@enduml

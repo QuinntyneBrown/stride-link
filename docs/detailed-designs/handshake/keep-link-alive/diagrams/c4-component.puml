@@ -1,0 +1,22 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Keep the link alive
+
+Container_Boundary(page, "Stride Link page") {
+  Component(run, "RunController", "session/run-controller.ts", "Starts LinkKeeper at init complete; routes frames")
+  Component(keeper, "LinkKeeper", "session/link-keeper.ts", "Counting keepalive and D0/D2/D3 echo")
+  Component(enc, "FrameEncoder", "protocol/frame-encoder.ts", "keepalive(n)")
+  Component(clock, "Clock", "session/clock.ts", "Drift-corrected 2,000 ms schedule")
+  Component(queue, "WriteQueue", "ble/write-queue.ts", "FIFO, one write in flight, Stop jumps the queue")
+  Component(link, "TreadmillLink", "ble/treadmill-link.ts", "f2 write characteristic")
+}
+Container_Ext(webbt, "Web Bluetooth", "Chrome or Edge", "GATT client")
+
+Rel(run, keeper, "start(), stop(), onFrame(parsed)")
+Rel(keeper, enc, "keepalive(n)")
+Rel(keeper, clock, "setTimeout(next tick)")
+Rel(keeper, queue, "enqueue(keepalive or echo)")
+Rel(queue, link, "Uses writeChar of")
+Rel(queue, webbt, "writeValueWithResponse() or writeValueWithoutResponse()", "JavaScript API")
+@enduml

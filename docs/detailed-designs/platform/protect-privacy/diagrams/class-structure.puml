@@ -1,0 +1,48 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Protect privacy and integrity
+
+class SafeDom <<module>> {
+  +setText(el: Element, text: string): void
+  +create(tag: string, attrs: Record<string, string>, text: string?): HTMLElement
+  +setAttr(el: Element, name: string, value: string): void
+}
+
+class CspBuilder <<module>> {
+  +sha256Base64(content: string): string
+  +policy(scriptHash: string, styleHash: string): string
+  +hostedPolicy(scriptHash: string, styleHash: string): string
+}
+
+class BundleScanner <<module>> {
+  +FORBIDDEN_NETWORK: string[]
+  +FORBIDDEN_STORAGE: string[]
+  +scan(html: string): Finding[]
+}
+
+class Finding {
+  +token: string
+  +offset: number
+}
+
+class HostedHeaders {
+  +strictTransportSecurity: string = "max-age=31536000"
+  +contentSecurityPolicy: string
+  +xContentTypeOptions: string = "nosniff"
+  +referrerPolicy: string = "no-referrer"
+}
+
+BundleScanner ..> Finding : returns
+HostedHeaders ..> CspBuilder : policy from hostedPolicy()
+@enduml

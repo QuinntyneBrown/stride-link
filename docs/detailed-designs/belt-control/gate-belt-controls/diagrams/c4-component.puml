@@ -1,0 +1,20 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Gate the belt controls
+
+Person(tester, "Stride tester", "Confirms standing clear of the belt")
+Container_Boundary(page, "Stride Link page") {
+  Component(engine, "VerdictEngine", "session/verdict-engine.ts", "Publishes the verdict")
+  Component(belt, "BeltController", "session/belt-controller.ts", "Gate state, belt-active state, BeltView")
+  Component(panel, "BeltPanel", "ui/belt-panel.ts", "Gate checkbox; Start, speed, incline controls")
+  Component(stop, "StopBar", "ui/stop-bar.ts", "Stop stays while the belt is active")
+  Component(log, "PacketLog", "session/packet-log.ts", "Records gate changes")
+}
+Rel(engine, belt, "Notifies Verdict")
+Rel(tester, panel, "Ticks or unticks the checkbox")
+Rel(panel, belt, "setGate(open)")
+Rel(belt, panel, "Publishes BeltView")
+Rel(belt, stop, "Publishes BeltView")
+Rel(belt, log, "Records gate opened or closed")
+@enduml

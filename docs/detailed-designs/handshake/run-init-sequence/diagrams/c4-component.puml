@@ -1,0 +1,25 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Run the init sequence
+
+Container_Boundary(page, "Stride Link page") {
+  Component(run, "RunController", "session/run-controller.ts", "Starts init once both subscriptions are on")
+  Component(init, "InitSequencer", "session/init-sequencer.ts", "Writes init frames with reply-or-300 ms pacing")
+  Component(enc, "FrameEncoder", "protocol/frame-encoder.ts", "init(variant)")
+  Component(clock, "Clock", "session/clock.ts", "Monotonic time and timers; faked in tests")
+  Component(queue, "WriteQueue", "ble/write-queue.ts", "Serialised writes to f2")
+  Component(log, "PacketLog", "session/packet-log.ts", "TX entries tagged init; Init complete")
+  Component(verdict, "VerdictEngine", "session/verdict-engine.ts", "Starts settle and silent timers")
+}
+Container_Ext(webbt, "Web Bluetooth", "Chrome or Edge", "GATT client")
+
+Rel(run, init, "run(variant)")
+Rel(run, init, "notifyReceived() on every notification")
+Rel(init, enc, "init(variant)")
+Rel(init, queue, "enqueue(frame, init)")
+Rel(init, clock, "setTimeout(300)")
+Rel(queue, webbt, "writeValue*() on f2", "JavaScript API")
+Rel(init, log, "Records failures and Init complete")
+Rel(run, verdict, "onInitComplete()")
+@enduml

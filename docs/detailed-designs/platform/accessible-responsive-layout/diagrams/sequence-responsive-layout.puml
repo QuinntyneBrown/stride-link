@@ -1,0 +1,37 @@
+@startuml
+title UML sequence behaviour — Respond to viewport changes
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Stride tester" as actor
+box "External — Chrome or Edge" #F2F4F7
+  participant "Layout engine" as engine
+end box
+box "Frontend — Stride Link UI layer" #E0F2FE
+  participant "Layout stylesheet" as css
+  participant "StopBar" as stop
+end box
+actor -> engine : Rotate phone 412 x 915 to 915 x 412, or resize the window
+engine -> css : Evaluate @media (min-width) queries
+alt width < 768 px (XS, SM)
+  css --> engine : One column: status and verdict, connection, telemetry, belt, log (L2-064)
+  css --> engine : Stop bar: position fixed, bottom, full width; body padding reserves its height
+else 768 to 991 px (MD)
+  css --> engine : One column, max-width 720 px, centred (L2-065)
+else >= 992 px (LG, XL)
+  css --> engine : Grid with a right-hand log column that scrolls on its own;\nmax-width 1140 px from 1200 px (L2-066)
+end
+engine -> stop : Stop stays inside the viewport at every width (L2-045)
+note over css : Pure CSS; no JavaScript resize handler.\nviewport meta: width=device-width, initial-scale=1, zoom allowed (L2-067)
+@enduml

@@ -1,0 +1,73 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Determine the verdict
+
+class VerdictEngine {
+  +SETTLE_MS: number = 3000
+  +SILENT_MS: number = 20000
+  -verdict: Verdict?
+  -initCompleteAt: number?
+  -notificationCount: number
+  -challengeSeen: boolean
+  -unlockPending: boolean
+  -settleTimer: TimerId?
+  -silentTimer: TimerId?
+  +onInitComplete(): void
+  +onNotification(frame: ParsedFrame): void
+  +onChallenge(): void
+  +onUnlockOutcome(o: UnlockOutcome): void
+  +onDisconnect(): void
+  +subscribe(listener: (v: Verdict) => void): void
+  -conclude(word: VerdictWord, reason: string?): void
+}
+
+class Verdict {
+  +word: VerdictWord
+  +reason: string?
+  +at: number
+  +previous: VerdictWord?
+}
+
+enum VerdictWord {
+  Silent
+  Talks
+  Unlocked
+  Locked
+}
+
+class VerdictCopy <<module>> {
+  +meaning(word: VerdictWord): string
+  +nextStep(word: VerdictWord): string
+}
+
+class VerdictPanel {
+  -wordEl: HTMLElement
+  -meaningEl: HTMLElement
+  -reasonEl: HTMLElement
+  -nextStepEl: HTMLElement
+  -exportButton: HTMLButtonElement
+  +render(v: Verdict?): void
+}
+
+class UnlockOutcome {
+  +result: "unlocked" or "locked"
+  +failure: UnlockFailure?
+}
+
+VerdictEngine --> Verdict : holds 0..1
+Verdict --> VerdictWord : has
+VerdictEngine ..> UnlockOutcome : consumes
+VerdictPanel ..> Verdict : renders
+VerdictPanel ..> VerdictCopy : reads
+@enduml

@@ -1,0 +1,40 @@
+@startuml
+title UML sequence behaviour — Acceptance test against a fake navigator.bluetooth
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+box "Test — Playwright on Chromium" #E0F2FE
+  participant "Acceptance spec\n(Traces to: L2-xxx)" as spec
+  participant "Playwright clock" as clock
+  participant "FakeBluetooth" as fake
+end box
+box "Frontend — Stride Link page under test" #D1FADF
+  participant "stride-link.html" as page
+end box
+spec -> clock : page.clock.install()
+spec -> fake : addInitScript(installFake(scenario "unlocked")) before any page script (L2-070)
+spec -> page : goto dist/stride-link.html
+spec -> page : click Connect
+page -> fake : requestDevice(options)
+fake --> page : FakeDevice "STRIDE-8S"
+page -> fake : startNotifications f3, f4; writes to f2
+fake -> fake : Record { t, char, bytes } for every write
+fake --> page : Scripted F0 E0 34 12 05 78 97 2A, then the acknowledgement
+spec -> clock : runFor(2400); no real sleeps (L2-070)
+spec -> fake : writes
+fake --> spec : RecordedWrite[]
+spec -> spec : Assert init order, response F0 E0 00 00 57 00 00 27, activation timing
+spec -> page : Assert verdict text "Unlocked"; no pageerror or unhandledrejection (L2-058)
+note over fake : The test fails if the real requestDevice is reached (L2-070).\nCI never grants Bluetooth permission (L2-071).
+@enduml

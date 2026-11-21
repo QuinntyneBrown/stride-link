@@ -1,0 +1,70 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Check Bluetooth support
+
+enum SupportStatus {
+  Supported
+  NoWebBluetooth
+  AdapterUnavailable
+  BlockedFromDisk
+}
+
+class AppShell {
+  -gateway: BluetoothGateway
+  -connectPanel: ConnectPanel
+  -announcer: StatusAnnouncer
+  +start(): Promise<void>
+}
+
+class BluetoothGateway {
+  -bluetooth: Bluetooth (optional)
+  +checkSupport(): Promise<SupportStatus>
+  +onAvailabilityChanged(listener: (available: boolean) => void): void
+  +requestTreadmill(): Promise<BluetoothDevice>
+}
+
+class ConnectPanel {
+  -connectButton: HTMLButtonElement
+  -ownershipNotice: HTMLElement
+  -supportMessage: HTMLElement
+  +showSupport(status: SupportStatus): void
+  +setConnectEnabled(enabled: boolean): void
+}
+
+class StatusAnnouncer {
+  -region: HTMLElement
+  +announce(text: string): void
+}
+
+class SupportMessages <<module>> {
+  +NO_WEB_BLUETOOTH: string
+  +ADAPTER_UNAVAILABLE: string
+  +BLOCKED_FROM_DISK: string
+  +OWNERSHIP_NOTICE: string
+}
+
+class BuildInfo <<module>> {
+  +version: string
+  +commit: string
+  +hostedUrl: string
+}
+
+AppShell --> BluetoothGateway : checks support with
+AppShell --> ConnectPanel : drives
+AppShell --> StatusAnnouncer : announces through
+BluetoothGateway ..> SupportStatus : returns
+ConnectPanel ..> SupportStatus : renders
+ConnectPanel ..> SupportMessages : reads
+ConnectPanel ..> BuildInfo : reads hostedUrl
+@enduml

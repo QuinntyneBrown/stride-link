@@ -1,0 +1,37 @@
+@startuml
+title UML sequence behaviour — Complete a run by keyboard with a screen reader
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Stride tester" as actor
+box "Frontend — Stride Link UI layer" #E0F2FE
+  participant "ConnectPanel" as panel
+  participant "StatusAnnouncer" as ann
+  participant "VerdictPanel" as verdict
+  participant "LogView" as log
+end box
+box "Frontend — Stride Link session core" #D1FADF
+  participant "RunController" as run
+end box
+actor -> panel : Tab to Connect (visible 2 px focus ring, 3:1) (L2-060)
+actor -> panel : Enter
+panel -> run : connect()
+run -> ann : announce("Connecting") (L2-063)
+run -> ann : announce("Connected")
+run -> verdict : render(Talks)
+verdict -> ann : announce("Verdict: Talks. Notifications arrive and no challenge was sent.") (L2-036)
+note right of verdict : Verdict is words first; colour only supplements (L2-062)
+actor -> verdict : Tab to Export log, Space (L2-060)
+actor -> log : Tab into the Packet log (role=log); telemetry is not announced (L2-063)
+@enduml

@@ -1,0 +1,19 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Decode telemetry
+
+Person(tester, "Stride tester", "Reads speed, incline and heart rate")
+Container_Boundary(page, "Stride Link page") {
+  Component(run, "RunController", "session/run-controller.ts", "Routes parsed frames")
+  Component(decoder, "TelemetryDecoder", "protocol/telemetry-decoder.ts", "Pure: D3, D2, D1 field rules per variant")
+  Component(state, "TelemetryState", "session/telemetry-state.ts", "Last decoded speed, incline, heart rate")
+  Component(panel, "TelemetryPanel", "ui/telemetry-panel.ts", "Formats values with units or a dash")
+  Component(belt, "BeltController", "session/belt-controller.ts", "Treats speed > 0 as belt active")
+}
+Rel(run, decoder, "decode(frame, variant)")
+Rel(run, state, "apply(update)")
+Rel(state, panel, "Notifies on change")
+Rel(state, belt, "Notifies speed")
+Rel(tester, panel, "Reads")
+@enduml

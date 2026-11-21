@@ -1,0 +1,44 @@
+@startuml
+title UML sequence behaviour — Enforce the CSP and no-network rules at build time
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Maintainer or CI" as actor
+box "Build — Node.js build pipeline" #FFF4E5
+  participant "build.mjs" as build
+  participant "CspBuilder" as csp
+  participant "BundleScanner" as scan
+end box
+box "Test — Playwright on Chromium" #E0F2FE
+  participant "Acceptance suite" as pw
+end box
+actor -> build : npm run build
+build -> build : Bundle TypeScript and CSS; inline into the template
+build -> csp : sha256Base64(script), sha256Base64(style)
+csp --> build : hashes
+build -> csp : policy(scriptHash, styleHash)
+csp --> build : default-src 'none'; script-src 'sha256-...'; style-src 'sha256-...';\nimg-src data:; font-src data:; connect-src 'none'; base-uri 'none'; form-action 'none' (L2-050)
+build -> build : Insert <meta http-equiv="Content-Security-Policy">
+build -> scan : scan(html)
+alt forbidden token found (fetch, XMLHttpRequest, WebSocket, EventSource,\nsendBeacon, importScripts, localStorage, sessionStorage, indexedDB, caches, document.cookie)
+  scan --> build : Finding[]
+  build --> actor : exit 1 with token and offset (L2-049, L2-052)
+else clean
+  scan --> build : []
+end
+actor -> pw : npm run test:acceptance
+pw -> pw : Record every request; assert only the document was requested (L2-049)
+pw -> pw : Inject fetch("https://example.com"); expect securitypolicyviolation (L2-050)
+pw -> pw : After a run, assert all browser storage is empty (L2-052)
+@enduml

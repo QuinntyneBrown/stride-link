@@ -1,0 +1,24 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Protect privacy and integrity
+
+Container_Boundary(page, "Stride Link page") {
+  Component(csp, "CSP meta tag", "HTML meta http-equiv", "default-src 'none'; hashed script and style; connect-src 'none'")
+  Component(safe, "SafeDom", "ui/safe-dom.ts", "Only path for dynamic text: textContent and attributes")
+  Component(ui, "UI panels", "ui/*", "ConnectPanel, VerdictPanel, LogView, banners")
+  Component(dl, "FileDownloader", "ui/file-downloader.ts", "Only output channel: Blob download")
+}
+Container_Boundary(build, "Build pipeline") {
+  Component(cspb, "CspBuilder", "scripts/csp.mjs", "SHA-256 of the inline script and style")
+  Component(scan, "BundleScanner", "scripts/scan-bundle.mjs", "Fails on forbidden network and storage APIs")
+  Component(lint, "ESLint rules", "eslint.config.js", "Bans innerHTML, outerHTML, insertAdjacentHTML, document.write, eval")
+}
+System_Ext(host, "Static HTTPS host", "Redirects HTTP; sends HSTS, CSP, nosniff, no-referrer")
+
+Rel(cspb, csp, "Writes policy into")
+Rel(scan, page, "Scans built HTML of")
+Rel(lint, ui, "Lints source of")
+Rel(ui, safe, "Renders device names and errors through")
+Rel(host, page, "Serves", "HTTPS")
+@enduml

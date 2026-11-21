@@ -1,0 +1,13 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Start and stop the belt
+
+Person(tester, "Stride tester", "Owns a Stride; runs the smoke test beside it on a laptop or Android phone")
+System(sl, "Stride Link", "Single-file web page that tests whether a browser can talk to a Stride")
+System_Ext(treadmill, "Echelon Stride treadmill", "Bluetooth Low Energy peripheral exposing the Echelon GATT service")
+
+Rel(tester, sl, "Presses Start, Stop or Escape in")
+Rel(sl, treadmill, "Writes start and stop sequences", "BLE GATT write")
+Rel(tester, treadmill, "Uses the stop button or safety key on", "physical")
+@enduml

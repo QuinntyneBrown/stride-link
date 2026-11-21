@@ -1,0 +1,63 @@
+@startuml
+title UML sequence behaviour — Select a treadmill
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Stride tester" as actor
+box "Frontend — Stride Link UI layer" #E0F2FE
+  participant "ConnectPanel" as panel
+end box
+box "Frontend — Stride Link session core" #D1FADF
+  participant "RunController" as run
+  participant "PacketLog" as log
+end box
+box "Frontend — Stride Link protocol module" #ECFDF3
+  participant "ChooserFilters" as filters
+  participant "VariantDetector" as variant
+end box
+box "Frontend — Stride Link Bluetooth adapter" #FFF4E5
+  participant "BluetoothGateway" as gateway
+end box
+box "External — Chrome or Edge" #F2F4F7
+  participant "Device chooser" as chooser
+end box
+actor -> panel : Press Connect (user gesture)
+panel -> run : connect()
+run -> panel : Disable Connect for the run (L2-006)
+run -> gateway : requestTreadmill()
+gateway -> filters : build()
+filters --> gateway : filters, exclusionFilters, optionalServices (L2-006)
+gateway -> chooser : requestDevice(options)
+actor -> chooser : Pick a device or cancel
+alt tester cancels
+  chooser --> gateway : reject NotFoundError
+  gateway --> run : NotFoundError
+  run -> panel : "No treadmill selected." and enable Connect (L2-009)
+else device chosen
+  chooser --> gateway : BluetoothDevice
+  gateway --> run : device
+  run -> variant : isBikeName(device.name)
+  alt name starts with ECH (any case)
+    variant --> run : true
+    run -> log : record EV bike rejected with device name (L2-007)
+    run -> panel : Bike message as text, enable Connect
+  else Stride or unnamed
+    run -> variant : detectVariant(name), displayName(name)
+    variant --> run : Standard or Stride4; name or "(unnamed device)" (L2-008)
+    run -> log : startRun(name, variant); record "Model variant: ..."
+    run -> panel : Show device name and variant
+    run -> run : Continue to connect (manage-connection)
+  end
+end
+@enduml

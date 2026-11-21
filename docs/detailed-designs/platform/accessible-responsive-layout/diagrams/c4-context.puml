@@ -1,0 +1,10 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Accessible, responsive layout
+
+Person(tester, "Stride tester", "Owns a Stride; runs the smoke test beside it on a laptop or Android phone")
+System(sl, "Stride Link", "Single-file web page that tests whether a browser can talk to a Stride")
+
+Rel(tester, sl, "Operates by keyboard, mouse, touch or screen reader at any viewport size")
+@enduml

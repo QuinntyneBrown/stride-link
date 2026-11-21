@@ -1,0 +1,35 @@
+@startuml
+title UML sequence behaviour — Encode an outbound frame
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+box "Frontend — Stride Link session core" #D1FADF
+  participant "Caller\n(InitSequencer, LinkKeeper,\nUnlockFlow, BeltController)" as caller
+end box
+box "Frontend — Stride Link protocol module" #ECFDF3
+  participant "FrameEncoder" as enc
+  participant "Checksum" as ck
+end box
+box "Frontend — Stride Link Bluetooth adapter" #FFF4E5
+  participant "WriteQueue" as queue
+end box
+caller -> enc : targetSpeed(1.5)
+enc -> enc : value = round(1.5 x 1000) = 1500 = 0x05DC
+enc -> enc : frame(0xB2, [0x02, 0x05, 0xDC])
+enc -> ck : checksum([F0 B2 02 05 DC])
+ck --> enc : 0x85 (L2-013)
+enc --> caller : F0 B2 02 05 DC 85 (L2-014)
+caller -> queue : enqueue(bytes, tag)
+note over enc : Preconditions (0..3 km/h, 0..15, 1..255) are asserted with RangeError.\nTester input is validated earlier by BeltCommandValidator.
+@enduml

@@ -1,0 +1,75 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Manage the connection
+
+enum NotifyChar {
+  f3
+  f4
+}
+
+class RunController {
+  -phase: RunPhase
+  -link: TreadmillLink?
+  +connect(): Promise<void>
+  +disconnect(): Promise<void>
+  -subscribe(link: TreadmillLink): Promise<void>
+  -handleDisconnected(): void
+  -fail(error: unknown, kind: FailureKind): void
+}
+
+class BluetoothGateway {
+  +connect(device: BluetoothDevice, timeoutMs: number): Promise<TreadmillLink>
+}
+
+class TreadmillLink {
+  +device: BluetoothDevice
+  +writeChar: BluetoothRemoteGATTCharacteristic
+  +notifyF3: BluetoothRemoteGATTCharacteristic
+  +notifyF4: BluetoothRemoteGATTCharacteristic
+  +subscribe(onFrame: (char: NotifyChar, bytes: Uint8Array) => void): Promise<void>
+  +isNotifying(char: NotifyChar): boolean
+  +onDisconnected(listener: () => void): void
+  +disconnect(): void
+}
+
+enum FailureKind {
+  ServiceMissing
+  ConnectTimeout
+  SubscribeFailed
+  WriteFailed
+  Unexpected
+}
+
+class FailureMessages <<module>> {
+  +messageFor(kind: FailureKind): string
+}
+
+class WriteQueue {
+  +clear(reason: string): void
+}
+
+class PacketLog {
+  +recordEvent(text: string): void
+  +recordError(error: unknown): void
+}
+
+RunController --> BluetoothGateway : connects with
+BluetoothGateway ..> TreadmillLink : creates
+RunController "1" --> "0..1" TreadmillLink : owns
+RunController --> WriteQueue : clears
+RunController ..> FailureMessages : uses
+RunController --> PacketLog : records to
+TreadmillLink ..> NotifyChar : tags frames with
+FailureMessages ..> FailureKind : maps
+@enduml

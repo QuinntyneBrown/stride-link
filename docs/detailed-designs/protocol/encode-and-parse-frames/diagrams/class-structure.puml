@@ -1,0 +1,78 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Encode and parse frames
+
+class Checksum <<module>> {
+  +checksum(bytes: ArrayLike<number>): number
+  +hasValidChecksum(frame: Uint8Array): boolean
+}
+
+class FrameEncoder <<module>> {
+  +frame(type: number, payload: number[]): Uint8Array
+  +init(variant: ModelVariant): Uint8Array[]
+  +keepalive(n: number): Uint8Array
+  +unlockResponse(auth: number): Uint8Array
+  +activation(): Uint8Array
+  +beltStart(variant: ModelVariant): Uint8Array[]
+  +beltStop(): Uint8Array
+  +targetSpeed(kmh: number): Uint8Array
+  +targetIncline(level: number): Uint8Array
+}
+
+class FrameParser <<module>> {
+  +MIN_LENGTH: Map<FrameKind, number>
+  +parse(bytes: Uint8Array): ParsedFrame
+}
+
+class ParsedFrame {
+  +kind: FrameKind
+  +type: number?
+  +bytes: Uint8Array
+  +checksumValid: boolean
+  +malformed: boolean
+}
+
+enum FrameKind {
+  Empty
+  Unknown
+  D0
+  D1
+  D2
+  D3
+  E0
+  Other
+}
+
+class Hex <<module>> {
+  +toHex(bytes: ArrayLike<number>): string
+}
+
+class Uuids <<module>> {
+  +ECHELON_SERVICE: string
+  +WRITE_F2: string
+  +NOTIFY_F3: string
+  +NOTIFY_F4: string
+}
+
+enum ModelVariant {
+  Standard
+  Stride4
+}
+
+FrameEncoder ..> Checksum : appends ck
+FrameEncoder ..> ModelVariant : selects sequence by
+FrameParser ..> Checksum : verifies ck
+FrameParser ..> ParsedFrame : returns
+ParsedFrame --> FrameKind : has
+@enduml

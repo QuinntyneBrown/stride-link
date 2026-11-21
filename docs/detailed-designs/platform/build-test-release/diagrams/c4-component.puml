@@ -1,0 +1,31 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Build, test and release
+
+Person(maint, "Maintainer", "Tags releases; runs manual hardware tests")
+Container_Boundary(build, "Build pipeline") {
+  Component(script, "build.mjs", "Node.js, esbuild", "Bundle, inline, CSP, size check, deterministic output")
+  Component(scan, "BundleScanner", "scripts/scan-bundle.mjs", "Forbidden API scan")
+}
+Container_Boundary(tests, "Test suites") {
+  Component(unit, "Unit suite", "Vitest", "Protocol module; 100 % line and branch coverage")
+  Component(accept, "Acceptance specs", "Playwright on Chromium", "One spec per scenario; clock API")
+  Component(fake, "FakeBluetooth", "tests/fake-bluetooth", "Installed by addInitScript; records writes")
+}
+Container_Boundary(ci, "CI workflows") {
+  Component(ciwf, "ci.yml", "GitHub Actions", "Build and test on every push")
+  Component(relwf, "release.yml", "GitHub Actions", "On tag: test, hash, publish, deploy, verify")
+}
+System_Ext(release, "GitHub Releases", "stride-link.html and .sha256")
+System_Ext(host, "Static HTTPS host", "<TO SUPPLY> host")
+
+Rel(maint, relwf, "Pushes tag v*")
+Rel(ciwf, script, "Runs")
+Rel(ciwf, unit, "Runs")
+Rel(ciwf, accept, "Runs")
+Rel(accept, fake, "Installs")
+Rel(script, scan, "Runs after inlining")
+Rel(relwf, release, "Publishes")
+Rel(relwf, host, "Deploys and checks SHA-256")
+@enduml

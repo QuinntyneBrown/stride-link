@@ -1,0 +1,54 @@
+@startuml
+title UML sequence behaviour — Stop the belt
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Stride tester" as actor
+box "Frontend — Stride Link UI layer" #E0F2FE
+  participant "StopBar" as stop
+end box
+box "Frontend — Stride Link session core" #D1FADF
+  participant "BeltController" as belt
+  participant "PacketLog" as log
+end box
+box "Frontend — Stride Link Bluetooth adapter" #FFF4E5
+  participant "WriteQueue" as queue
+end box
+box "Device — Echelon Stride treadmill" #F2F4F7
+  participant "Stride" as stride
+end box
+alt Stop button (Tab, then Enter or Space)
+  actor -> stop : Activate "Stop belt" (>= 64 x 64 px)
+else Escape anywhere, including inside a text input
+  actor -> stop : keydown Escape (document, capture phase) (L2-045)
+end
+stop -> belt : stop() enqueued within 50 ms (L2-057)
+belt -> log : record "Belt stop requested"
+belt -> queue : enqueueFirst(F0 B0 01 00 A1, belt)
+note right of queue : Jumps ahead of every queued write;\nthe write in flight finishes first (L2-044)
+queue -> stride : write Stop to f2
+alt write resolves
+  queue --> belt : ok
+  belt -> belt : startRequested = false
+  alt latest speed is 0 or none decoded since Stop
+    belt -> stop : render({ stopVisible: false }) (L2-044)
+  else speed > 0 still reported
+    belt -> stop : Stop stays visible (L2-045)
+  end
+else write rejects
+  queue --> belt : error
+  belt -> stop : "Stop failed. Use the treadmill's stop button or safety key now."; Stop stays enabled (L2-044)
+end
+belt -> log : record write result
+@enduml

@@ -1,0 +1,52 @@
+@startuml
+title UML sequence behaviour — End a run while the belt is active
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Stride tester" as actor
+box "Frontend — Stride Link UI layer" #E0F2FE
+  participant "ConnectPanel" as panel
+  participant "UnloadGuard" as guard
+  participant "ConnectionLostBanner" as banner
+end box
+box "Frontend — Stride Link session core" #D1FADF
+  participant "RunController" as run
+  participant "BeltController" as belt
+end box
+box "Frontend — Stride Link Bluetooth adapter" #FFF4E5
+  participant "WriteQueue" as queue
+  participant "TreadmillLink" as link
+end box
+alt tester presses Disconnect
+  actor -> panel : Press Disconnect
+  panel -> run : disconnect()
+  run -> belt : stopBeforeDisconnect()
+  belt -> queue : enqueueFirst(F0 B0 01 00 A1)
+  alt Stop write resolves
+    queue --> belt : ok
+  else 1,000 ms elapse first
+    belt -> belt : give up waiting
+  end
+  belt --> run : done
+  run -> link : disconnect() (L2-048)
+else page is hidden or closed
+  actor -> guard : pagehide
+  guard -> belt : stopBestEffort(): enqueueFirst(Stop) (L2-048)
+else connection lost
+  link -> run : gattserverdisconnected
+  run -> belt : onDisconnected()
+  run -> banner : show() "Connection lost. If the belt is moving, use the treadmill's stop button or safety key." (L2-048)
+  banner --> actor : stays until dismissed
+end
+@enduml

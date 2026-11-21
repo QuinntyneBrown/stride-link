@@ -1,0 +1,59 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Gate the belt controls
+
+class BeltController {
+  -verdict: VerdictWord?
+  -gateOpen: boolean
+  -startRequested: boolean
+  -latestSpeedKmh: number?
+  +onVerdict(v: Verdict): void
+  +setGate(open: boolean): void
+  +isGateOffered(): boolean
+  +isBeltActive(): boolean
+  +view(): BeltView
+  +resetForRun(): void
+  +subscribe(listener: (v: BeltView) => void): void
+}
+
+class BeltView {
+  +gateOffered: boolean
+  +gateOpen: boolean
+  +controlsVisible: boolean
+  +stopVisible: boolean
+}
+
+class BeltPanel {
+  -gateCheckbox: HTMLInputElement
+  -controls: HTMLElement
+  +render(view: BeltView): void
+}
+
+class StopBar {
+  +render(view: BeltView): void
+}
+
+enum VerdictWord {
+  Silent
+  Talks
+  Unlocked
+  Locked
+}
+
+BeltController ..> BeltView : derives
+BeltController --> VerdictWord : gate offered for Talks or Unlocked
+BeltPanel ..> BeltView : renders
+StopBar ..> BeltView : renders
+BeltPanel --> BeltController : setGate()
+@enduml

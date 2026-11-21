@@ -1,0 +1,63 @@
+@startuml
+title UML sequence behaviour — Set speed or incline
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Stride tester" as actor
+box "Frontend — Stride Link UI layer" #E0F2FE
+  participant "BeltPanel" as panel
+end box
+box "Frontend — Stride Link session core" #D1FADF
+  participant "BeltController" as belt
+  participant "BeltCommandValidator" as val
+  participant "PacketLog" as log
+end box
+box "Frontend — Stride Link protocol module" #ECFDF3
+  participant "FrameEncoder" as enc
+end box
+box "Frontend — Stride Link Bluetooth adapter" #FFF4E5
+  participant "WriteQueue" as queue
+end box
+group Speed (input min 0, max 3, step 0.1)
+  actor -> panel : Enter speed, press Apply
+  panel -> belt : setSpeed(raw)
+  belt -> val : parseSpeed(raw)
+  alt empty, not a number, or negative
+    val --> belt : "Enter a speed from 0 to 3 km/h." (L2-046)
+    belt --> panel : no frame written
+  else above 3
+    val --> belt : "Speed is capped at 3 km/h for the smoke test." (L2-046)
+    belt --> panel : no frame written
+  else 0 to 3
+    val --> belt : ok, 1.5
+    belt -> enc : targetSpeed(1.5)
+    enc --> belt : F0 B2 02 05 DC 85
+    belt -> queue : enqueue(frame, belt)
+    belt -> log : record "Target speed 1.5 km/h"
+  end
+end
+group Incline
+  actor -> panel : Enter incline, press Apply
+  panel -> belt : setIncline(raw)
+  belt -> val : parseIncline(raw)
+  alt not a whole number from 0 to 15 (16, 2.5, -1)
+    val --> belt : "Enter a whole-number incline from 0 to 15." (L2-047)
+  else valid, e.g. 5
+    belt -> enc : targetIncline(5)
+    enc --> belt : F0 B1 01 05 A7
+    belt -> queue : enqueue(frame, belt)
+  end
+end
+panel --> actor : Message as text next to the field, or applied value
+@enduml

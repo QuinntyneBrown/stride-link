@@ -1,0 +1,25 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Determine the verdict
+
+Person(tester, "Stride tester", "Reads the verdict")
+Container_Boundary(page, "Stride Link page") {
+  Component(run, "RunController", "session/run-controller.ts", "Feeds init, notification, unlock and disconnect events")
+  Component(engine, "VerdictEngine", "session/verdict-engine.ts", "Settle and silent timers; four-verdict rules")
+  Component(flow, "UnlockFlow", "session/unlock-flow.ts", "Reports challenge seen and UnlockOutcome")
+  Component(clock, "Clock", "session/clock.ts", "3,000 ms settle and 20,000 ms silent timers")
+  Component(copy, "VerdictCopy", "ui/verdict-copy.ts", "Meaning and next-step text from the PRD")
+  Component(panel, "VerdictPanel", "ui/verdict-panel.ts", "Verdict word, meaning, reason, next step, Export log")
+  Component(announcer, "StatusAnnouncer", "ui/status-announcer.ts", "aria-live polite")
+  Component(log, "PacketLog", "session/packet-log.ts", "Verdict and verdict-change events")
+}
+Rel(run, engine, "onInitComplete(), onNotification(), onDisconnect()")
+Rel(flow, engine, "onChallenge(), onUnlockOutcome()")
+Rel(engine, clock, "setTimeout()")
+Rel(engine, log, "Records verdict and changes")
+Rel(engine, panel, "Notifies Verdict")
+Rel(panel, copy, "Reads text")
+Rel(panel, announcer, "announce(verdict)")
+Rel(tester, panel, "Reads")
+@enduml

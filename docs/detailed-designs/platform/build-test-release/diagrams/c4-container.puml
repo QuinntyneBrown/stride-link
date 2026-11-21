@@ -1,0 +1,24 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Build, test and release
+
+Person(maint, "Maintainer", "Tags releases of Stride Link")
+System_Boundary(sl, "Stride Link") {
+  Container(build, "Build pipeline", "Node.js, esbuild", "Compiles, bundles and inlines everything into one HTML file")
+  Container(unit, "Unit suite", "Vitest", "Tests the pure protocol module")
+  Container(accept, "Acceptance suite", "Playwright on Chromium", "Drives the page against a fake navigator.bluetooth")
+  Container(fake, "Fake navigator.bluetooth", "TypeScript test double", "Scripts each verdict and failure")
+  Container(page, "Stride Link page", "TypeScript bundled into stride-link.html", "UI layer, session core, protocol module and Bluetooth adapter")
+}
+System_Ext(release, "GitHub Releases", "Publishes stride-link.html and stride-link.html.sha256")
+System_Ext(host, "Static HTTPS host", "Serves the byte-identical hosted fallback copy")
+
+Rel(maint, build, "Runs npm run build", "Node.js")
+Rel(build, page, "Produces dist/stride-link.html", "esbuild")
+Rel(unit, page, "Tests the protocol module of", "Vitest")
+Rel(accept, fake, "Installs via addInitScript", "Playwright")
+Rel(accept, page, "Drives", "Chromium")
+Rel(build, release, "Publishes artefact and SHA-256 to", "GitHub API")
+Rel(build, host, "Deploys the identical file to", "HTTPS")
+@enduml

@@ -1,0 +1,84 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Build, test and release
+
+class BuildScript <<script>> {
+  +MAX_BYTES: number = 204800
+  +bundle(): Promise<BundleOutput>
+  +inline(template: string, out: BundleOutput, fonts: DataUri[]): string
+  +applyCsp(html: string): string
+  +assertSize(html: string): void
+  +write(path: "dist/stride-link.html"): void
+}
+
+class BundleOutput {
+  +js: string
+  +css: string
+}
+
+class BuildInfo <<module>> {
+  +version: string
+  +commit: string
+  +hostedUrl: string
+}
+
+class FakeBluetooth {
+  +scenario: FakeTreadmillScript
+  +writes: RecordedWrite[]
+  +realRequestDeviceReached: boolean
+  +getAvailability(): Promise<boolean>
+  +requestDevice(options: RequestDeviceOptions): Promise<FakeDevice>
+}
+
+class FakeTreadmillScript {
+  +name: ScenarioName
+  +deviceName: string?
+  +onWrite(bytes: Uint8Array, t: number): ScriptedNotification[]
+  +failures: ScriptedFailure[]
+}
+
+enum ScenarioName {
+  silent
+  talks
+  unlocked
+  locked
+  stride4
+  chooserCancel
+  bikeRejected
+  connectTimeout
+  missingService
+  subscribeFailure
+  writeFailure
+  midRunDisconnect
+}
+
+class RecordedWrite {
+  +t: number
+  +char: CharId
+  +bytes: Uint8Array
+}
+
+class ScriptedNotification {
+  +delayMs: number
+  +char: CharId
+  +bytes: Uint8Array
+}
+
+BuildScript ..> BundleOutput : produces
+BuildScript ..> BuildInfo : defines
+FakeBluetooth --> FakeTreadmillScript : runs
+FakeTreadmillScript --> ScenarioName : named by
+FakeBluetooth "1" *-- "*" RecordedWrite
+FakeTreadmillScript ..> ScriptedNotification : emits
+@enduml

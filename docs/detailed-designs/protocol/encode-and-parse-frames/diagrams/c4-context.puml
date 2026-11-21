@@ -1,0 +1,11 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Encode and parse frames
+
+System(sl, "Stride Link", "Single-file web page that tests whether a browser can talk to a Stride")
+System_Ext(treadmill, "Echelon Stride treadmill", "Bluetooth Low Energy peripheral exposing the Echelon GATT service")
+
+Rel(sl, treadmill, "Writes encoded Echelon frames", "BLE GATT write, f2")
+Rel(treadmill, sl, "Notifies frames, parsed as untrusted input", "BLE GATT notify, f3 and f4")
+@enduml

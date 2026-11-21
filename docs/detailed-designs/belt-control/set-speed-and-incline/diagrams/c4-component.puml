@@ -1,0 +1,24 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Set speed and incline
+
+Person(tester, "Stride tester", "Enters speed and incline")
+Container_Boundary(page, "Stride Link page") {
+  Component(panel, "BeltPanel", "ui/belt-panel.ts", "Speed and incline inputs with Apply buttons")
+  Component(validator, "BeltCommandValidator", "session/belt-command-validator.ts", "Range, type and cap checks with fixed messages")
+  Component(belt, "BeltController", "session/belt-controller.ts", "setSpeed(), setIncline()")
+  Component(enc, "FrameEncoder", "protocol/frame-encoder.ts", "targetSpeed(kmh), targetIncline(level)")
+  Component(queue, "WriteQueue", "ble/write-queue.ts", "Serialised writes")
+  Component(log, "PacketLog", "session/packet-log.ts", "Requested values")
+}
+System_Ext(stride, "Echelon Stride treadmill", "Belt motor and incline")
+
+Rel(tester, panel, "Enters values")
+Rel(panel, belt, "setSpeed(raw), setIncline(raw)")
+Rel(belt, validator, "parseSpeed(), parseIncline()")
+Rel(belt, enc, "Builds B2 or B1")
+Rel(belt, queue, "enqueue(frame, belt)")
+Rel(belt, log, "Records request")
+Rel(queue, stride, "Writes to f2", "BLE")
+@enduml

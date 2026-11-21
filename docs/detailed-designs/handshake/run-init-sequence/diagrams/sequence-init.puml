@@ -1,0 +1,59 @@
+@startuml
+title UML sequence behaviour — Run the init sequence
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+box "Frontend — Stride Link session core" #D1FADF
+  participant "RunController" as run
+  participant "InitSequencer" as init
+  participant "Clock" as clock
+  participant "PacketLog" as log
+  participant "VerdictEngine" as verdict
+end box
+box "Frontend — Stride Link protocol module" #ECFDF3
+  participant "FrameEncoder" as enc
+end box
+box "Frontend — Stride Link Bluetooth adapter" #FFF4E5
+  participant "WriteQueue" as queue
+end box
+box "Device — Echelon Stride treadmill" #F2F4F7
+  participant "Stride" as stride
+end box
+run -> init : run(variant)
+init -> enc : init(variant)
+enc --> init : Standard: A4, A1 x4, A3, A1 (L2-017)\nStride 4: A4, A4, E0 FD 3E 65 48 D5 8D, A4, A1 x4, A3 (L2-018)
+loop each frame, in order
+  init -> init : replySeen = false
+  init -> queue : enqueue(frame, init)
+  queue -> stride : write to f2
+  alt write rejects
+    queue --> init : WriteOutcome { ok: false, error }
+    init -> log : record frame hex, "write failed", error name and message (L2-019)
+  else write resolves
+    queue --> init : WriteOutcome { ok: true }
+  end
+  alt notification arrives (or arrived since issue)
+    stride -> run : notification
+    run -> init : notifyReceived()
+    init -> init : next frame within 20 ms (L2-017)
+  else no notification
+    init -> clock : setTimeout(300)
+    clock --> init : timeout; next frame 300 ms after resolution (L2-017)
+  end
+end
+init -> log : record EV Init complete
+init --> run : InitResult
+run -> verdict : onInitComplete() (determine-verdict)
+run -> run : Start LinkKeeper keepalive (keep-link-alive)
+@enduml

@@ -1,0 +1,28 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Encode and parse frames
+
+Container_Boundary(page, "Stride Link page") {
+  Container_Boundary(proto, "protocol module (pure: no DOM, Web Bluetooth, timers or clock)") {
+    Component(checksum, "Checksum", "protocol/checksum.ts", "Sum of preceding bytes mod 256")
+    Component(encoder, "FrameEncoder", "protocol/frame-encoder.ts", "Builds every outbound frame byte-exactly")
+    Component(parser, "FrameParser", "protocol/frame-parser.ts", "Classifies untrusted inbound bytes; never throws")
+    Component(hex, "Hex", "protocol/hex.ts", "Uppercase, space-separated hex")
+    Component(uuids, "Uuids", "protocol/uuids.ts", "Echelon service and characteristic UUIDs")
+  }
+  Component(session, "Session core", "session/*", "InitSequencer, UnlockFlow, LinkKeeper, BeltController, VerdictEngine")
+  Component(link, "TreadmillLink", "ble/treadmill-link.ts", "Delivers raw notification bytes")
+  Component(log, "PacketLog", "session/packet-log.ts", "Formats frames with Hex")
+}
+Container(unit, "Unit suite", "Vitest", "One test per frame and per unlock case; 100 % coverage")
+
+Rel(session, encoder, "Requests frames from")
+Rel(encoder, checksum, "Appends ck with")
+Rel(link, session, "Raw bytes from f3 or f4")
+Rel(session, parser, "parse(bytes)")
+Rel(parser, checksum, "Verifies ck with")
+Rel(log, hex, "toHex(bytes)")
+Rel(unit, encoder, "Tests")
+Rel(unit, parser, "Tests")
+@enduml

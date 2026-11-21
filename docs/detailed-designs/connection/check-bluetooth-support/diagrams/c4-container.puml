@@ -1,0 +1,17 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Check Bluetooth support
+
+Person(tester, "Stride tester", "Owns a Stride; runs the smoke test beside it on a laptop or Android phone")
+System_Boundary(sl, "Stride Link") {
+  Container(page, "Stride Link page", "TypeScript bundled into stride-link.html", "UI layer, session core, protocol module and Bluetooth adapter")
+}
+Container_Ext(webbt, "Web Bluetooth", "Chrome or Edge", "Device chooser and GATT client")
+System_Ext(host, "Static HTTPS host", "Serves the byte-identical hosted fallback copy")
+
+Rel(tester, page, "Opens", "file:// or HTTPS")
+Rel(page, webbt, "Reads navigator.bluetooth and calls getAvailability()", "JavaScript API")
+Rel(webbt, page, "Fires availabilitychanged", "DOM event")
+Rel(page, host, "Shows a link to", "HTTPS link")
+@enduml

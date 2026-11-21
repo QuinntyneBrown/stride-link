@@ -1,0 +1,25 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Check Bluetooth support
+
+Person(tester, "Stride tester", "Opens the page in Chrome or Edge")
+Container_Boundary(page, "Stride Link page") {
+  Component(shell, "AppShell", "ui/app-shell.ts", "Boots the page on DOMContentLoaded and wires every panel")
+  Component(panel, "ConnectPanel", "ui/connect-panel.ts", "Connect button, ownership notice and support message")
+  Component(announcer, "StatusAnnouncer", "ui/status-announcer.ts", "aria-live polite region for status changes")
+  Component(gateway, "BluetoothGateway", "ble/bluetooth-gateway.ts", "Only module that touches navigator.bluetooth")
+  Component(messages, "SupportMessages", "ui/support-messages.ts", "Fixed user-facing strings")
+  Component(info, "BuildInfo", "build-time constants", "Version, commit and hosted copy URL")
+}
+Container_Ext(webbt, "Web Bluetooth", "Chrome or Edge", "navigator.bluetooth")
+
+Rel(tester, shell, "Opens stride-link.html")
+Rel(shell, gateway, "checkSupport()")
+Rel(gateway, webbt, "Reads navigator.bluetooth, calls getAvailability()", "JavaScript API")
+Rel(webbt, gateway, "availabilitychanged", "DOM event")
+Rel(shell, panel, "showSupport(status)")
+Rel(panel, messages, "Reads message text from")
+Rel(panel, info, "Reads hostedUrl from")
+Rel(shell, announcer, "announce(message)")
+@enduml

@@ -1,0 +1,47 @@
+@startuml
+title UML sequence behaviour — Record and show a log entry
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+box "Frontend — Stride Link Bluetooth adapter" #FFF4E5
+  participant "WriteQueue" as queue
+end box
+box "Frontend — Stride Link session core" #D1FADF
+  participant "RunController" as run
+  participant "PacketLog" as log
+  participant "Clock" as clock
+end box
+box "Frontend — Stride Link UI layer" #E0F2FE
+  participant "LogView" as view
+end box
+alt TX frame
+  queue -> clock : now()
+  queue -> log : record({ dir: TX, char: f2, bytes, tag, error? }) (L2-037)
+else RX notification
+  run -> clock : now()
+  run -> log : record({ dir: RX, char: f3 or f4, bytes })
+else event
+  run -> log : recordEvent("isNotifying f3: true" ...)
+end
+log -> log : t = now() - run.startedAtMs (monotonic, never decreasing) (L2-037)
+log -> view : notify(entry)
+view -> view : Batch entries until the next animation frame
+view -> view : Render text rows via textContent; trim to latest 500 (L2-039)
+alt tester is at the bottom
+  view -> view : Scroll to the newest row
+else tester scrolled up
+  view -> view : Keep scroll position
+end
+note over log : Entries keep raw bytes; hex is formatted lazily.\nA 60-minute session stays under 50 MB of heap (L2-057).
+@enduml

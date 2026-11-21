@@ -1,0 +1,69 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Run the init sequence
+
+interface Clock {
+  +now(): number
+  +setTimeout(fn: () => void, ms: number): TimerId
+  +clearTimeout(id: TimerId): void
+}
+
+class MonotonicClock {
+  +now(): number
+}
+
+class InitSequencer {
+  +REPLY_WAIT_MS: number = 300
+  -queue: WriteQueue
+  -clock: Clock
+  -log: PacketLog
+  -replySeen: boolean
+  +run(variant: ModelVariant): Promise<InitResult>
+  +notifyReceived(): void
+  -waitForReplyOrTimeout(): Promise<WaitOutcome>
+  +cancel(): void
+}
+
+class InitResult {
+  +framesWritten: number
+  +failures: number
+  +completedAt: number
+}
+
+enum WaitOutcome {
+  Reply
+  Timeout
+}
+
+class WriteQueue {
+  +enqueue(bytes: Uint8Array, tag: FrameTag): Promise<WriteOutcome>
+}
+
+class WriteOutcome {
+  +ok: boolean
+  +error: Error?
+}
+
+class FrameEncoder <<module>> {
+  +init(variant: ModelVariant): Uint8Array[]
+}
+
+MonotonicClock ..|> Clock
+InitSequencer --> Clock : times with
+InitSequencer --> WriteQueue : writes through
+InitSequencer ..> FrameEncoder : gets frames from
+InitSequencer ..> InitResult : returns
+InitSequencer ..> WaitOutcome : uses
+WriteQueue ..> WriteOutcome : resolves
+@enduml

@@ -1,0 +1,80 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Unlock the treadmill
+
+class UnlockFlow {
+  +ACTIVATION_DELAY_MS: number = 500
+  +ACK_WINDOW_MS: number = 2500
+  -state: UnlockState
+  -attempt: number
+  -auth: number?
+  -ackTimer: TimerId?
+  +onE0(frame: ParsedFrame): void
+  +onDisconnect(): UnlockOutcome?
+  -handleChallenge(frame: ParsedFrame): void
+  -handleAckCandidate(frame: ParsedFrame): void
+  -onAckTimeout(): void
+}
+
+enum UnlockState {
+  Idle
+  AwaitingAck
+}
+
+class UnlockCodec <<module>> {
+  +CHALLENGE_LENGTH: number = 8
+  +classifyChallenge(frame: ParsedFrame): UnlockFailure?
+  +leadingDecimal(digits: string): number?
+  +deriveOperands(bytes: Uint8Array): Operands or UnlockFailure
+  +computeAuth(o: Operands): number
+  +validateAuth(auth: number): UnlockFailure?
+  +toBcd(auth: number): number
+  +isAcknowledgement(frame: ParsedFrame, auth: number): boolean
+}
+
+class Operands {
+  +a: number
+  +b: number
+  +c: number
+}
+
+class UnlockFailure {
+  +reason: UnlockReason
+  +detail: string
+}
+
+enum UnlockReason {
+  ChecksumInvalid
+  WrongLength
+  ZeroDivisor
+  NoDecimalPrefix
+  AuthOutOfRange
+  NoAcknowledgement
+  DisconnectedBeforeAck
+}
+
+class UnlockOutcome {
+  +attempt: number
+  +result: "unlocked" or "locked"
+  +failure: UnlockFailure?
+}
+
+UnlockFlow --> UnlockState : has
+UnlockFlow ..> UnlockCodec : uses
+UnlockFlow ..> UnlockOutcome : emits
+UnlockCodec ..> Operands : derives
+UnlockCodec ..> UnlockFailure : returns
+UnlockFailure --> UnlockReason : has
+UnlockOutcome o-- UnlockFailure
+@enduml

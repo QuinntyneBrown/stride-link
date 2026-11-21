@@ -1,0 +1,61 @@
+@startuml
+title UML sequence behaviour — Unlock acknowledged
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+box "Device — Echelon Stride treadmill" #F2F4F7
+  participant "Stride" as stride
+end box
+box "Frontend — Stride Link session core" #D1FADF
+  participant "RunController" as run
+  participant "UnlockFlow" as flow
+  participant "Clock" as clock
+  participant "VerdictEngine" as verdict
+  participant "PacketLog" as log
+end box
+box "Frontend — Stride Link protocol module" #ECFDF3
+  participant "UnlockCodec" as codec
+  participant "FrameEncoder" as enc
+end box
+box "Frontend — Stride Link Bluetooth adapter" #FFF4E5
+  participant "WriteQueue" as queue
+end box
+stride -> run : F0 E0 34 12 05 78 97 2A
+run -> flow : onE0(frame)
+flow -> codec : classifyChallenge(frame)
+codec --> flow : valid: 8 bytes, checksum valid (L2-020)
+flow -> verdict : onChallenge()
+flow -> log : record "Challenge F0 E0 34 12 05 78 97 2A"
+flow -> codec : deriveOperands(bytes)
+codec --> flow : a = 534 ("0534"), b = 1278 ("1278"), c = 97 ("97") (L2-021)
+flow -> codec : computeAuth(), validateAuth()
+codec --> flow : auth = 682452 mod 97 = 57
+flow -> enc : unlockResponse(57)
+enc --> flow : F0 E0 00 00 57 00 00 27 (BCD 0x57)
+flow -> queue : enqueue(response, unlock response) within 50 ms (L2-023)
+flow -> log : record a, b, c, auth, response hex
+queue --> flow : write resolved at t0
+flow -> flow : state = AwaitingAck
+flow -> clock : setTimeout(500) for activation
+flow -> clock : setTimeout(2500) for acknowledgement window (L2-024)
+clock --> flow : t0 + 500 ms
+flow -> queue : enqueue(F0 B0 01 01 A2, activation)
+stride -> run : F0 E0 00 00 57 00 00 27 at t0 + 2,400 ms
+run -> flow : onE0(frame)
+flow -> codec : isAcknowledgement(frame, 57)
+codec --> flow : true: 8 bytes, valid ck, byte 4 = 0x57
+flow -> clock : clearTimeout(ack window)
+flow -> log : record "Acknowledged"
+flow -> verdict : onUnlockOutcome({ attempt: 1, result: unlocked })
+@enduml

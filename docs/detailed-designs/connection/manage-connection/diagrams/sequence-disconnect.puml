@@ -1,0 +1,52 @@
+@startuml
+title UML sequence behaviour — Disconnect and connection loss
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Stride tester" as actor
+box "Frontend — Stride Link UI layer" #E0F2FE
+  participant "ConnectPanel" as panel
+end box
+box "Frontend — Stride Link session core" #D1FADF
+  participant "RunController" as run
+  participant "BeltController" as belt
+  participant "PacketLog" as log
+end box
+box "Frontend — Stride Link Bluetooth adapter" #FFF4E5
+  participant "TreadmillLink" as link
+  participant "WriteQueue" as queue
+end box
+box "External — Chrome or Edge" #F2F4F7
+  participant "Web Bluetooth GATT" as gatt
+end box
+alt tester presses Disconnect
+  actor -> panel : Press Disconnect
+  panel -> run : disconnect()
+  run -> belt : isBeltActive()
+  opt belt active
+    run -> belt : stop() and wait up to 1,000 ms (L2-048, start-and-stop-belt)
+  end
+  run -> link : disconnect()
+  link -> gatt : gatt.disconnect()
+else device drops the link
+  gatt -> link : gattserverdisconnected
+end
+link -> run : onDisconnected()
+run -> run : Stop all timers (init, keepalive, unlock, verdict)
+run -> queue : clear("disconnected")
+run -> belt : onDisconnected(): hide belt controls
+run -> log : record EV Disconnected with timestamp (L2-012)
+run -> panel : Show "Disconnected", enable Connect
+note right of run : Log and verdict of the run are kept (L2-012).\nAny failure on this path is caught and logged (L2-058).
+@enduml

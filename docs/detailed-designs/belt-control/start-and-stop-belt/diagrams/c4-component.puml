@@ -1,0 +1,31 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Start and stop the belt
+
+Person(tester, "Stride tester", "Presses Start, Stop or Escape")
+Container_Boundary(page, "Stride Link page") {
+  Component(panel, "BeltPanel", "ui/belt-panel.ts", "Start button")
+  Component(stop, "StopBar", "ui/stop-bar.ts", "Fixed Stop button; Escape key listener")
+  Component(banner, "ConnectionLostBanner", "ui/connection-lost-banner.ts", "Physical-stop warning")
+  Component(guard, "UnloadGuard", "ui/unload-guard.ts", "pagehide: best-effort Stop")
+  Component(belt, "BeltController", "session/belt-controller.ts", "start(), stop(), belt-active rule")
+  Component(run, "RunController", "session/run-controller.ts", "disconnect(): Stop first, then gatt.disconnect()")
+  Component(state, "TelemetryState", "session/telemetry-state.ts", "Latest speed")
+  Component(enc, "FrameEncoder", "protocol/frame-encoder.ts", "beltStart(variant), beltStop()")
+  Component(queue, "WriteQueue", "ble/write-queue.ts", "enqueue(); enqueueFirst() for Stop")
+}
+System_Ext(stride, "Echelon Stride treadmill", "Belt")
+
+Rel(tester, panel, "Presses Start")
+Rel(tester, stop, "Presses Stop or Escape")
+Rel(panel, belt, "start()")
+Rel(stop, belt, "stop()")
+Rel(guard, belt, "stop() on pagehide")
+Rel(run, belt, "stop() before disconnect")
+Rel(state, belt, "Speed updates")
+Rel(belt, enc, "Builds frames")
+Rel(belt, queue, "enqueue() / enqueueFirst()")
+Rel(queue, stride, "Writes to f2", "BLE")
+Rel(run, banner, "Shows on connection loss while belt active")
+@enduml

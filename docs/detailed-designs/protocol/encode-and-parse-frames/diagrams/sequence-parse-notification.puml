@@ -1,0 +1,43 @@
+@startuml
+title UML sequence behaviour — Parse an inbound notification
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+box "Frontend — Stride Link Bluetooth adapter" #FFF4E5
+  participant "TreadmillLink" as link
+end box
+box "Frontend — Stride Link session core" #D1FADF
+  participant "RunController" as run
+  participant "PacketLog" as log
+end box
+box "Frontend — Stride Link protocol module" #ECFDF3
+  participant "FrameParser" as parser
+  participant "Checksum" as ck
+end box
+link -> run : onFrame(f4, bytes)
+run -> log : record RX f4 bytes (before any decoding)
+run -> parser : parse(bytes)
+alt length 0
+  parser --> run : kind Empty; logged as "RX (empty)" (L2-015)
+else byte 0 is not F0, or length < 2
+  parser --> run : kind Unknown; not decoded, not echoed (L2-015)
+else F0 frame
+  parser -> ck : hasValidChecksum(bytes)
+  ck --> parser : true or false (length < 3 gives false)
+  parser -> parser : kind from byte 1; malformed if shorter than MIN_LENGTH\n(D3 5, D2 4, D0 4)
+  parser --> run : ParsedFrame { kind, checksumValid, malformed }
+end
+run -> run : Dispatch to LinkKeeper, UnlockFlow, TelemetryDecoder, VerdictEngine
+note over parser : Total function: any Uint8Array of length 0 to 512 returns a classification.\nThe fuzz test feeds 10,000 random arrays (L2-015).
+@enduml

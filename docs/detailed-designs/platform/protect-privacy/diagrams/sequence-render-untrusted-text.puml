@@ -1,0 +1,33 @@
+@startuml
+title UML sequence behaviour — Render untrusted device text
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Stride tester" as actor
+box "Frontend — Stride Link UI layer" #E0F2FE
+  participant "ConnectPanel" as panel
+  participant "SafeDom" as safe
+end box
+box "Frontend — Stride Link session core" #D1FADF
+  participant "RunController" as run
+end box
+box "External — Chrome or Edge" #F2F4F7
+  participant "DOM" as dom
+end box
+run -> panel : showDevice("<img src=x onerror=alert(1)>")
+panel -> safe : setText(deviceLabel, name)
+safe -> dom : deviceLabel.textContent = name
+dom --> actor : The literal string; no img element; no dialog (L2-051)
+note over safe : No dynamic data reaches innerHTML, outerHTML, insertAdjacentHTML,\ndocument.write or eval; ESLint fails the build otherwise (L2-051).\nNo localStorage, sessionStorage, IndexedDB, caches or cookies (L2-052).
+@enduml

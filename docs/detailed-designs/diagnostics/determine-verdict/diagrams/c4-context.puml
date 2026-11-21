@@ -1,0 +1,13 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Determine the verdict
+
+Person(tester, "Stride tester", "Owns a Stride; runs the smoke test beside it on a laptop or Android phone")
+System(sl, "Stride Link", "Single-file web page that tests whether a browser can talk to a Stride")
+System_Ext(treadmill, "Echelon Stride treadmill", "Bluetooth Low Energy peripheral exposing the Echelon GATT service")
+
+Rel(sl, treadmill, "Runs init and unlock against", "BLE GATT")
+Rel(treadmill, sl, "Replies, challenges or stays silent", "BLE GATT notify")
+Rel(tester, sl, "Reads Silent, Talks, Unlocked or Locked in")
+@enduml

@@ -1,0 +1,70 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Keep the link alive
+
+class LinkKeeper {
+  +INTERVAL_MS: number = 2000
+  +ECHO_KINDS: FrameKind[] = [D0, D2, D3]
+  -counter: number
+  -nextDueAt: number
+  -timer: TimerId?
+  +start(): void
+  +stop(): void
+  +onFrame(frame: ParsedFrame): void
+  -tick(): void
+  -nextCounter(): number
+}
+
+class WriteQueue {
+  -items: QueuedWrite[]
+  -inFlight: QueuedWrite?
+  -method: WriteMethod
+  +enqueue(bytes: Uint8Array, tag: FrameTag): Promise<WriteOutcome>
+  +enqueueFirst(bytes: Uint8Array, tag: FrameTag): Promise<WriteOutcome>
+  +clear(reason: string): void
+  -pump(): Promise<void>
+}
+
+class QueuedWrite {
+  +bytes: Uint8Array
+  +tag: FrameTag
+  +enqueuedAt: number
+  +resolve: (o: WriteOutcome) => void
+}
+
+enum FrameTag {
+  init
+  unlock response
+  activation
+  keepalive
+  echo
+  belt
+}
+
+enum WriteMethod {
+  WithResponse
+  WithoutResponse
+}
+
+class WriteOutcome {
+  +ok: boolean
+  +error: Error?
+}
+
+LinkKeeper --> WriteQueue : enqueues on
+WriteQueue "1" *-- "*" QueuedWrite : holds
+QueuedWrite --> FrameTag : has
+WriteQueue --> WriteMethod : chosen from f2 properties
+WriteQueue ..> WriteOutcome : resolves
+@enduml

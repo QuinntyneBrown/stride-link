@@ -1,0 +1,18 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Protect privacy and integrity
+
+Person(tester, "Stride tester", "Owns a Stride; runs the smoke test beside it on a laptop or Android phone")
+System_Boundary(sl, "Stride Link") {
+  Container(page, "Stride Link page", "TypeScript bundled into stride-link.html", "UI layer, session core, protocol module and Bluetooth adapter")
+}
+Container_Ext(webbt, "Web Bluetooth", "Chrome or Edge", "Device chooser and GATT client")
+System_Ext(host, "Static HTTPS host", "Serves the byte-identical hosted fallback copy")
+System_Ext(files, "Device file system", "Receives the exported log as a browser download")
+
+Rel(host, page, "Serves with CSP, HSTS, nosniff and no-referrer headers", "HTTPS")
+Rel(tester, page, "Uses")
+Rel(page, webbt, "Bluetooth only; connect-src 'none'", "JavaScript API")
+Rel(page, files, "Saves exports on request", "Blob and object URL")
+@enduml

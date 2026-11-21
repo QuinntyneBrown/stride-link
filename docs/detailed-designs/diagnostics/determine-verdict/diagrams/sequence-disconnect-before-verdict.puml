@@ -1,0 +1,40 @@
+@startuml
+title UML sequence behaviour — Disconnect before a verdict
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+box "Frontend — Stride Link session core" #D1FADF
+  participant "RunController" as run
+  participant "UnlockFlow" as flow
+  participant "VerdictEngine" as engine
+  participant "PacketLog" as log
+end box
+box "Frontend — Stride Link UI layer" #E0F2FE
+  participant "VerdictPanel" as panel
+end box
+run -> flow : onDisconnect()
+flow --> run : UnlockOutcome? (locked if an ack was awaited)
+run -> engine : onDisconnect()
+alt verdict already reached
+  engine -> engine : unchanged (L2-035)
+else ack awaited
+  engine -> engine : conclude(Locked, "disconnected before acknowledgement")
+else notifications received, no challenge
+  engine -> engine : conclude(Talks)
+else no notification
+  engine -> engine : conclude(Silent, "disconnected before any reply")
+end
+engine -> log : record EV verdict
+engine -> panel : render(verdict) with Export log
+@enduml

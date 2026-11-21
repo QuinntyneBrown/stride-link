@@ -1,0 +1,30 @@
+@startuml
+title UML sequence behaviour — Load the hosted copy
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Stride tester" as actor
+box "External — Chrome or Edge" #F2F4F7
+  participant "Browser" as browser
+end box
+box "Hosting — Static HTTPS host" #FFF4E5
+  participant "Host" as host
+end box
+actor -> browser : Open http://<hosted URL>
+browser -> host : GET over HTTP
+host --> browser : 301 to https:// (L2-053)
+browser -> host : GET over HTTPS
+host --> browser : stride-link.html with Strict-Transport-Security max-age >= 31536000,\nContent-Security-Policy (L2-050 policy + frame-ancestors 'none'),\nX-Content-Type-Options: nosniff, Referrer-Policy: no-referrer
+browser --> actor : Page runs; same SHA-256 as the release asset (L2-053)
+@enduml

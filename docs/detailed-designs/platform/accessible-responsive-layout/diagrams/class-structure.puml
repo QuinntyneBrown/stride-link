@@ -1,0 +1,59 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Accessible, responsive layout
+
+enum Breakpoint {
+  XS (< 576 px): one column
+  SM (576-767 px): one column, telemetry in a row of 3
+  MD (768-991 px): one column, max 720 px
+  LG (992-1199 px): two columns, log on the right
+  XL (>= 1200 px): two columns, max 1140 px
+}
+
+class AppShell {
+  -main: HTMLElement
+  -leftColumn: HTMLElement
+  -logColumn: HTMLElement
+  +start(): Promise<void>
+}
+
+class StatusAnnouncer {
+  -region: HTMLElement (aria-live=polite)
+  +announce(text: string): void
+}
+
+class LogView {
+  -container: HTMLElement (role=log, aria-label="Packet log")
+}
+
+class StopBar {
+  -button: HTMLButtonElement (aria-label="Stop belt", 64 x 64 px min)
+}
+
+class A11yContract <<rules>> {
+  +minTargetPx: number = 44
+  +focusRingPx: number = 2
+  +focusContrast: string = "3:1"
+  +textContrast: string = "4.5:1 normal, 3:1 large"
+  +baseFontPx: number = 16
+  +reducedMotion: string = "0 ms transitions"
+}
+
+AppShell --> StatusAnnouncer
+AppShell --> LogView
+AppShell --> StopBar
+AppShell ..> Breakpoint : laid out by
+LogView ..> A11yContract
+StopBar ..> A11yContract
+@enduml

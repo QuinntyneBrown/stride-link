@@ -1,0 +1,64 @@
+@startuml
+title UML sequence behaviour — Unlock fails (Locked)
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+box "Device — Echelon Stride treadmill" #F2F4F7
+  participant "Stride" as stride
+end box
+box "Frontend — Stride Link session core" #D1FADF
+  participant "UnlockFlow" as flow
+  participant "Clock" as clock
+  participant "VerdictEngine" as verdict
+  participant "PacketLog" as log
+end box
+box "Frontend — Stride Link protocol module" #ECFDF3
+  participant "UnlockCodec" as codec
+end box
+alt invalid challenge (no response is written)
+  stride -> flow : F0 E0 frame while Idle
+  flow -> codec : classifyChallenge(), deriveOperands(), validateAuth()
+  alt bad checksum, e.g. ... 97 2B
+    codec --> flow : ChecksumInvalid "challenge checksum invalid" (L2-020)
+  else length 7 or 9
+    codec --> flow : WrongLength "challenge length 7" (L2-020)
+  else c = 0, e.g. F0 E0 34 12 05 78 00 93
+    codec --> flow : ZeroDivisor "zero divisor" (L2-022)
+  else "A534" has no leading decimal digit
+    codec --> flow : NoDecimalPrefix "no decimal prefix in a" (L2-022)
+  else auth > 99 (guard only; c <= 99)
+    codec --> flow : AuthOutOfRange "auth out of range" (L2-022)
+  end
+  flow -> log : record reason
+  flow -> verdict : onUnlockOutcome({ result: locked, failure })
+else valid challenge, response written, AwaitingAck
+  opt mismatching E0 inside the window
+    stride -> flow : F0 E0 00 00 56 00 00 26
+    flow -> codec : isAcknowledgement(frame, 57)
+    codec --> flow : false
+    flow -> log : record "E0 does not match auth"; window stays open (L2-024)
+  end
+  alt window expires
+    clock --> flow : t0 + 2,500 ms
+    flow -> verdict : onUnlockOutcome({ result: locked, "no acknowledgement within 2.5 s" })
+  else device disconnects first
+    flow -> verdict : onUnlockOutcome({ result: locked, "disconnected before acknowledgement" }) (L2-035)
+  end
+end
+opt later valid challenge while Idle
+  stride -> flow : F0 E0 ... new challenge
+  flow -> log : record "Unlock attempt 2" (L2-025)
+  flow -> flow : Repeat the acknowledged or locked path
+end
+@enduml

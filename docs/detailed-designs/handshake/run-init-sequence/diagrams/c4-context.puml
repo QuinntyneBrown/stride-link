@@ -1,0 +1,13 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Run the init sequence
+
+Person(tester, "Stride tester", "Owns a Stride; runs the smoke test beside it on a laptop or Android phone")
+System(sl, "Stride Link", "Single-file web page that tests whether a browser can talk to a Stride")
+System_Ext(treadmill, "Echelon Stride treadmill", "Bluetooth Low Energy peripheral exposing the Echelon GATT service")
+
+Rel(tester, sl, "Starts a run in")
+Rel(sl, treadmill, "Writes init frames A4, A1, A3 (Stride 4 adds a fixed E0)", "BLE GATT write")
+Rel(treadmill, sl, "Notifies replies, if any", "BLE GATT notify")
+@enduml

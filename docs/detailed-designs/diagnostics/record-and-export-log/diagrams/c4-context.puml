@@ -1,0 +1,14 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Record and export the packet log
+
+Person(tester, "Stride tester", "Owns a Stride; runs the smoke test beside it on a laptop or Android phone")
+System(sl, "Stride Link", "Single-file web page that tests whether a browser can talk to a Stride")
+System_Ext(treadmill, "Echelon Stride treadmill", "Bluetooth Low Energy peripheral exposing the Echelon GATT service")
+System_Ext(files, "Device file system", "Receives the exported log as a browser download")
+
+Rel(sl, treadmill, "Exchanges frames with", "BLE GATT")
+Rel(tester, sl, "Presses Export log in")
+Rel(sl, files, "Downloads stride-link-<device>-<time>.txt to", "Blob download")
+@enduml

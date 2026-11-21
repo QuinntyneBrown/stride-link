@@ -1,0 +1,63 @@
+@startuml
+' --- shared skin header ---
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+' --------------------------
+title Class structure — Decode telemetry
+
+class TelemetryDecoder <<module>> {
+  +decode(frame: ParsedFrame, variant: ModelVariant): TelemetryUpdate
+  -speedFromD3(bytes: Uint8Array): number?
+  -speedFromD1(bytes: Uint8Array): number?
+  -inclineFromD2(bytes: Uint8Array): number?
+  -heartRateFromD1(bytes: Uint8Array): number?
+}
+
+class TelemetryUpdate {
+  +speedKmh: number?
+  +incline: number?
+  +heartRateBpm: number?
+}
+
+class TelemetryState {
+  +speedKmh: number?
+  +incline: number?
+  +heartRateBpm: number?
+  +apply(update: TelemetryUpdate): boolean
+  +reset(): void
+  +subscribe(listener: (s: TelemetryState) => void): void
+}
+
+class TelemetryPanel {
+  -speedEl: HTMLElement
+  -inclineEl: HTMLElement
+  -heartRateEl: HTMLElement
+  +render(state: TelemetryState): void
+  -formatSpeed(kmh: number?): string
+}
+
+class ParsedFrame {
+  +kind: FrameKind
+  +bytes: Uint8Array
+  +malformed: boolean
+}
+
+enum ModelVariant {
+  Standard
+  Stride4
+}
+
+TelemetryDecoder ..> ParsedFrame : reads
+TelemetryDecoder ..> ModelVariant : selects D1 speed rule by
+TelemetryDecoder ..> TelemetryUpdate : returns
+TelemetryState ..> TelemetryUpdate : applies
+TelemetryPanel --> TelemetryState : observes
+@enduml

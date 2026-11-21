@@ -1,0 +1,24 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Select a treadmill
+
+Person(tester, "Stride tester", "Presses Connect and picks a device")
+Container_Boundary(page, "Stride Link page") {
+  Component(panel, "ConnectPanel", "ui/connect-panel.ts", "Connect button and device label")
+  Component(run, "RunController", "session/run-controller.ts", "Owns the run state machine")
+  Component(gateway, "BluetoothGateway", "ble/bluetooth-gateway.ts", "Calls requestDevice()")
+  Component(filters, "ChooserFilters", "protocol/chooser-filters.ts", "Pure: filters, exclusionFilters, optionalServices")
+  Component(variant, "VariantDetector", "protocol/variant.ts", "Pure: bike check, model variant, display name")
+  Component(log, "PacketLog", "session/packet-log.ts", "Records events")
+}
+Container_Ext(webbt, "Web Bluetooth", "Chrome or Edge", "Device chooser")
+
+Rel(tester, panel, "Presses Connect")
+Rel(panel, run, "connect()")
+Rel(run, gateway, "requestTreadmill()")
+Rel(gateway, filters, "Builds options from")
+Rel(gateway, webbt, "requestDevice(options)", "JavaScript API")
+Rel(run, variant, "isBikeName(), detectVariant(), displayName()")
+Rel(run, log, "Records rejection and variant")
+@enduml

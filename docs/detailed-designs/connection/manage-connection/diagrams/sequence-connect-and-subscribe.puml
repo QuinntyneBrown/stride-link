@@ -1,0 +1,64 @@
+@startuml
+title UML sequence behaviour — Connect and subscribe
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Stride tester" as actor
+box "Frontend — Stride Link UI layer" #E0F2FE
+  participant "ConnectPanel" as panel
+end box
+box "Frontend — Stride Link session core" #D1FADF
+  participant "RunController" as run
+  participant "PacketLog" as log
+end box
+box "Frontend — Stride Link Bluetooth adapter" #FFF4E5
+  participant "BluetoothGateway" as gateway
+  participant "TreadmillLink" as link
+end box
+box "External — Chrome or Edge" #F2F4F7
+  participant "Web Bluetooth GATT" as gatt
+end box
+run -> gateway : connect(device, 10000)
+gateway -> gatt : gatt.connect(), getPrimaryService(ECHELON_SERVICE)
+alt service missing
+  gatt --> gateway : reject NotFoundError
+  gateway --> run : ServiceMissing
+  run -> log : record error name and message
+  run -> gatt : disconnect
+  run -> panel : "This device doesn't expose the Echelon service. Is it a Stride?" (L2-010)
+else 10,000 ms elapse first
+  gateway --> run : ConnectTimeout
+  run -> log : record error
+  run -> gatt : disconnect
+  run -> panel : "Couldn't connect within 10 seconds. ..." (L2-010)
+else service found
+  gatt --> gateway : service
+  gateway -> gatt : getCharacteristic(f2, f3, f4)
+  gateway --> run : TreadmillLink
+  run -> log : record Connected, Service found, UUIDs and properties
+  run -> link : subscribe(onFrame)
+  link -> gatt : f3.startNotifications()
+  link -> gatt : f4.startNotifications()
+  alt either rejects
+    link --> run : SubscribeFailed
+    run -> log : record error; no frame written
+    run -> gatt : disconnect
+    run -> panel : "Couldn't turn on treadmill notifications." (L2-011)
+  else both resolve
+    link --> run : subscribed
+    run -> log : record "isNotifying f3: true", "isNotifying f4: true" (L2-011)
+    run -> run : Start init (run-init-sequence); first write only after this point
+  end
+end
+@enduml

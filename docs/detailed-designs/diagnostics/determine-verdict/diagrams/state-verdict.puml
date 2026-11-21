@@ -1,0 +1,37 @@
+@startuml
+title State machine — Verdict of one run
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam state {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+[*] --> Initialising : subscriptions on
+Initialising --> Settling : init complete
+Initialising --> Unlocking : valid challenge
+Settling --> Talks : >= 1 notification, no challenge,\n3,000 ms elapsed (L2-034)
+Settling --> Waiting : no notification at 3,000 ms
+Settling --> Unlocking : valid challenge
+Waiting --> Talks : first notification is not a challenge (L2-034)
+Waiting --> Unlocking : valid challenge
+Waiting --> Silent : 20,000 ms after init complete (L2-033)
+Unlocking --> Unlocked : matching ack within 2,500 ms (L2-024)
+Unlocking --> Locked : invalid challenge, no ack,\nor disconnect (L2-022, L2-024, L2-035)
+Talks --> Unlocking : later valid challenge (L2-034)
+Locked --> Unlocking : new valid challenge (L2-025)
+Unlocked --> Unlocking : new valid challenge (L2-025)
+Silent --> Silent : late notifications logged only (L2-033)
+Initialising --> Silent : disconnect, no reply (L2-035)
+Settling --> Talks : disconnect after replies (L2-035)
+Waiting --> Silent : disconnect, no reply (L2-035)
+Initialising --> Talks : disconnect after replies (L2-035)
+Settling --> Silent : disconnect, no reply (L2-035)
+Silent --> [*]
+Talks --> [*]
+Unlocked --> [*]
+Locked --> [*]
+@enduml

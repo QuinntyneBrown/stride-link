@@ -1,0 +1,26 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Unlock the treadmill
+
+Container_Boundary(page, "Stride Link page") {
+  Component(run, "RunController", "session/run-controller.ts", "Routes every E0 frame to UnlockFlow")
+  Component(flow, "UnlockFlow", "session/unlock-flow.ts", "Attempt state, activation delay, acknowledgement window")
+  Component(codec, "UnlockCodec", "protocol/unlock-codec.ts", "Pure: challenge checks, a, b, c, auth, BCD, ack match")
+  Component(enc, "FrameEncoder", "protocol/frame-encoder.ts", "unlockResponse(auth), activation()")
+  Component(clock, "Clock", "session/clock.ts", "500 ms and 2,500 ms timers")
+  Component(queue, "WriteQueue", "ble/write-queue.ts", "Serialised writes")
+  Component(verdict, "VerdictEngine", "session/verdict-engine.ts", "Receives UnlockOutcome")
+  Component(log, "PacketLog", "session/packet-log.ts", "Challenge, a, b, c, auth, response, reason")
+}
+System_Ext(stride, "Echelon Stride treadmill", "Sends F0 E0 challenge and acknowledgement")
+
+Rel(stride, run, "F0 E0 notification", "BLE via Web Bluetooth")
+Rel(run, flow, "onE0(frame)")
+Rel(flow, codec, "classifyChallenge(), deriveOperands(), computeAuth(), isAcknowledgement()")
+Rel(flow, enc, "unlockResponse(auth), activation()")
+Rel(flow, queue, "enqueue()")
+Rel(flow, clock, "setTimeout(500), setTimeout(2500)")
+Rel(flow, verdict, "onChallenge(), onUnlockOutcome()")
+Rel(flow, log, "Records each step")
+@enduml
