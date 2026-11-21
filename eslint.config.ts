@@ -112,4 +112,11 @@ export default defineConfig(
     files: ["e2e/**/*.ts", "tests/**/*.ts", "scripts/**/*.ts", "*.config.ts"],
     languageOptions: { globals: { ...globals.node, ...globals.browser } },
   },
+  {
+    // Test-only: this probe calls the banned APIs inside the page to prove the CSP
+    // blocks them and that storage stays empty (L2-050, L2-052). Nothing here ships;
+    // the build still scans the bundle for every one of them.
+    files: ["e2e/page-objects/privacy-probe.ts"],
+    rules: { "no-restricted-properties": "off", "no-restricted-globals": "off" },
+  },
 );

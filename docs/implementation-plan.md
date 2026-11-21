@@ -41,7 +41,7 @@ until their complete path lands. No architecture tests or specification scans.
 | 9 | Unlock-only belt gate, standing-clear interlock, start sequence, priority Stop/Escape and disconnect safety | 042–045, 048 | Done |
 | 10 | Validated speed/incline controls with hard 3 km/h cap and safe input errors | 046–047 | Done |
 | 11 | Complete responsive/accessibility states, keyboard/touch/zoom checks and axe audits | 060–067 | Done |
-| 12 | Offline/privacy/CSP runtime checks, startup/load/one-hour performance verification | 001, 049–055, 057–058 | Pending |
+| 12 | Offline/privacy/CSP runtime checks, startup/load/one-hour performance verification | 001, 049–055, 057–058 | Done |
 | 13 | CI, release integrity, hosted deployment configuration, human-only hardware documentation | 005, 053, 059, 068–071 | Pending |
 | 14 | Requirement-by-requirement completion audit and full `npm run check`; verify pushed commits and release/deployment evidence where authorized | 001–071 | Pending |
 
@@ -154,3 +154,16 @@ does not establish completion. Record any unavailable external gate candidly.
   line and subtitle, not the smaller notice. axe needs the page clock resumed, and
   probes scroll with `behavior: "instant"` because the page scrolls smoothly. 233
   acceptance tests pass.
+- Slice 12: runtime checks that the build leaves one file under 204,800 bytes; that
+  the page renders with its own fonts with the network off; that runs to all four
+  verdicts plus an export request only the page document; that the declared CSP
+  equals the policy recomputed from the page's own inline script and style; that an
+  injected `fetch` raises a `connect-src` violation; that no inline style or `on*`
+  attribute appears; that untrusted error text stays text; that storage is empty
+  after a full run; and that a reopened file starts with an empty log. Startup
+  under 4x CPU throttling enables Connect in under 1,000 ms with no task over
+  200 ms. Each L2-058 failure is shown in plain words and logged with name and
+  message. The static scans of L2-001 c2, L2-049 c2 and L2-052 c2 stay in
+  `scripts/build-checks.ts` and ESLint, not tests (AGENTS.md); one ESLint exception
+  covers only `e2e/page-objects/privacy-probe.ts`, which must call the banned APIs
+  to prove they are blocked or unused. 252 acceptance tests pass.

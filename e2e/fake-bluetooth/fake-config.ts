@@ -22,7 +22,9 @@ export interface FakeConfig {
   /** "absent" removes navigator.bluetooth entirely. */
   availability: boolean | "absent";
   /** What requestDevice does: resolve the device, or reject with a DOMException name. */
-  chooser: "select" | "NotFoundError" | "SecurityError";
+  chooser: "select" | "NotFoundError" | "SecurityError" | "NetworkError";
+  /** Message of the chooser's NetworkError, to test untrusted error text (L2-051). */
+  chooserErrorMessage: string;
   /** Advertised device name; null for an unnamed device. */
   deviceName: string | null;
   /** "hang" never resolves gatt.connect(); "late" resolves it after `lateConnectMs`. */
@@ -52,6 +54,7 @@ export interface FakeConfig {
 export const baseConfig: FakeConfig = {
   availability: true,
   chooser: "select",
+  chooserErrorMessage: "Bluetooth adapter not available.",
   deviceName: "STRIDE-8S",
   connect: "ok",
   lateConnectMs: 15_000,

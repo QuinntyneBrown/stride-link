@@ -184,6 +184,7 @@ class FakeBluetooth extends EventTarget {
 
   requestDevice(options: unknown): Promise<FakeDevice> {
     this.call("requestDevice", JSON.stringify(options));
+    if (this.config.chooser === "NetworkError") return Promise.reject(domError("NetworkError", this.config.chooserErrorMessage));
     if (this.config.chooser === "NotFoundError") return Promise.reject(domError("NotFoundError", "User cancelled the requestDevice() chooser."));
     if (this.config.chooser === "SecurityError") {
       return Promise.reject(domError("SecurityError", "Origin is not allowed to access the service. Tip: Add the service UUID to 'optionalServices' in requestDevice() options."));

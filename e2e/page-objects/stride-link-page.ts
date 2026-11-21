@@ -12,6 +12,7 @@ import { PageFooter } from "./page-footer.ts";
 import { LogPanel } from "./log-panel.ts";
 import { BeltControls } from "./belt-controls.ts";
 import { PageProbe } from "./page-probe.ts";
+import { PrivacyProbe } from "./privacy-probe.ts";
 import { RunFacts } from "./run-facts.ts";
 import { StopBar } from "./stop-bar.ts";
 import { TelemetryPanel } from "./telemetry-panel.ts";
@@ -51,6 +52,7 @@ export class StrideLinkPage {
   readonly belt: BeltControls;
   readonly stop: StopBar;
   readonly probe: PageProbe;
+  readonly privacy: PrivacyProbe;
 
   constructor(page: Page) {
     this.page = page;
@@ -65,6 +67,7 @@ export class StrideLinkPage {
     this.belt = new BeltControls(page);
     this.stop = new StopBar(page);
     this.probe = new PageProbe(page);
+    this.privacy = new PrivacyProbe(page);
   }
 
   /** Opens the page and drives it into a named state through the fake. */
@@ -192,6 +195,40 @@ export class StrideLinkPage {
     await this.page.clock.install({ time: new Date("2026-11-20T09:30:00Z") });
     await this.page.clock.pauseAt(new Date("2026-11-20T09:30:01Z"));
     await this.page.goto(PAGE_URL);
+  }
+
+  /**
+   * Opens the page with the fake but on the real clock, with 4x CPU throttling,
+   * and reports when Connect became enabled and every long task (L2-054).
+   */
+  async openForStartup(): Promise<{ connectEnabledAtMs: number; longTasksMs: number[] }> {
+    await installFakeBluetooth(this.page, {});
+    await this.page.addInitScript(() => {
+      const w = window as unknown as { __longTasks: number[] };
+      w.__longTasks = [];
+      new PerformanceObserver((list) => {
+        for (const entry of list.getEntries()) w.__longTasks.push(entry.duration);
+      }).observe({ type: "longtask", buffered: true });
+    });
+    const cdp = await this.page.context().newCDPSession(this.page);
+    await cdp.send("Emulation.setCPUThrottlingRate", { rate: 4 });
+    await this.page.goto(PAGE_URL);
+    const connectEnabledAtMs = await this.page.evaluate(
+      () =>
+        new Promise<number>((resolve) => {
+          const button = document.getElementById("connect");
+          const check = (): void => {
+            if (button instanceof HTMLButtonElement && !button.disabled) resolve(performance.now());
+            else requestAnimationFrame(check);
+          };
+          check();
+        }),
+    );
+    await this.page.waitForLoadState("load");
+    const longTasksMs = await this.page.evaluate(() => (window as unknown as { __longTasks: number[] }).__longTasks);
+    await cdp.send("Emulation.setCPUThrottlingRate", { rate: 1 });
+    await cdp.detach();
+    return { connectEnabledAtMs, longTasksMs };
   }
 
   /** Lets queued animation frames and zero-delay timers run. */
