@@ -1,0 +1,33 @@
+{
+  "name": "stride-link",
+  "version": "1.0.0",
+  "description": "Single-file Web Bluetooth smoke test for Echelon Stride treadmills.",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "build": "node scripts/build.ts",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint --flag unstable_native_nodejs_ts_config .",
+    "test": "vitest run --coverage",
+    "test:e2e": "npm run build && playwright test",
+    "check": "npm run typecheck && npm run lint && npm test && npm run test:e2e"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "4.14.0",
+    "@eslint/js": "10.0.1",
+    "@playwright/test": "1.65.1",
+    "@types/node": "24.19.2",
+    "@types/web-bluetooth": "0.0.22",
+    "@vitest/coverage-v8": "5.1.1",
+    "esbuild": "0.28.2",
+    "eslint": "10.15.0",
+    "globals": "17.14.0",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.73.0",
+    "vitest": "5.1.1"
+  }
+}

@@ -30,7 +30,7 @@ until their complete path lands. No architecture tests or specification scans.
 | # | Deliverable and verification | Requirements | Status |
 |---|---|---|---|
 | 0 | Complete static mock states using existing assets; coverage matrix and visual review; extract verified design system before product UI | All visible states, 060–067 | Pending |
-| 1 | Strict TS tooling, deterministic single-file build, CSP/size enforcement, fake-only acceptance harness and initial support screen | 001–005, 049–052, 068, 070 | Pending |
+| 1 | Strict TS tooling, deterministic single-file build, CSP/size enforcement, fake-only acceptance harness and initial support screen | 001–005, 049–052, 068, 070 | Done |
 | 2 | Chooser, variant/bike handling, cancel/security errors and basic exportable diagnostics | 004, 006–009, 037–041 | Pending |
 | 3 | GATT discovery/subscriptions, timeout, disconnect and serialized writes with failure recovery | 010–012, 056, 058 | Pending |
 | 4 | Pure encoding/parsing and standard/Stride 4 paced init through the real fake transport | 013–019, 069 | Pending |
@@ -66,3 +66,16 @@ does not establish completion. Record any unavailable external gate candidly.
 
 - Planning: inspected repository, local guidance, skill, L2 requirements and design
   index; saved this plan before writing application code.
+- Slice 0 runs in parallel (docs-only mocks and design system); product styles are
+  taken from the existing mock kit and will be reconciled with its output.
+- Slice 1: npm toolchain pinned (TypeScript 6.0.3 because typescript-eslint 8.73
+  requires <6.1); `scripts/build.ts` type-checks, bundles, inlines fonts as data
+  URIs, hashes the CSP, scans for banned APIs and enforces the size limit (first
+  build 146,194 bytes). ESLint bans HTML sinks, network/storage APIs, impure globals
+  in `src/protocol/` and cross-layer imports (probe files confirmed every rule fires,
+  then were deleted). The fake `navigator.bluetooth` is bundled and installed with
+  `addInitScript`; a guard fixture fails any test on page errors, console errors,
+  unhandled rejections or a real `requestDevice`. Results: typecheck, lint, 3 unit
+  tests and 6 acceptance tests pass. Default hosted URL
+  `https://quinntynebrown.github.io/stride-link/stride-link.html` is a placeholder
+  pending the owner's answer (override with `STRIDE_LINK_HOSTED_URL`).

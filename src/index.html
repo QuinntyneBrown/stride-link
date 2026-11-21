@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="{{CSP}}">
+<title>Stride Link</title>
+<link rel="icon" href="{{ICON}}">
+<style>{{STYLE}}</style>
+</head>
+<body>
+<header class="topbar app-topbar">
+  <span class="brand" aria-label="Stride Link">
+    <svg class="brand__mark" viewBox="0 0 72 56" aria-hidden="true" focusable="false"><rect class="mark__ink" x="4" y="12" width="48" height="32" rx="16" fill="none" stroke-width="5"/><circle class="mark__ink-fill" cx="20" cy="28" r="4"/><circle class="mark__signal-fill" cx="36" cy="28" r="4"/><path class="mark__signal" d="M57.3 13.09 A26 26 0 0 1 57.3 42.91" fill="none" stroke-width="5" stroke-linecap="round"/><path class="mark__signal" d="M63.85 8.5 A34 34 0 0 1 63.85 47.5" fill="none" stroke-width="5" stroke-linecap="round"/></svg>
+    <span class="brand__word" aria-hidden="true"><strong>Stride</strong><span>Link</span></span>
+  </span>
+  <span class="topbar__spacer"></span>
+  <span class="privacy-pill">Offline<span class="privacy-pill__long">&nbsp;· nothing leaves this device</span></span>
+</header>
+
+<main class="app" id="main">
+  <div class="app__primary">
+    <section class="panel" id="status-panel" aria-labelledby="status-title">
+      <div class="app__intro">
+        <h1 id="status-title">Treadmill smoke test</h1>
+        <p class="subtitle">Connect to an Echelon Stride and find out whether it answers.</p>
+      </div>
+      <p class="status" id="status" role="status" aria-live="polite"><span class="dot" aria-hidden="true"></span><span id="status-text">Checking Bluetooth…</span></p>
+    </section>
+
+    <section class="panel" id="connect-panel" aria-labelledby="connect-title">
+      <div class="panel__header"><h2 class="panel__title" id="connect-title">Connection</h2></div>
+      <div class="alert alert--warning" id="support-message" hidden><div class="alert__body"><p id="support-text"></p></div></div>
+      <p class="notice" id="ownership-notice">Use Stride Link only on a treadmill you own.</p>
+      <div class="panel__actions">
+        <button type="button" class="btn btn--primary btn--lg" id="connect" disabled>Connect</button>
+      </div>
+    </section>
+  </div>
+</main>
+
+<footer class="footer app-footer">
+  <span>Stride Link <span class="mono" id="build-version"></span> · <span class="mono" id="build-commit"></span></span>
+</footer>
+<script>{{SCRIPT}}</script>
+</body>
+</html>
