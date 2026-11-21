@@ -42,7 +42,7 @@ until their complete path lands. No architecture tests or specification scans.
 | 10 | Validated speed/incline controls with hard 3 km/h cap and safe input errors | 046–047 | Done |
 | 11 | Complete responsive/accessibility states, keyboard/touch/zoom checks and axe audits | 060–067 | Done |
 | 12 | Offline/privacy/CSP runtime checks, startup/load/one-hour performance verification | 001, 049–055, 057–058 | Done |
-| 13 | CI, release integrity, hosted deployment configuration, human-only hardware documentation | 005, 053, 059, 068–071 | Pending |
+| 13 | CI, release integrity, hosted deployment configuration, human-only hardware documentation | 005, 053, 059, 068–071 | Done (L2-053 awaits a host) |
 | 14 | Requirement-by-requirement completion audit and full `npm run check`; verify pushed commits and release/deployment evidence where authorized | 001–071 | Pending |
 
 Slices may be split further when verification reveals independent work; retain
@@ -167,3 +167,19 @@ does not establish completion. Record any unavailable external gate candidly.
   `scripts/build-checks.ts` and ESLint, not tests (AGENTS.md); one ESLint exception
   covers only `e2e/page-objects/privacy-probe.ts`, which must call the banned APIs
   to prove they are blocked or unused. 252 acceptance tests pass.
+- Slice 13: `ci.yml` runs `npm run check` on every push and pull request, rebuilds to
+  prove the output is byte-identical (L2-068 c3), and stages and verifies the
+  sha256sum file. `release.yml` on a `v*` tag checks the tag against package.json,
+  repeats every check, stages `release/` (page + `stride-link.html.sha256`) and
+  `hosted/` (page + `_headers` with HSTS, nosniff, no-referrer and the CSP plus
+  `frame-ancestors 'none'`), and only then runs `gh release create`; any failed step
+  publishes nothing (L2-059 c3). `scripts/verify-hosted.ts` checks a served copy
+  for the http->https redirect, the headers and the release hash; the release runs
+  it before publishing whenever `STRIDE_LINK_HOSTED_URL` is set. No job grants
+  Bluetooth permission. The fake's named scripts now cover every L2-070 c2
+  scenario. Not done, by instruction: no tag was pushed, no release published, no
+  host provisioned. L2-053 stays open until the owner names the static host and
+  hosted URL (the build still uses the placeholder
+  `https://quinntynebrown.github.io/stride-link/stride-link.html`, and GitHub Pages
+  cannot set these headers). `docs/manual-hardware-test.md` already lists the
+  L2-071 steps in order and records browser, version and OS (L2-005 c2).

@@ -1,0 +1,58 @@
+# On a v* tag: repeat every check, then publish stride-link.html and its sha256sum
+# file as a GitHub release (L2-059). Any failed step publishes nothing.
+#
+# The static host for the hosted copy (L2-053) is not chosen yet. The workflow
+# stages hosted/ (the page plus a _headers file) as an artifact. Once a host
+# exists, add its deploy step where marked and set the STRIDE_LINK_HOSTED_URL
+# repository variable; the release is then blocked unless the served copy has
+# the HTTPS redirect, the security headers and the release hash.
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      STRIDE_LINK_HOSTED_URL: ${{ vars.STRIDE_LINK_HOSTED_URL }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: The tag matches package.json
+        run: test "v$(node -p 'require("./package.json").version')" = "$GITHUB_REF_NAME"
+      - name: Typecheck, lint, unit tests, build with the size limit, and acceptance tests
+        run: npm run check
+        env:
+          CI: "true"
+      - name: Two builds of this commit are byte-identical
+        run: |
+          cp dist/stride-link.html "$RUNNER_TEMP/first.html"
+          npm run build
+          cmp "$RUNNER_TEMP/first.html" dist/stride-link.html
+      - name: Stage the release and hosted files
+        run: |
+          npm run release:stage
+          (cd release && sha256sum -c stride-link.html.sha256)
+      - uses: actions/upload-artifact@v4
+        with:
+          name: hosted-copy
+          path: hosted/
+      # Deploy hosted/ to the static host here, once one is chosen.
+      - name: The hosted copy meets L2-053
+        if: ${{ vars.STRIDE_LINK_HOSTED_URL != '' }}
+        run: node scripts/verify-hosted.ts "$STRIDE_LINK_HOSTED_URL" release/stride-link.html.sha256
+      - name: Publish the GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" release/stride-link.html release/stride-link.html.sha256 --title "Stride Link $GITHUB_REF_NAME" --verify-tag --generate-notes

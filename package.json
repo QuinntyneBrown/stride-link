@@ -14,7 +14,9 @@
     "lint": "eslint --flag unstable_native_nodejs_ts_config .",
     "test": "vitest run --coverage",
     "test:e2e": "npm run build && playwright test",
-    "check": "npm run typecheck && npm run lint && npm test && npm run test:e2e"
+    "check": "npm run typecheck && npm run lint && npm test && npm run test:e2e",
+    "release:stage": "node scripts/prepare-hosted.ts",
+    "verify:hosted": "node scripts/verify-hosted.ts"
   },
   "devDependencies": {
     "@axe-core/playwright": "4.14.0",

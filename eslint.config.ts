@@ -113,10 +113,11 @@ export default defineConfig(
     languageOptions: { globals: { ...globals.node, ...globals.browser } },
   },
   {
-    // Test-only: this probe calls the banned APIs inside the page to prove the CSP
-    // blocks them and that storage stays empty (L2-050, L2-052). Nothing here ships;
-    // the build still scans the bundle for every one of them.
-    files: ["e2e/page-objects/privacy-probe.ts"],
+    // Never shipped. The privacy probe calls the banned APIs inside the page to prove
+    // the CSP blocks them and that storage stays empty (L2-050, L2-052); the release
+    // tool fetches the deployed hosted copy to check its headers (L2-053). The build
+    // still scans the shipped bundle for every one of them.
+    files: ["e2e/page-objects/privacy-probe.ts", "scripts/verify-hosted.ts"],
     rules: { "no-restricted-properties": "off", "no-restricted-globals": "off" },
   },
 );

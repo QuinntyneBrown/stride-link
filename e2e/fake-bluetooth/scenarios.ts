@@ -26,3 +26,14 @@ export const silent: FakeOverrides = {};
 /** Time from Connect until each scenario's verdict is certainly shown. */
 export const UNTIL_VERDICT_MS = 7_000;
 export const UNTIL_SILENT_MS = 25_000;
+
+/** The Stride 4 variant, chosen by name (L2-008). */
+export const stride4: FakeOverrides = { deviceName: "STRIDE4-ABC" };
+export const chooserCancel: FakeOverrides = { chooser: "NotFoundError" };
+export const bikeRejected: FakeOverrides = { deviceName: "ECH-SPORT-1234" };
+export const connectTimeout: FakeOverrides = { connect: "hang" };
+export const missingService: FakeOverrides = { service: false };
+export const subscribeFailure: FakeOverrides = { subscribeFailure: "f4" };
+export const writeFailure: FakeOverrides = { failWrites: [2] };
+/** Talks, then the treadmill drops the link 4 s after the tenth write settles. */
+export const midRunDisconnect: FakeOverrides = { ...talks, disconnectAfterWrite: { write: 10, delayMs: 4_000 } };

@@ -1,0 +1,46 @@
+# Every push and pull request: typecheck, lint, unit, build and acceptance tests,
+# plus a reproducible-build check (L2-068). Acceptance tests run on Playwright's
+# Chromium against the fake navigator.bluetooth only: no job grants Bluetooth
+# permission or touches real hardware (L2-070, L2-071).
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      STRIDE_LINK_HOSTED_URL: ${{ vars.STRIDE_LINK_HOSTED_URL }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Typecheck, lint, unit tests, build and acceptance tests
+        run: npm run check
+        env:
+          CI: "true"
+      - name: Two builds of this commit are byte-identical
+        run: |
+          cp dist/stride-link.html "$RUNNER_TEMP/first.html"
+          npm run build
+          cmp "$RUNNER_TEMP/first.html" dist/stride-link.html
+      - name: Stage the release files and check the hash
+        run: |
+          npm run release:stage
+          (cd release && sha256sum -c stride-link.html.sha256)
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 14

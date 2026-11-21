@@ -38,7 +38,8 @@ function readCommit(): string {
 }
 
 function readHostedUrl(): string {
-  const url = process.env["STRIDE_LINK_HOSTED_URL"] ?? DEFAULT_HOSTED_URL;
+  // An unset or empty variable (an unset CI variable is empty) uses the default.
+  const url = process.env["STRIDE_LINK_HOSTED_URL"] || DEFAULT_HOSTED_URL;
   if (!/^https:\/\/[^\s"'<>]+$/.test(url)) fail(`STRIDE_LINK_HOSTED_URL must be an https:// URL, got "${url}".`);
   return url;
 }
