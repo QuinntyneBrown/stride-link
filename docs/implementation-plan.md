@@ -31,7 +31,7 @@ until their complete path lands. No architecture tests or specification scans.
 |---|---|---|---|
 | 0 | Complete static mock states using existing assets; coverage matrix and visual review; extract verified design system before product UI | All visible states, 060–067 | Pending |
 | 1 | Strict TS tooling, deterministic single-file build, CSP/size enforcement, fake-only acceptance harness and initial support screen | 001–005, 049–052, 068, 070 | Done |
-| 2 | Chooser, variant/bike handling, cancel/security errors and basic exportable diagnostics | 004, 006–009, 037–041 | Pending |
+| 2 | Chooser, variant/bike handling, cancel/security errors and basic exportable diagnostics | 004, 006–009, 037–041 | Done |
 | 3 | GATT discovery/subscriptions, timeout, disconnect and serialized writes with failure recovery | 010–012, 056, 058 | Pending |
 | 4 | Pure encoding/parsing and standard/Stride 4 paced init through the real fake transport | 013–019, 069 | Pending |
 | 5 | Challenge arithmetic, unlock response/acknowledgement, timeout and retry handling | 020–025, 069 | Pending |
@@ -79,3 +79,13 @@ does not establish completion. Record any unavailable external gate candidly.
   tests and 6 acceptance tests pass. Default hosted URL
   `https://quinntynebrown.github.io/stride-link/stride-link.html` is a placeholder
   pending the owner's answer (override with `STRIDE_LINK_HOSTED_URL`).
+- Slice 0 collision: another Claude session (docs-51) was writing mocks to
+  `docs/mocks/` at the same time as this plan's slice 0 fork; the fork overwrote
+  parts of that set and was stopped. Which set to keep is with the owner; slice 0 is
+  on hold and nothing under `docs/mocks/` has been staged.
+- Slice 2: pure chooser filters, variant/bike detection, hex and error facts (unit
+  tests at 100 %); `PacketLog` with a page section for events outside a run,
+  the L2-038 formatter, export builder and file name; on-screen log view; Blob
+  download. 17 acceptance tests and 25 unit tests pass; lint and typecheck clean.
+  The `[hidden]` rule was made authoritative after `.facts { display: grid }`
+  overrode it.

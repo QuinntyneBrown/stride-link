@@ -1,6 +1,8 @@
 /* Product component kit, taken from docs/mocks/assets/ui.css so the page matches the mocks. */
 /* ---------- Base --------------------------------------------------------- */
 *, *::before, *::after { box-sizing: border-box; }
+/* `hidden` always wins: hidden controls leave layout, the accessibility tree and the Tab order (L2-042). */
+[hidden] { display: none !important; }
 html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
 body {

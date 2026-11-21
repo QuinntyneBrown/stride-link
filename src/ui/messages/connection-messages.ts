@@ -8,4 +8,13 @@ export const statusMessages: Record<StatusKey, string> = {
   supported: "Ready to connect.",
   "no-web-bluetooth": "This browser can't use Bluetooth. Open this file in Chrome or Edge.",
   "adapter-unavailable": "Bluetooth is off or unavailable on this device. Turn it on to continue.",
+  selecting: "Choose your treadmill in the browser's list.",
+  cancelled: "No treadmill selected.",
+  "bike-rejected": "This looks like an Echelon bike. Stride Link only tests Stride treadmills.",
+  "blocked-from-disk": "This browser blocks Bluetooth on files opened from disk. Open the hosted copy instead.",
+  "chooser-failed": "Couldn't open the Bluetooth chooser. Press Connect to try again.",
+  connecting: "Connecting to the treadmill…",
+  "export-failed": "Couldn't save the log file. Press Export log to try again.",
 };
+
+export const HOSTED_LINK_TEXT = "Open the hosted copy";

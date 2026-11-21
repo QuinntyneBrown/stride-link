@@ -26,17 +26,35 @@
         <p class="subtitle">Connect to an Echelon Stride and find out whether it answers.</p>
       </div>
       <p class="status" id="status" role="status" aria-live="polite"><span class="dot" aria-hidden="true"></span><span id="status-text">Checking Bluetooth…</span></p>
+      <p id="hosted-link-row" hidden><a class="btn btn--link" id="hosted-link" href="#">Open the hosted copy</a></p>
     </section>
 
     <section class="panel" id="connect-panel" aria-labelledby="connect-title">
       <div class="panel__header"><h2 class="panel__title" id="connect-title">Connection</h2></div>
-      <div class="alert alert--warning" id="support-message" hidden><div class="alert__body"><p id="support-text"></p></div></div>
       <p class="notice" id="ownership-notice">Use Stride Link only on a treadmill you own.</p>
+      <dl class="facts" id="run-facts" hidden>
+        <dt>Device</dt><dd id="device-name"></dd>
+        <dt>Model variant</dt><dd id="device-variant"></dd>
+      </dl>
       <div class="panel__actions">
         <button type="button" class="btn btn--primary btn--lg" id="connect" disabled>Connect</button>
       </div>
     </section>
   </div>
+
+  <section class="panel log-panel app__log" id="log-panel" aria-labelledby="log-title">
+    <div class="panel__header">
+      <h2 class="panel__title" id="log-title">Packet log</h2>
+      <span class="text-caption" id="log-count">0 entries</span>
+    </div>
+    <div class="log" id="log" role="log" aria-label="Packet log" aria-live="off" tabindex="0">
+      <ol class="log__list" id="log-list"></ol>
+      <p class="log__empty" id="log-empty">No entries yet. Press Connect to start a run.</p>
+    </div>
+    <div class="panel__actions">
+      <button type="button" class="btn" id="export-log" disabled>Export log</button>
+    </div>
+  </section>
 </main>
 
 <footer class="footer app-footer">

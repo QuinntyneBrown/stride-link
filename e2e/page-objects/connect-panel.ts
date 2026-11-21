@@ -9,7 +9,7 @@ export class ConnectPanel {
   constructor(page: Page) {
     this.connectButton = page.getByRole("button", { name: "Connect", exact: true });
     this.ownershipNotice = page.locator("#ownership-notice");
-    this.hostedLink = page.locator("#hosted-link");
+    this.hostedLink = page.getByRole("link", { name: "Open the hosted copy" });
   }
 
   async connect(): Promise<void> {
