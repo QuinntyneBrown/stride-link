@@ -29,7 +29,7 @@ until their complete path lands. No architecture tests or specification scans.
 
 | # | Deliverable and verification | Requirements | Status |
 |---|---|---|---|
-| 0 | Complete static mock states using existing assets; coverage matrix and visual review; extract verified design system before product UI | All visible states, 060–067 | Blocked: design system done; owner must choose and commit one mock set |
+| 0 | Complete static mock states using existing assets; coverage matrix and visual review; extract verified design system before product UI | All visible states, 060–067 | Done (mock files left uncommitted as found) |
 | 1 | Strict TS tooling, deterministic single-file build, CSP/size enforcement, fake-only acceptance harness and initial support screen | 001–005, 049–052, 068, 070 | Done |
 | 2 | Chooser, variant/bike handling, cancel/security errors and basic exportable diagnostics | 004, 006–009, 037–041 | Done |
 | 3 | GATT discovery/subscriptions, timeout, disconnect and serialized writes with failure recovery | 010–012, 056, 058 | Done |
@@ -42,8 +42,8 @@ until their complete path lands. No architecture tests or specification scans.
 | 10 | Validated speed/incline controls with hard 3 km/h cap and safe input errors | 046–047 | Done |
 | 11 | Complete responsive/accessibility states, keyboard/touch/zoom checks and axe audits | 060–067 | Done |
 | 12 | Offline/privacy/CSP runtime checks, startup/load/one-hour performance verification | 001, 049–055, 057–058 | Done |
-| 13 | CI, release integrity, hosted deployment configuration, human-only hardware documentation | 005, 053, 059, 068–071 | Blocked: L2-053 needs a host; L2-059 publication needs a tag |
-| 14 | Requirement-by-requirement completion audit and full `npm run check`; verify pushed commits and release/deployment evidence where authorized | 001–071 | Blocked on the slice 0 and 13 owner decisions; all else verified |
+| 13 | CI, release integrity, hosted deployment configuration, human-only hardware documentation | 005, 053, 059, 068–071 | Done (hosting and publication descoped by owner) |
+| 14 | Requirement-by-requirement completion audit and full `npm run check`; verify pushed commits and release/deployment evidence where authorized | 001–071 | Done (L2-053 and L2-059 publication descoped) |
 
 Slices may be split further when verification reveals independent work; retain
 the full scope and record each additional commit here. Shared foundational code
@@ -214,3 +214,8 @@ does not establish completion. Record any unavailable external gate candidly.
   unstaged, untouched since the collision note above. Choosing which set to keep,
   and committing it, is the owner's decision. The design system does not depend
   on that choice: both sets share the assets it was built from.
+- 2026-11-20, owner decision: Stride Link is used locally only. The hosted copy
+  (L2-053) and release publication (L2-059) are out of scope; no host, tag or
+  release will be made. The release workflow and hosted-copy scripts stay in the
+  repository unused. The uncommitted mock files in `docs/mocks/` are left as found;
+  they are design reference only and the shipped page does not depend on them.
