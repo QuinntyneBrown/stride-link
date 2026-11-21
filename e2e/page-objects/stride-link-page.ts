@@ -37,6 +37,27 @@ export class StrideLinkPage {
     this.telemetry = new TelemetryPanel(page);
   }
 
+  /** JS heap in use after a forced garbage collection, through the DevTools protocol. */
+  async heapUsedBytes(): Promise<number> {
+    const cdp = await this.page.context().newCDPSession(this.page);
+    await cdp.send("HeapProfiler.collectGarbage");
+    const { usedSize } = await cdp.send("Runtime.getHeapUsage");
+    await cdp.detach();
+    return usedSize;
+  }
+
+  /** Closes the tab as a tester would, running beforeunload; reports whether it asked to confirm. */
+  async closeTab(): Promise<{ confirmationShown: boolean }> {
+    let confirmationShown = false;
+    this.page.on("dialog", (dialog) => {
+      if (dialog.type() === "beforeunload") confirmationShown = true;
+      void dialog.accept();
+    });
+    await this.page.close({ runBeforeUnload: true });
+    await this.page.waitForEvent("close");
+    return { confirmationShown };
+  }
+
   /** The page clock's current performance.now(). */
   async now(): Promise<number> {
     return this.page.evaluate(() => performance.now());

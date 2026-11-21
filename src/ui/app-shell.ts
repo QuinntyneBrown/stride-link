@@ -58,6 +58,11 @@ export class AppShell {
       this.log,
     );
 
+    // Warn before closing with entries recorded since the last export (L2-041).
+    doc.defaultView?.addEventListener("beforeunload", (event) => {
+      if (this.log.hasUnexported()) event.preventDefault();
+    });
+
     connect.addEventListener("click", () => { void this.controller.connect(); });
     disconnect.addEventListener("click", () => { this.controller.disconnect(); });
     exportButton.addEventListener("click", () => { this.exportLog(); });

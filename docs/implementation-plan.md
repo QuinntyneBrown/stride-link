@@ -37,7 +37,7 @@ until their complete path lands. No architecture tests or specification scans.
 | 5 | Challenge arithmetic, unlock response/acknowledgement, timeout and retry handling | 020–025, 069 | Done |
 | 6 | Keepalive and echo scheduling, cancellation and concurrent queue behavior | 026–027, 055–056 | Done |
 | 7 | Telemetry rendering, all four verdicts and exact explanatory copy | 028–036 | Done |
-| 8 | Bounded packet log, filters, follow/pause, clear, downloads and metadata | 037–041, 057 | Pending |
+| 8 | Bounded packet log, filters, follow/pause, clear, downloads and metadata | 037–041, 057 | Done |
 | 9 | Unlock-only belt gate, standing-clear interlock, start sequence, priority Stop/Escape and disconnect safety | 042–045, 048 | Pending |
 | 10 | Validated speed/incline controls with hard 3 km/h cap and safe input errors | 046–047 | Pending |
 | 11 | Complete responsive/accessibility states, keyboard/touch/zoom checks and axe audits | 060–067 | Pending |
@@ -120,3 +120,12 @@ does not establish completion. Record any unavailable external gate candidly.
   atomic live region with its own Export log; telemetry is not live. L2 gives no
   status-line text for a reached verdict, so it reads "Connected to the
   treadmill." beside the card. 81 acceptance and 121 unit tests pass.
+- Slice 8: on-screen log keeps a run heading above its remaining rows when trimming
+  to 500; the scroller now uses normal column flow (the mock's `column-reverse`
+  inverted `scrollTop` and broke follow/keep); `beforeunload` warns only with
+  unexported entries. Filters and Clear named in this slice's row are not in
+  L2-037..041, so per "the spec wins" they were not built. The one-hour run
+  (72,000 notifications, echoes, keepalives) stays under 50 MB of heap measured
+  through CDP, at most 500 rows, export starting in under 2 s; L2-057 criterion 3
+  (Stop within 50 ms) is verified in slice 9 once Stop exists. Playwright pins
+  `timezoneId: "UTC"` so export names are exact. 97 acceptance tests pass.

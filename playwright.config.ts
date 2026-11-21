@@ -10,6 +10,9 @@ export default defineConfig({
   reporter: process.env["CI"] ? [["list"], ["html", { open: "never" }]] : "list",
   use: {
     trace: "retain-on-failure",
+    // Export file names use local time (L2-040); pin it so names are exact.
+    timezoneId: "UTC",
+    locale: "en-US",
   },
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
 });

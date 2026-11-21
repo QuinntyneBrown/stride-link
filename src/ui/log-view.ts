@@ -68,15 +68,22 @@ export class LogView {
     else this.scroller.scrollTop -= heightBefore - this.scroller.scrollHeight;
   }
 
+  /** Drops the oldest rows; a run heading stays above its remaining rows. */
   private trim(): void {
     while (this.rows > MAX_ROWS) {
       const first = this.list.firstElementChild;
       if (!first) return;
-      if (first.classList.contains("log__line")) this.rows -= 1;
-      first.remove();
+      const next = first.nextElementSibling;
+      if (first.classList.contains("log__run") && next?.classList.contains("log__line")) {
+        next.remove();
+      } else {
+        first.remove();
+        if (!first.classList.contains("log__line")) continue;
+      }
+      this.rows -= 1;
     }
     // Drop a heading left with no rows under it.
     const first = this.list.firstElementChild;
-    if (first?.classList.contains("log__run") && first.nextElementSibling?.classList.contains("log__run")) first.remove();
+    if (first?.classList.contains("log__run") && !first.nextElementSibling?.classList.contains("log__line")) first.remove();
   }
 }

@@ -119,7 +119,7 @@ body.has-stop-bar .app__log { height: auto; }
 /* ---------- Packet log (role="log") ---------------------------------------- */
 .log-panel { gap: var(--space-3); }
 .log-panel .panel__header .text-caption { font-variant-numeric: tabular-nums; }
-.log { display: flex; flex-direction: column-reverse; max-height: var(--layout-log-height-mobile); overflow: auto; overscroll-behavior: contain; border-radius: var(--radius-md); background: var(--color-bg-surface-sunken); padding: var(--space-3) var(--space-3); }
+.log { display: flex; flex-direction: column; max-height: var(--layout-log-height-mobile); overflow: auto; overscroll-behavior: contain; border-radius: var(--radius-md); background: var(--color-bg-surface-sunken); padding: var(--space-3) var(--space-3); }
 @media (min-width: 62rem) { .log { max-height: none; flex: 1; min-height: 0; } }
 .log__list { list-style: none; margin: 0; padding: 0; font: var(--text-code); font-size: var(--font-size-xs); line-height: 1.6; }
 @media (min-width: 36rem) { .log__list { font-size: var(--font-size-sm); } }
