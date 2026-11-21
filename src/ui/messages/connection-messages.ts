@@ -14,6 +14,12 @@ export const statusMessages: Record<StatusKey, string> = {
   "blocked-from-disk": "This browser blocks Bluetooth on files opened from disk. Open the hosted copy instead.",
   "chooser-failed": "Couldn't open the Bluetooth chooser. Press Connect to try again.",
   connecting: "Connecting to the treadmill…",
+  "connect-timeout": "Couldn't connect within 10 seconds. Move closer to the treadmill and try again.",
+  "missing-service": "This device doesn't expose the Echelon service. Is it a Stride?",
+  "connect-failed": "Couldn't connect to the treadmill. Move closer and press Connect to try again.",
+  "subscribe-failed": "Couldn't turn on treadmill notifications.",
+  connected: "Connected to the treadmill.",
+  disconnected: "Disconnected",
   "export-failed": "Couldn't save the log file. Press Export log to try again.",
 };
 

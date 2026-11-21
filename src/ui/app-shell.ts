@@ -24,6 +24,7 @@ export class AppShell {
     setText(byId(doc, "build-commit", HTMLElement), build.commit);
     const statusText = byId(doc, "status-text", HTMLElement);
     const connect = byId(doc, "connect", HTMLButtonElement);
+    const disconnect = byId(doc, "disconnect", HTMLButtonElement);
     const hostedRow = byId(doc, "hosted-link-row", HTMLElement);
     byId(doc, "hosted-link", HTMLAnchorElement).href = build.hostedUrl;
     const facts = byId(doc, "run-facts", HTMLElement);
@@ -42,11 +43,13 @@ export class AppShell {
     );
 
     connect.addEventListener("click", () => { void this.controller.connect(); });
+    disconnect.addEventListener("click", () => { this.controller.disconnect(); });
     exportButton.addEventListener("click", () => { this.exportLog(); });
 
     this.controller.state.subscribe((state) => {
       setText(statusText, statusMessages[state.status]);
       connect.disabled = !state.connectEnabled;
+      disconnect.hidden = !state.disconnectVisible;
       hostedRow.hidden = state.status !== "blocked-from-disk";
       facts.hidden = state.device === null;
       setText(deviceName, state.device?.name ?? "");

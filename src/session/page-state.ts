@@ -10,6 +10,12 @@ export type StatusKey =
   | "blocked-from-disk"
   | "chooser-failed"
   | "connecting"
+  | "connect-timeout"
+  | "missing-service"
+  | "connect-failed"
+  | "subscribe-failed"
+  | "connected"
+  | "disconnected"
   | "export-failed";
 
 export interface DeviceFacts {
@@ -22,6 +28,7 @@ export interface PageState {
   readonly connectEnabled: boolean;
   readonly device: DeviceFacts | null;
   readonly canExport: boolean;
+  readonly disconnectVisible: boolean;
 }
 
 export const initialPageState: PageState = {
@@ -29,4 +36,5 @@ export const initialPageState: PageState = {
   connectEnabled: false,
   device: null,
   canExport: false,
+  disconnectVisible: false,
 };

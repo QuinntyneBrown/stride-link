@@ -34,7 +34,10 @@ export class StrideLinkPage {
   /** Installs the fake and the fake clock, then opens the built page from disk. */
   async open(overrides: FakeOverrides = {}): Promise<void> {
     await installFakeBluetooth(this.page, overrides);
+    // A paused clock moves only when a test advances it, so every timing
+    // assertion is exact (L2-070).
     await this.page.clock.install({ time: new Date("2026-11-20T09:30:00Z") });
+    await this.page.clock.pauseAt(new Date("2026-11-20T09:30:01Z"));
     await this.page.goto(PAGE_URL);
   }
 

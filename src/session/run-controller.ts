@@ -1,13 +1,21 @@
-// Orchestrates the page session: support check, chooser, then runs (L2-002..009).
-import type { BluetoothGateway, SupportStatus } from "../ble/bluetooth-gateway.ts";
+// Orchestrates the page session: support check, chooser, connection and the run's
+// lifetime (L2-002..012, L2-058).
+import { ConnectionFailure, type BluetoothGateway, type SupportStatus } from "../ble/bluetooth-gateway.ts";
+import type { TreadmillLink } from "../ble/treadmill-link.ts";
 import { chooserOptions } from "../protocol/chooser-filters.ts";
-import { errorFacts } from "../protocol/errors.ts";
+import { errorFacts, type ErrorFacts } from "../protocol/errors.ts";
+import type { NotifyChar } from "../protocol/uuids.ts";
 import { detectVariant, displayName, isBikeName, variantLabel } from "../protocol/variant.ts";
 import type { Clock } from "./clock.ts";
 import { buildExport, exportFileName, type ExportEnvironment } from "./log-export.ts";
 import type { PacketLog } from "./packet-log.ts";
-import { initialPageState, type PageState } from "./page-state.ts";
+import { initialPageState, type PageState, type StatusKey } from "./page-state.ts";
+import { Run } from "./run.ts";
 import { Store } from "./store.ts";
+
+export const CONNECT_TIMEOUT_MS = 10_000;
+
+type RunFailure = "connect-timeout" | "missing-service" | "connect-failed" | "subscribe-failed";
 
 export class RunController {
   readonly state = new Store<PageState>(initialPageState);
@@ -17,14 +25,14 @@ export class RunController {
   private readonly env: Omit<ExportEnvironment, "pageStartedAtIso">;
   private support: SupportStatus | "checking" = "checking";
   private busy = false;
+  private run: Run | null = null;
 
   constructor(deps: { gateway: BluetoothGateway; log: PacketLog; clock: Clock; env: Omit<ExportEnvironment, "pageStartedAtIso"> }) {
     this.gateway = deps.gateway;
     this.log = deps.log;
     this.clock = deps.clock;
     this.env = deps.env;
-    const log = deps.log;
-    log.onEntry(() => {
+    deps.log.onEntry(() => {
       if (!this.state.get().canExport) this.state.update({ canExport: true });
     });
   }
@@ -48,21 +56,32 @@ export class RunController {
       device = await this.gateway.requestTreadmill(chooserOptions());
     } catch (error) {
       const { name, message } = errorFacts(error);
-      this.log.recordEvent(`Chooser error ${name}: ${message}`);
+      this.log.page.recordEvent(`Chooser error ${name}: ${message}`);
       this.finish(name === "NotFoundError" ? "cancelled" : name === "SecurityError" ? "blocked-from-disk" : "chooser-failed");
       return;
     }
     const name = displayName(device.name);
     if (isBikeName(device.name)) {
-      this.log.recordEvent(`Rejected Echelon bike: ${name}`);
+      this.log.page.recordEvent(`Rejected Echelon bike: ${name}`);
       this.finish("bike-rejected");
       return;
     }
     const variant = detectVariant(device.name);
-    this.log.startRun(name, variant);
-    this.log.recordEvent(`Device selected: ${name}`);
-    this.log.recordEvent(`Model variant: ${variantLabel(variant)}`);
+    const run = new Run(this.log.startRun(name, variant), variant, this.clock);
+    this.run = run;
+    run.log.recordEvent(`Device selected: ${name}`);
+    run.log.recordEvent(`Model variant: ${variantLabel(variant)}`);
     this.state.update({ status: "connecting", device: { name, variant: variant === "stride4" ? "Stride 4" : "Standard" } });
+    await this.open(run, device);
+  }
+
+  /** The Disconnect press. */
+  disconnect(): void {
+    const run = this.run;
+    if (!run) return;
+    run.log.recordEvent("Disconnect requested");
+    run.link?.disconnect();
+    this.teardown(run);
   }
 
   /** Builds the export from a snapshot; call completeExport once the download starts. */
@@ -81,19 +100,84 @@ export class RunController {
 
   exportFailed(error: unknown): void {
     const { name, message } = errorFacts(error);
-    this.log.recordEvent(`Export failed ${name}: ${message}`);
+    this.log.page.recordEvent(`Export failed ${name}: ${message}`);
     this.state.update({ status: "export-failed" });
   }
 
-  private finish(status: PageState["status"]): void {
+  private async open(run: Run, device: BluetoothDevice): Promise<void> {
+    const timeout = run.after(CONNECT_TIMEOUT_MS, () => {
+      this.fail(run, "connect-timeout", {
+        name: "TimeoutError",
+        message: `Connection and service discovery took longer than ${CONNECT_TIMEOUT_MS} ms.`,
+      });
+    });
+    let link: TreadmillLink;
+    try {
+      link = await this.gateway.connect(device, run.abort.signal, (step) => {
+        if (run.isAlive()) run.log.recordEvent(step === "connected" ? "Connected" : "Service found");
+      });
+    } catch (error) {
+      if (!run.isAlive()) return;
+      const kind = error instanceof ConnectionFailure ? error.kind : "connect-failed";
+      device.gatt?.disconnect();
+      this.fail(run, kind, errorFacts(error instanceof ConnectionFailure ? error.cause : error));
+      return;
+    }
+    if (!run.isAlive()) {
+      link.disconnect();
+      return;
+    }
+    run.cancel(timeout);
+    for (const line of link.describeCharacteristics()) run.log.recordEvent(line);
+    run.attach(link);
+    link.onDisconnected(() => { this.teardown(run); });
+    try {
+      await link.subscribe((char, bytes) => { this.onNotification(run, char, bytes); });
+    } catch (error) {
+      if (!run.isAlive()) return;
+      this.fail(run, "subscribe-failed", errorFacts(error));
+      return;
+    }
+    if (!run.isAlive()) return;
+    run.log.recordEvent(`isNotifying f3: ${String(link.isNotifying("f3"))}`);
+    run.log.recordEvent(`isNotifying f4: ${String(link.isNotifying("f4"))}`);
+    run.log.recordEvent(`Write method: ${link.writeMethod}`);
+    this.state.update({ status: "connected", disconnectVisible: true });
+  }
+
+  private onNotification(run: Run, char: NotifyChar, bytes: Uint8Array): void {
+    if (!run.isAlive()) return;
+    run.log.recordRx(char, bytes);
+  }
+
+  /** A failure before the run got going: logged, disconnected, back to idle. */
+  private fail(run: Run, kind: RunFailure, error: ErrorFacts): void {
+    if (!run.end(kind)) return;
+    run.log.recordEvent(`Error ${error.name}: ${error.message}`);
+    run.link?.dispose();
+    run.link?.disconnect();
+    if (this.run === run) this.run = null;
+    this.finish(kind, { disconnectVisible: false });
+  }
+
+  /** Tester disconnect or connection loss (L2-012). Log and verdict are kept. */
+  private teardown(run: Run): void {
+    if (!run.end("disconnected")) return;
+    run.link?.dispose();
+    run.log.recordEvent("Disconnected");
+    if (this.run === run) this.run = null;
+    this.finish("disconnected", { disconnectVisible: false });
+  }
+
+  private finish(status: StatusKey, extra: Partial<PageState> = {}): void {
     this.busy = false;
-    this.state.update({ status, connectEnabled: this.support === "supported" });
+    this.state.update({ ...extra, status, connectEnabled: this.support === "supported" });
   }
 
   private idle(support: SupportStatus): void {
     const current = this.state.get().status;
     // Keep an outcome message visible while Bluetooth stays usable.
     const keep = support === "supported" && current !== "checking" && current !== "adapter-unavailable" && current !== "no-web-bluetooth";
-    this.state.update({ status: keep ? current : support, connectEnabled: support === "supported" });
+    this.state.update({ status: keep ? current : support, connectEnabled: support === "supported" && !this.busy });
   }
 }

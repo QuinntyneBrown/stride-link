@@ -32,7 +32,7 @@ until their complete path lands. No architecture tests or specification scans.
 | 0 | Complete static mock states using existing assets; coverage matrix and visual review; extract verified design system before product UI | All visible states, 060–067 | Pending |
 | 1 | Strict TS tooling, deterministic single-file build, CSP/size enforcement, fake-only acceptance harness and initial support screen | 001–005, 049–052, 068, 070 | Done |
 | 2 | Chooser, variant/bike handling, cancel/security errors and basic exportable diagnostics | 004, 006–009, 037–041 | Done |
-| 3 | GATT discovery/subscriptions, timeout, disconnect and serialized writes with failure recovery | 010–012, 056, 058 | Pending |
+| 3 | GATT discovery/subscriptions, timeout, disconnect and serialized writes with failure recovery | 010–012, 056, 058 | Done |
 | 4 | Pure encoding/parsing and standard/Stride 4 paced init through the real fake transport | 013–019, 069 | Pending |
 | 5 | Challenge arithmetic, unlock response/acknowledgement, timeout and retry handling | 020–025, 069 | Pending |
 | 6 | Keepalive and echo scheduling, cancellation and concurrent queue behavior | 026–027, 055–056 | Pending |
@@ -89,3 +89,10 @@ does not establish completion. Record any unavailable external gate candidly.
   download. 17 acceptance tests and 25 unit tests pass; lint and typecheck clean.
   The `[hidden]` rule was made authoritative after `.facts { display: grid }`
   overrode it.
+- Slice 3: `BluetoothGateway.connect` discovers the service and characteristics
+  under an abort signal and serialises attempts per device; `TreadmillLink` installs
+  listeners before `startNotifications()` and copies each DataView; `WriteQueue`
+  (unit-tested: order, one in flight, failure recovery, Stop first, clear) and a
+  `Run` that owns timers and invalidates them on end. Playwright's clock is now
+  paused after install, because an installed clock otherwise keeps flowing in real
+  time and broke the 10 s boundary assertion. 25 acceptance and 30 unit tests pass.
