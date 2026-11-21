@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shape — Stride Link design system</title>
+<meta name="description" content="Radii, border widths and the 4 px accent bar.">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../tokens/tokens.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="../assets/ds.css">
+<style>
+.f-radius-xs { --size: var(--radius-xs); }
+.f-radius-sm { --size: var(--radius-sm); }
+.f-radius-md { --size: var(--radius-md); }
+.f-radius-lg { --size: var(--radius-lg); }
+.f-radius-xl { --size: var(--radius-xl); }
+.f-radius-full { --size: var(--radius-full); }
+.f-bw { width: 6rem; height: 3rem; border-style: solid; border-color: var(--color-border-strong); border-radius: var(--radius-md); }
+.f-bw-hairline { border-width: var(--border-width-hairline); } .f-bw-thick { border-width: var(--border-width-thick); } .f-bw-accent { border-width: 0; border-left: var(--border-width-accent) solid var(--color-success-solid); background: var(--color-success-bg); }
+</style>
+</head>
+<body id="top">
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="ds-shell">
+  <nav class="ds-nav" aria-label="Design system"><div class="ds-nav__brand"><a href="../index.html">Stride Link DS</a><button class="ds-theme-toggle" type="button" aria-pressed="false">☾ Dark</button></div><details open><summary>Foundations</summary><ul><li><a href="../foundations/color.html">Color</a></li><li><a href="../foundations/typography.html">Typography</a></li><li><a href="../foundations/spacing.html">Spacing</a></li><li><a href="../foundations/layout.html">Layout</a></li><li><a href="../foundations/elevation.html">Elevation</a></li><li><a href="../foundations/shape.html">Shape</a></li><li><a href="../foundations/motion.html">Motion</a></li><li><a href="../foundations/iconography.html">Iconography</a></li><li><a href="../foundations/theming.html">Theming</a></li><li><a href="../foundations/responsive.html">Responsive</a></li><li><a href="../foundations/accessibility.html">Accessibility</a></li><li><a href="../foundations/content.html">Content</a></li></ul></details><details open><summary>Components</summary><ul><li><a href="../components/button.html">Button</a></li><li><a href="../components/link.html">Link</a></li><li><a href="../components/text-field.html">Text field</a></li><li><a href="../components/checkbox.html">Checkbox</a></li><li><a href="../components/form-field.html">Form field</a></li><li><a href="../components/inline-message.html">Inline message</a></li><li><a href="../components/top-bar.html">Top bar</a></li><li><a href="../components/brand.html">Brand lockup</a></li><li><a href="../components/privacy-pill.html">Privacy pill</a></li><li><a href="../components/skip-link.html">Skip link</a></li><li><a href="../components/footer.html">Footer</a></li><li><a href="../components/layout-primitives.html">Layout primitives</a></li><li><a href="../components/panel.html">Panel</a></li><li><a href="../components/dialog.html">Dialog</a></li><li><a href="../components/description-list.html">Description list</a></li><li><a href="../components/badge.html">Badge</a></li><li><a href="../components/status-line.html">Status line</a></li><li><a href="../components/notice.html">Notice</a></li><li><a href="../components/telemetry.html">Telemetry</a></li><li><a href="../components/verdict.html">Verdict</a></li><li><a href="../components/packet-log.html">Packet log</a></li><li><a href="../components/device-list.html">Device list</a></li><li><a href="../components/belt-controls.html">Belt controls</a></li><li><a href="../components/stop-bar.html">Stop bar</a></li><li><a href="../components/alert.html">Alert</a></li><li><a href="../components/toast.html">Toast</a></li><li><a href="../components/progress-bar.html">Progress bar</a></li><li><a href="../components/spinner.html">Spinner</a></li><li><a href="../components/empty-state.html">Empty state</a></li></ul></details><details open><summary>Patterns</summary><ul><li><a href="../patterns/forms.html">Forms</a></li><li><a href="../patterns/feedback-and-loading.html">Feedback and loading</a></li><li><a href="../patterns/empty-and-error-states.html">Empty and error states</a></li><li><a href="../patterns/navigation-and-page-structure.html">Navigation and page structure</a></li><li><a href="../patterns/dialogs-and-overlays.html">Dialogs and overlays</a></li><li><a href="../patterns/data-tables-and-lists.html">Data tables and lists</a></li><li><a href="../patterns/notifications.html">Notifications</a></li><li><a href="../patterns/content-and-tone.html">Content and tone</a></li></ul></details></nav>
+  <main id="main" class="ds-main">
+    <header class="ds-header">
+      <p class="ds-kicker">Foundation</p>
+      <h1>Shape</h1>
+      <p class="ds-lead">Five radii that grow with the element, a pill, and three border widths.</p>
+      
+      <ul class="ds-toc"><li><a href="#overview">Overview</a></li><li><a href="#radii">Radii</a></li><li><a href="#borders">Border widths</a></li><li><a href="#usage">Usage</a></li><li><a href="#accessibility">Accessibility</a></li><li><a href="#tokens">Tokens</a></li></ul>
+    </header>
+<section class="ds-section" id="overview"><h2><a href="#overview">Overview</a></h2>
+<p>Rounder than the starter kit, after the 16 px cards and the rounded icon tile on the logo sheet. Radius grows with the element: controls <code>md</code>, panels <code>lg</code>, sheets <code>xl</code>. Five radii plus <code>full</code>; three border widths.</p>
+</section>
+<section class="ds-section" id="radii"><h2><a href="#radii">Radii</a></h2>
+<div class="ds-example"><div class="ds-example__canvas ds-example__canvas--stack"><div class="ds-scale"><div class="ds-scale__row"><code>--radius-xs</code><span>4px</span><span class="ds-scale__box f-radius-xs"></span></div><div class="ds-scale__row"><code>--radius-sm</code><span>6px</span><span class="ds-scale__box f-radius-sm"></span></div><div class="ds-scale__row"><code>--radius-md</code><span>10px</span><span class="ds-scale__box f-radius-md"></span></div><div class="ds-scale__row"><code>--radius-lg</code><span>16px</span><span class="ds-scale__box f-radius-lg"></span></div><div class="ds-scale__row"><code>--radius-xl</code><span>20px</span><span class="ds-scale__box f-radius-xl"></span></div><div class="ds-scale__row"><code>--radius-full</code><span>pill</span><span class="ds-scale__box f-radius-full"></span></div></div></div></div>
+</section>
+<section class="ds-section" id="borders"><h2><a href="#borders">Border widths</a></h2>
+
+<div class="ds-example"><div class="ds-example__canvas"><span class="f-bw f-bw-hairline"></span><span class="f-bw f-bw-thick"></span><span class="f-bw f-bw-accent"></span></div>
+<div class="ds-example__caption"><span>Hairline 1 px (every edge) · thick 2 px (focus ring width, key-cap bottom, spinner) · accent 4 px (verdict and alert left bar).</span></div></div>
+
+</section>
+<section class="ds-section" id="usage"><h2><a href="#usage">Usage</a></h2>
+<ul><li>Nest radii: a child inside a padded parent uses the next size down (metric <code>md</code> inside panel <code>lg</code>).</li><li>The 4 px accent bar marks tone on the left of the verdict card and alerts; it is always paired with a word.</li><li>The starter kit's one off-scale radius (<code>2px 2px 0 0</code> on tabs) is not part of this system: tabs are not used.</li></ul>
+</section>
+<section class="ds-section" id="accessibility"><h2><a href="#accessibility">Accessibility</a></h2>
+<ul><li>Shape never carries meaning on its own. The accent bar, dots and pills always sit beside text.</li><li>Borders that identify a control use <code>--color-border-strong</code> at 3:1; hairline panel borders are decorative.</li></ul>
+</section>
+<section class="ds-section" id="tokens"><h2><a href="#tokens">Tokens</a></h2>
+<div class="ds-table-wrap"><table class="ds-table"><thead><tr><th scope="col">Token</th><th scope="col">Value</th><th scope="col">Use</th></tr></thead><tbody><tr><td><code>--radius-xs</code></td><td><span data-token="--radius-xs"></span></td><td>Checkbox</td></tr><tr><td><code>--radius-sm</code></td><td><span data-token="--radius-sm"></span></td><td>Focus ring corners, code, key caps, menu items</td></tr><tr><td><code>--radius-md</code></td><td><span data-token="--radius-md"></span></td><td>Buttons, inputs, alerts, toasts, verdict, metrics, log</td></tr><tr><td><code>--radius-lg</code></td><td><span data-token="--radius-lg"></span></td><td>Panels, dialogs from 640 px</td></tr><tr><td><code>--radius-xl</code></td><td><span data-token="--radius-xl"></span></td><td>Dialog sheet top corners below 640 px</td></tr><tr><td><code>--radius-full</code></td><td><span data-token="--radius-full"></span></td><td>Privacy pill, badges, dots, verdict icon disc</td></tr><tr><td><code>--border-width-hairline</code></td><td><span data-token="--border-width-hairline"></span></td><td>Every edge</td></tr><tr><td><code>--border-width-thick</code></td><td><span data-token="--border-width-thick"></span></td><td>Key-cap bottom, spinner</td></tr><tr><td><code>--border-width-accent</code></td><td><span data-token="--border-width-accent"></span></td><td>Verdict and alert accent bar</td></tr></tbody></table></div>
+</section>
+    <footer class="ds-footer"><span>Stride Link design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-11-20</span><a href="#top">Back to top</a></footer>
+  </main>
+</div>
+<script src="../assets/ds.js"></script>
+</body>
+</html>

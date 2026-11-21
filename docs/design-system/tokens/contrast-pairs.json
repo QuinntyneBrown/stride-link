@@ -1,0 +1,521 @@
+{
+  "$comment": "Foreground/background token pairs checked by check_contrast.py against tokens.css in both themes. 4.5:1 is WCAG 2.2 AA for normal text (1.4.3); 3:1 is AA for large text, UI component edges, meaningful icons and focus indicators (1.4.11). The first block is inherited from docs/mocks/assets/contrast-pairs.json (solid-badge label pairs removed: solid badges are not part of this system); the rest are the pairs the components introduce.",
+  "pairs": [
+    {
+      "fg": "--color-fg-default",
+      "bg": "--color-bg-canvas",
+      "min": 4.5,
+      "note": "body text on page"
+    },
+    {
+      "fg": "--color-fg-default",
+      "bg": "--color-bg-surface",
+      "min": 4.5,
+      "note": "body text on cards/inputs"
+    },
+    {
+      "fg": "--color-fg-default",
+      "bg": "--color-bg-surface-raised",
+      "min": 4.5,
+      "note": "body text in dialogs/menus"
+    },
+    {
+      "fg": "--color-fg-default",
+      "bg": "--color-bg-surface-sunken",
+      "min": 4.5,
+      "note": "body text in wells/table headers"
+    },
+    {
+      "fg": "--color-fg-default",
+      "bg": "--color-bg-subtle",
+      "min": 4.5,
+      "note": "text on hover rows/chips"
+    },
+    {
+      "fg": "--color-fg-default",
+      "bg": "--color-bg-subtle-hover",
+      "min": 4.5,
+      "note": "text on hovered chips"
+    },
+    {
+      "fg": "--color-fg-muted",
+      "bg": "--color-bg-canvas",
+      "min": 4.5,
+      "note": "secondary text on page"
+    },
+    {
+      "fg": "--color-fg-muted",
+      "bg": "--color-bg-surface",
+      "min": 4.5,
+      "note": "secondary text on cards"
+    },
+    {
+      "fg": "--color-fg-muted",
+      "bg": "--color-bg-surface-raised",
+      "min": 4.5,
+      "note": "secondary text in dialogs"
+    },
+    {
+      "fg": "--color-fg-muted",
+      "bg": "--color-bg-surface-sunken",
+      "min": 4.5,
+      "note": "secondary text in wells"
+    },
+    {
+      "fg": "--color-fg-muted",
+      "bg": "--color-bg-subtle",
+      "min": 4.5,
+      "note": "secondary text on chips"
+    },
+    {
+      "fg": "--color-fg-subtle",
+      "bg": "--color-bg-canvas",
+      "min": 4.5,
+      "note": "placeholders/metadata on page"
+    },
+    {
+      "fg": "--color-fg-subtle",
+      "bg": "--color-bg-surface",
+      "min": 4.5,
+      "note": "placeholders inside inputs"
+    },
+    {
+      "fg": "--color-fg-subtle",
+      "bg": "--color-bg-surface-raised",
+      "min": 4.5,
+      "note": "metadata in dialogs"
+    },
+    {
+      "fg": "--color-fg-inverse",
+      "bg": "--color-bg-inverse",
+      "min": 4.5,
+      "note": "tooltip text"
+    },
+    {
+      "fg": "--color-fg-link",
+      "bg": "--color-bg-canvas",
+      "min": 4.5,
+      "note": "links on page"
+    },
+    {
+      "fg": "--color-fg-link",
+      "bg": "--color-bg-surface",
+      "min": 4.5,
+      "note": "links on cards"
+    },
+    {
+      "fg": "--color-fg-link-hover",
+      "bg": "--color-bg-surface",
+      "min": 4.5,
+      "note": "hovered links"
+    },
+    {
+      "fg": "--color-fg-accent",
+      "bg": "--color-bg-surface",
+      "min": 4.5,
+      "note": "accent text (selected tab label)"
+    },
+    {
+      "fg": "--color-fg-accent",
+      "bg": "--color-accent-subtle",
+      "min": 4.5,
+      "note": "accent text on selected row"
+    },
+    {
+      "fg": "--color-fg-default",
+      "bg": "--color-accent-subtle",
+      "min": 4.5,
+      "note": "body text on selected row"
+    },
+    {
+      "fg": "--color-fg-on-accent",
+      "bg": "--color-accent",
+      "min": 4.5,
+      "note": "primary button label"
+    },
+    {
+      "fg": "--color-fg-on-accent",
+      "bg": "--color-accent-hover",
+      "min": 4.5,
+      "note": "primary button label (hover)"
+    },
+    {
+      "fg": "--color-fg-on-accent",
+      "bg": "--color-accent-active",
+      "min": 4.5,
+      "note": "primary button label (active)"
+    },
+    {
+      "fg": "--color-accent-border",
+      "bg": "--color-bg-surface",
+      "min": 3,
+      "note": "primary button edge vs card (Stride Link: the edge is signal-600; the signal fill is 2.9:1 on paper)"
+    },
+    {
+      "fg": "--color-accent-border",
+      "bg": "--color-bg-canvas",
+      "min": 3,
+      "note": "primary button edge vs page (Stride Link: the edge is signal-600; the signal fill is 2.9:1 on paper)"
+    },
+    {
+      "fg": "--color-border-strong",
+      "bg": "--color-bg-surface",
+      "min": 3,
+      "note": "input borders (1.4.11)"
+    },
+    {
+      "fg": "--color-border-strong",
+      "bg": "--color-bg-canvas",
+      "min": 3,
+      "note": "input borders on page"
+    },
+    {
+      "fg": "--color-focus-ring",
+      "bg": "--color-bg-surface",
+      "min": 3,
+      "note": "focus ring vs card (2.4.11)"
+    },
+    {
+      "fg": "--color-focus-ring",
+      "bg": "--color-bg-canvas",
+      "min": 3,
+      "note": "focus ring vs page"
+    },
+    {
+      "fg": "--color-fg-on-danger",
+      "bg": "--color-danger-solid",
+      "min": 4.5,
+      "note": "destructive button label"
+    },
+    {
+      "fg": "--color-fg-on-danger",
+      "bg": "--color-danger-solid-hover",
+      "min": 4.5,
+      "note": "destructive button label (hover)"
+    },
+    {
+      "fg": "--color-danger-solid",
+      "bg": "--color-bg-surface",
+      "min": 3,
+      "note": "destructive button edge"
+    },
+    {
+      "fg": "--color-info-fg",
+      "bg": "--color-info-bg",
+      "min": 4.5,
+      "note": "info alert text"
+    },
+    {
+      "fg": "--color-info-icon",
+      "bg": "--color-info-bg",
+      "min": 3,
+      "note": "info alert icon"
+    },
+    {
+      "fg": "--color-info-border",
+      "bg": "--color-bg-surface",
+      "min": 1,
+      "note": "info alert border (decorative; bg colour carries meaning with icon + text)"
+    },
+    {
+      "fg": "--color-success-fg",
+      "bg": "--color-success-bg",
+      "min": 4.5,
+      "note": "success alert text"
+    },
+    {
+      "fg": "--color-success-icon",
+      "bg": "--color-success-bg",
+      "min": 3,
+      "note": "success alert icon"
+    },
+    {
+      "fg": "--color-warning-fg",
+      "bg": "--color-warning-bg",
+      "min": 4.5,
+      "note": "warning alert text"
+    },
+    {
+      "fg": "--color-warning-icon",
+      "bg": "--color-warning-bg",
+      "min": 3,
+      "note": "warning alert icon"
+    },
+    {
+      "fg": "--color-danger-fg",
+      "bg": "--color-danger-bg",
+      "min": 4.5,
+      "note": "danger alert / field error text"
+    },
+    {
+      "fg": "--color-danger-icon",
+      "bg": "--color-danger-bg",
+      "min": 3,
+      "note": "danger alert icon"
+    },
+    {
+      "fg": "--color-danger-fg",
+      "bg": "--color-bg-surface",
+      "min": 4.5,
+      "note": "field error text under input"
+    },
+    {
+      "fg": "--color-danger-fg",
+      "bg": "--color-bg-canvas",
+      "min": 4.5,
+      "note": "field error text on page"
+    },
+    {
+      "fg": "--color-danger-solid",
+      "bg": "--color-bg-surface",
+      "min": 3,
+      "note": "invalid input border"
+    },
+    {
+      "fg": "--color-success-fg",
+      "bg": "--color-bg-surface",
+      "min": 4.5,
+      "note": "success text on cards"
+    },
+    {
+      "fg": "--color-warning-fg",
+      "bg": "--color-bg-surface",
+      "min": 4.5,
+      "note": "warning text on cards"
+    },
+    {
+      "fg": "--color-info-fg",
+      "bg": "--color-bg-surface",
+      "min": 4.5,
+      "note": "info text on cards"
+    },
+    {
+      "fg": "--color-info-solid",
+      "bg": "--color-bg-surface",
+      "min": 3,
+      "note": "info solid mark vs card (reserved)"
+    },
+    {
+      "fg": "--color-success-solid",
+      "bg": "--color-bg-surface",
+      "min": 3,
+      "note": "success solid: verdict bar, RX mark vs card"
+    },
+    {
+      "fg": "--color-warning-solid",
+      "bg": "--color-bg-surface",
+      "min": 3,
+      "note": "warning solid: Locked verdict bar vs card"
+    },
+    {
+      "fg": "--color-fg-default",
+      "bg": "--color-success-bg",
+      "min": 4.5,
+      "note": "Talks/Unlocked verdict meaning text"
+    },
+    {
+      "fg": "--color-fg-default",
+      "bg": "--color-warning-bg",
+      "min": 4.5,
+      "note": "Locked verdict meaning text"
+    },
+    {
+      "fg": "--color-fg-default",
+      "bg": "--color-danger-bg",
+      "min": 4.5,
+      "note": "Silent verdict meaning text"
+    },
+    {
+      "fg": "--color-success-solid",
+      "bg": "--color-bg-surface",
+      "min": 3,
+      "note": "verdict accent bar (Talks, Unlocked)"
+    },
+    {
+      "fg": "--color-warning-solid",
+      "bg": "--color-bg-surface",
+      "min": 3,
+      "note": "verdict accent bar (Locked)"
+    },
+    {
+      "fg": "--color-danger-solid",
+      "bg": "--color-bg-canvas",
+      "min": 3,
+      "note": "Stop belt bar edge vs page"
+    },
+    {
+      "fg": "--color-fg-accent",
+      "bg": "--color-bg-canvas",
+      "min": 4.5,
+      "note": "TX direction label in the log"
+    },
+    {
+      "fg": "--color-fg-muted",
+      "bg": "--color-success-bg",
+      "min": 4.5,
+      "note": "verdict label and fact terms on Talks/Unlocked"
+    },
+    {
+      "fg": "--color-fg-muted",
+      "bg": "--color-warning-bg",
+      "min": 4.5,
+      "note": "verdict label and fact terms on Locked"
+    },
+    {
+      "fg": "--color-fg-muted",
+      "bg": "--color-danger-bg",
+      "min": 4.5,
+      "note": "verdict label and fact terms on Silent"
+    },
+    {
+      "fg": "--color-success-fg",
+      "bg": "--color-success-bg",
+      "min": 3,
+      "note": "Talks/Unlocked verdict word (display size)"
+    },
+    {
+      "fg": "--color-success-icon",
+      "bg": "--color-bg-surface",
+      "min": 3,
+      "note": "verdict icon disc and status dot (success)"
+    },
+    {
+      "fg": "--color-warning-icon",
+      "bg": "--color-bg-surface",
+      "min": 3,
+      "note": "verdict icon disc and status dot (warning)"
+    },
+    {
+      "fg": "--color-danger-icon",
+      "bg": "--color-bg-surface",
+      "min": 3,
+      "note": "verdict icon disc and status dot (danger)"
+    },
+    {
+      "fg": "--color-accent",
+      "bg": "--color-bg-surface",
+      "min": 3,
+      "note": "status dot (busy); checked checkbox fill vs panel"
+    },
+    {
+      "fg": "--color-accent",
+      "bg": "--color-bg-surface-raised",
+      "min": 3,
+      "note": "checked belt-gate checkbox fill vs gate box"
+    },
+    {
+      "fg": "--color-border-strong",
+      "bg": "--color-bg-surface-raised",
+      "min": 3,
+      "note": "unchecked belt-gate checkbox border; gate box edge"
+    },
+    {
+      "fg": "--color-border-strong",
+      "bg": "--color-bg-surface-sunken",
+      "min": 3,
+      "note": "pending verdict accent bar"
+    },
+    {
+      "fg": "--color-fg-subtle",
+      "bg": "--color-bg-surface-sunken",
+      "min": 4.5,
+      "note": "log timestamps, gap notes, empty telemetry dash"
+    },
+    {
+      "fg": "--color-fg-muted",
+      "bg": "--color-bg-surface-sunken",
+      "min": 4.5,
+      "note": "log EV lines, metric labels and units"
+    },
+    {
+      "fg": "--color-success-fg",
+      "bg": "--color-bg-surface-sunken",
+      "min": 4.5,
+      "note": "RX direction label in the log"
+    },
+    {
+      "fg": "--color-fg-accent",
+      "bg": "--color-bg-surface-sunken",
+      "min": 4.5,
+      "note": "TX direction label in the log"
+    },
+    {
+      "fg": "--color-danger-fg",
+      "bg": "--color-bg-surface-sunken",
+      "min": 4.5,
+      "note": "error log lines"
+    },
+    {
+      "fg": "--color-success-fg",
+      "bg": "--color-bg-surface",
+      "min": 4.5,
+      "note": "RX legend label"
+    },
+    {
+      "fg": "--color-fg-muted",
+      "bg": "--color-accent-subtle",
+      "min": 4.5,
+      "note": "signal strength on the selected chooser row"
+    },
+    {
+      "fg": "--color-focus-ring",
+      "bg": "--color-bg-surface-raised",
+      "min": 3,
+      "note": "focus ring inside dialogs and the belt gate"
+    },
+    {
+      "fg": "--color-focus-ring",
+      "bg": "--color-bg-surface-sunken",
+      "min": 3,
+      "note": "focus ring next to sunken wells"
+    },
+    {
+      "fg": "--color-danger-solid",
+      "bg": "--color-bg-surface-raised",
+      "min": 3,
+      "note": "invalid input border inside a raised surface"
+    },
+    {
+      "fg": "--color-fg-default",
+      "bg": "--color-bg-subtle",
+      "min": 4.5,
+      "note": "inline code and key caps"
+    },
+    {
+      "fg": "--color-info-icon-on-inverse",
+      "bg": "--color-bg-inverse",
+      "min": 3,
+      "note": "toast icon (info) on the inverse toast"
+    },
+    {
+      "fg": "--color-success-icon-on-inverse",
+      "bg": "--color-bg-inverse",
+      "min": 3,
+      "note": "toast icon (success) on the inverse toast"
+    },
+    {
+      "fg": "--color-warning-icon-on-inverse",
+      "bg": "--color-bg-inverse",
+      "min": 3,
+      "note": "toast icon (warning) on the inverse toast"
+    },
+    {
+      "fg": "--color-danger-icon-on-inverse",
+      "bg": "--color-bg-inverse",
+      "min": 3,
+      "note": "toast icon (danger) on the inverse toast"
+    },
+    {
+      "fg": "--color-accent-border",
+      "bg": "--color-bg-subtle-hover",
+      "min": 3,
+      "note": "progress fill vs its track"
+    },
+    {
+      "fg": "--color-accent-border",
+      "bg": "--color-bg-surface-sunken",
+      "min": 3,
+      "note": "progress fill vs the sunken waiting card"
+    }
+  ]
+}

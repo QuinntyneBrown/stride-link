@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Skip link — Stride Link design system</title>
+<meta name="description" content="First focusable element; jumps to the main content.">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../tokens/tokens.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="../assets/ds.css">
+</head>
+<body id="top">
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="ds-shell">
+  <nav class="ds-nav" aria-label="Design system"><div class="ds-nav__brand"><a href="../index.html">Stride Link DS</a><button class="ds-theme-toggle" type="button" aria-pressed="false">☾ Dark</button></div><details open><summary>Foundations</summary><ul><li><a href="../foundations/color.html">Color</a></li><li><a href="../foundations/typography.html">Typography</a></li><li><a href="../foundations/spacing.html">Spacing</a></li><li><a href="../foundations/layout.html">Layout</a></li><li><a href="../foundations/elevation.html">Elevation</a></li><li><a href="../foundations/shape.html">Shape</a></li><li><a href="../foundations/motion.html">Motion</a></li><li><a href="../foundations/iconography.html">Iconography</a></li><li><a href="../foundations/theming.html">Theming</a></li><li><a href="../foundations/responsive.html">Responsive</a></li><li><a href="../foundations/accessibility.html">Accessibility</a></li><li><a href="../foundations/content.html">Content</a></li></ul></details><details open><summary>Components</summary><ul><li><a href="../components/button.html">Button</a></li><li><a href="../components/link.html">Link</a></li><li><a href="../components/text-field.html">Text field</a></li><li><a href="../components/checkbox.html">Checkbox</a></li><li><a href="../components/form-field.html">Form field</a></li><li><a href="../components/inline-message.html">Inline message</a></li><li><a href="../components/top-bar.html">Top bar</a></li><li><a href="../components/brand.html">Brand lockup</a></li><li><a href="../components/privacy-pill.html">Privacy pill</a></li><li><a href="../components/skip-link.html">Skip link</a></li><li><a href="../components/footer.html">Footer</a></li><li><a href="../components/layout-primitives.html">Layout primitives</a></li><li><a href="../components/panel.html">Panel</a></li><li><a href="../components/dialog.html">Dialog</a></li><li><a href="../components/description-list.html">Description list</a></li><li><a href="../components/badge.html">Badge</a></li><li><a href="../components/status-line.html">Status line</a></li><li><a href="../components/notice.html">Notice</a></li><li><a href="../components/telemetry.html">Telemetry</a></li><li><a href="../components/verdict.html">Verdict</a></li><li><a href="../components/packet-log.html">Packet log</a></li><li><a href="../components/device-list.html">Device list</a></li><li><a href="../components/belt-controls.html">Belt controls</a></li><li><a href="../components/stop-bar.html">Stop bar</a></li><li><a href="../components/alert.html">Alert</a></li><li><a href="../components/toast.html">Toast</a></li><li><a href="../components/progress-bar.html">Progress bar</a></li><li><a href="../components/spinner.html">Spinner</a></li><li><a href="../components/empty-state.html">Empty state</a></li></ul></details><details open><summary>Patterns</summary><ul><li><a href="../patterns/forms.html">Forms</a></li><li><a href="../patterns/feedback-and-loading.html">Feedback and loading</a></li><li><a href="../patterns/empty-and-error-states.html">Empty and error states</a></li><li><a href="../patterns/navigation-and-page-structure.html">Navigation and page structure</a></li><li><a href="../patterns/dialogs-and-overlays.html">Dialogs and overlays</a></li><li><a href="../patterns/data-tables-and-lists.html">Data tables and lists</a></li><li><a href="../patterns/notifications.html">Notifications</a></li><li><a href="../patterns/content-and-tone.html">Content and tone</a></li></ul></details></nav>
+  <main id="main" class="ds-main">
+    <header class="ds-header">
+      <p class="ds-kicker">Component · Navigation</p>
+      <h1>Skip link</h1>
+      <p class="ds-lead">Skip to content: in both mock sets; the shipped page omits it because nothing focusable precedes the main content.</p>
+      <div class="ds-meta"><span class="ds-pill ds-pill--ok">WCAG 2.2 AA</span><span class="ds-pill ds-pill--warn">Mocks only: not shipped</span><span class="ds-pill">Mock sets: A and B</span></div>
+      <ul class="ds-toc"><li><a href="#overview">Overview</a></li><li><a href="#anatomy">Anatomy</a></li><li><a href="#variants">Variants</a></li><li><a href="#sizes">Sizes</a></li><li><a href="#states">States</a></li><li><a href="#responsive">Responsive</a></li><li><a href="#theming">Theming</a></li><li><a href="#accessibility">Accessibility</a></li><li><a href="#content">Content</a></li><li><a href="#do-dont">Do and don't</a></li><li><a href="#tokens">Tokens</a></li><li><a href="#code">Code</a></li><li><a href="#sources">Sources</a></li></ul>
+    </header>
+<section class="ds-section" id="overview"><h2><a href="#overview">Overview</a></h2>
+
+<p>The skip link is the first focusable element on the page and jumps to <code>#main</code>. It stays off screen until it receives keyboard focus.</p>
+<ul><li><b>Both mock sets</b> start every page with <q>Skip to content</q>.</li><li><b>The shipped page has no skip link.</b> Its top bar contains nothing focusable, so the first Tab already lands in the main content and there is no repeated block to bypass; the <code>&lt;main&gt;</code> landmark (id <code>main</code>) landmark satisfies WCAG 2.4.1 for screen-reader users.</li><li>Add the skip link back if anything focusable is ever added to the top bar. The documentation site itself uses one because its sidebar is long.</li></ul>
+
+</section>
+<section class="ds-section" id="anatomy"><h2><a href="#anatomy">Anatomy</a></h2>
+<div class="ds-anatomy"><figure class="ds-anatomy__figure"><div class="ds-fill"><div class="ds-preview ds-preview--fixed ds-w-24 ds-w-full"><a class="skip-link" href="#overview" data-state="focus">Skip to content</a></div></div><span class="ds-callout ds-callout--1" aria-hidden="true">1</span><span class="ds-callout ds-callout--2" aria-hidden="true">2</span><figcaption class="visually-hidden">Numbered parts, described in the list that follows.</figcaption></figure><ol class="ds-anatomy__list"><li><div><b>Link</b><small>Raised surface, <code>--radius-md</code>, <code>--shadow-3</code>, 8 × 16 px padding, default text colour, no underline.</small></div></li><li><div><b>Position</b><small>Absolutely positioned 96 px above the viewport; slides to 16 px from the top on <code>:focus-visible</code>.</small></div></li></ol></div>
+</section>
+<section class="ds-section" id="variants"><h2><a href="#variants">Variants</a></h2>
+
+<p>One variant.</p>
+<div class="ds-example"><div class="ds-example__canvas"><div class="ds-preview ds-preview--fixed ds-w-24 ds-w-full"><a class="skip-link" href="#overview" data-state="focus">Skip to content</a></div></div><div class="ds-example__caption"><span>Shown as it appears on focus (positioned statically here).</span></div><details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;div class="ds-preview ds-preview--fixed ds-w-24 ds-w-full"&gt;&lt;a class="skip-link" href="#overview" data-state="focus"&gt;Skip to content&lt;/a&gt;&lt;/div&gt;</code></pre></details></div>
+
+</section>
+<section class="ds-section" id="sizes"><h2><a href="#sizes">Sizes</a></h2>
+<p>One size; text is body size. Its focused box is about 40 px tall; it is a bypass mechanism shown only on focus, and the shipped page does not render it.</p>
+</section>
+<section class="ds-section" id="states"><h2><a href="#states">States</a></h2>
+
+<div class="ds-matrix"><table><thead><tr><th scope="col">Variant</th><th scope="col">Default (off screen)</th><th scope="col">Focus (visible)</th></tr></thead><tbody><tr><th scope="row">Skip link</th><td><span class="text-subtle">Rendered above the viewport, not visible</span></td><td><div class="ds-preview ds-preview--fixed ds-w-24 ds-w-full"><a class="skip-link" href="#overview" data-state="focus">Skip to content</a></div></td></tr></tbody></table></div>
+<h3>Both themes</h3>
+<div class="ds-themes"><div data-theme="light"><div class="ds-example__canvas"><div class="ds-preview ds-preview--fixed ds-w-24 ds-w-full"><a class="skip-link" href="#overview" data-state="focus">Skip to content</a></div></div></div><div data-theme="dark"><div class="ds-example__canvas"><div class="ds-preview ds-preview--fixed ds-w-24 ds-w-full"><a class="skip-link" href="#overview" data-state="focus">Skip to content</a></div></div></div></div>
+
+</section>
+<section class="ds-section" id="responsive"><h2><a href="#responsive">Responsive behaviour</a></h2>
+<p>Identical at every width: 16 px from the left and top edges when focused, above the sticky top bar (<code>--z-tooltip</code>).</p>
+</section>
+<section class="ds-section" id="theming"><h2><a href="#theming">Theming</a></h2>
+<p>Reads <code>--color-bg-surface-raised</code>, <code>--color-fg-default</code> and <code>--shadow-3</code>; in dark the raised surface is ink-800 with a deeper shadow.</p>
+</section>
+<section class="ds-section" id="accessibility"><h2><a href="#accessibility">Accessibility</a></h2>
+
+<h3>Role and pattern</h3>
+<p>A same-page <code>&lt;a href="#main"&gt;</code>, WCAG 2.4.1 bypass blocks.</p>
+<h3>Keyboard</h3>
+<div class="ds-table-wrap"><table class="ds-table ds-keys"><thead><tr><th scope="col">Key</th><th scope="col">Action</th></tr></thead><tbody><tr><td><kbd>Tab</kbd> (first press)</td><td>Focuses the skip link and reveals it.</td></tr><tr><td><kbd>Enter</kbd></td><td>Moves focus to <code>#main</code>.</td></tr></tbody></table></div>
+<h3>Focus</h3>
+<p>Shared focus ring plus the slide into view. Hidden again on blur.</p>
+<h3>Labelling</h3>
+<p><q>Skip to content</q>.</p>
+<h3>Contrast</h3>
+<div class="ds-themes"><div data-theme="light"><div class="ds-example__canvas ds-example__canvas--stack"><div class="ds-pair"><span>Skip link text<span class="ds-pair__tokens">--color-fg-default on --color-bg-surface-raised</span></span><span class="ds-pair__ratio" data-contrast="--color-fg-default|--color-bg-surface-raised" data-min="4.5"></span></div><div class="ds-pair"><span>Focus ring<span class="ds-pair__tokens">--color-focus-ring on --color-bg-surface-raised</span></span><span class="ds-pair__ratio" data-contrast="--color-focus-ring|--color-bg-surface-raised" data-min="3"></span></div></div></div><div data-theme="dark"><div class="ds-example__canvas ds-example__canvas--stack"><div class="ds-pair"><span>Skip link text<span class="ds-pair__tokens">--color-fg-default on --color-bg-surface-raised</span></span><span class="ds-pair__ratio" data-contrast="--color-fg-default|--color-bg-surface-raised" data-min="4.5"></span></div><div class="ds-pair"><span>Focus ring<span class="ds-pair__tokens">--color-focus-ring on --color-bg-surface-raised</span></span><span class="ds-pair__ratio" data-contrast="--color-focus-ring|--color-bg-surface-raised" data-min="3"></span></div></div></div></div>
+<h3>Motion</h3>
+<p>Slides over <code>--duration-fast</code>; instant under reduced motion.</p>
+<h3>Touch</h3>
+<p>Keyboard only by design; touch users do not see it.</p>
+
+</section>
+<section class="ds-section" id="content"><h2><a href="#content">Content</a></h2>
+<ul><li>Label: <b>Skip to content</b>. Not &ldquo;Skip navigation&rdquo;: there is no navigation.</li></ul>
+</section>
+<section class="ds-section" id="do-dont"><h2><a href="#do-dont">Do and don't</a></h2>
+<div class="ds-dodont"><figure class="ds-do"><div class="ds-example__canvas"><div class="ds-preview ds-preview--fixed ds-w-24 ds-w-full"><a class="skip-link" href="#overview" data-state="focus">Skip to content</a></div></div><figcaption>Point the link at a <code>&lt;main&gt;</code> that exists (both mock sets and this site).</figcaption></figure><figure class="ds-dont"><div class="ds-example__canvas"><div class="ds-preview ds-preview--fixed ds-w-24 ds-w-full"><a class="skip-link" href="#overview" data-state="focus">Skip</a></div></div><figcaption>A one-word label does not say where focus goes.</figcaption></figure><figure class="ds-do"><div class="ds-example__canvas"><span class="text-subtle">No skip link when nothing precedes the main content</span></div><figcaption>Shipped: the top bar holds no Tab stops, so the first Tab is already in the content.</figcaption></figure><figure class="ds-dont"><div class="ds-example__canvas"><span class="text-subtle">Skip link plus a focusable brand link</span></div><figcaption>Set B adds a brand link and then needs the skip link to bypass it; drop the link and the skip link is unnecessary.</figcaption></figure></div>
+</section>
+<section class="ds-section" id="tokens"><h2><a href="#tokens">Tokens</a></h2>
+<div class="ds-table-wrap"><table class="ds-table"><thead><tr><th scope="col">Part</th><th scope="col">Token</th><th scope="col">Light</th><th scope="col">Dark</th></tr></thead><tbody><tr><td>Background</td><td><code>--color-bg-surface-raised</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-bg-surface-raised" data-swatch></i><span data-token="--color-bg-surface-raised"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-bg-surface-raised" data-swatch></i><span data-token="--color-bg-surface-raised"></span></span></td></tr><tr><td>Text</td><td><code>--color-fg-default</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-fg-default" data-swatch></i><span data-token="--color-fg-default"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-fg-default" data-swatch></i><span data-token="--color-fg-default"></span></span></td></tr><tr><td>Shadow</td><td><code>--shadow-3</code></td><td><span data-theme="light" data-token="--shadow-3"></span></td><td><span data-theme="dark" data-token="--shadow-3"></span></td></tr><tr><td>Radius</td><td><code>--radius-md</code></td><td><span data-theme="light" data-token="--radius-md"></span></td><td><span data-theme="dark" data-token="--radius-md"></span></td></tr><tr><td>Layer</td><td><code>--z-tooltip</code></td><td><span data-theme="light" data-token="--z-tooltip"></span></td><td><span data-theme="dark" data-token="--z-tooltip"></span></td></tr><tr><td>Slide</td><td><code>--duration-fast</code></td><td><span data-theme="light" data-token="--duration-fast"></span></td><td><span data-theme="dark" data-token="--duration-fast"></span></td></tr></tbody></table></div>
+</section>
+<section class="ds-section" id="code"><h2><a href="#code">Code</a></h2>
+
+<pre><code>&lt;a class="skip-link" href="#main"&gt;Skip to content&lt;/a&gt;</code></pre>
+<div class="ds-table-wrap"><table class="ds-table"><thead><tr><th scope="col">Class</th><th scope="col">Effect</th></tr></thead><tbody><tr><td><code>.skip-link</code></td><td>Off screen until <code>:focus-visible</code>.</td></tr></tbody></table></div>
+
+</section>
+<section class="ds-section" id="sources"><h2><a href="#sources">Sources</a></h2>
+
+<p>Shipped: none (<code>src/index.html</code> has no skip link; <code>&lt;main&gt;</code> landmark (id <code>main</code>) exists).</p>
+<p>Mocks, set A:</p><ul class="ds-sources"><li><a href="../../mocks/pages/start/default.html">pages/start/default</a></li></ul>
+<p>Mocks, set B:</p><ul class="ds-sources"><li><a href="../../mocks/pages/stride-link/default.html">pages/stride-link/default</a></li></ul>
+<p>Difference recorded: both mock sets include the skip link; the shipped page omits it (listed in the README's shipped-versus-mock table).</p>
+
+</section>
+    <footer class="ds-footer"><span>Stride Link design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-11-20</span><a href="#top">Back to top</a></footer>
+  </main>
+</div>
+<script src="../assets/ds.js"></script>
+</body>
+</html>

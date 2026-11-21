@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Typography — Stride Link design system</title>
+<meta name="description" content="Inter Tight and JetBrains Mono, the type scale, weights, role shorthands and the 16 px body floor.">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../tokens/tokens.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="../assets/ds.css">
+<style>
+.f-fs-xs { font-size: var(--font-size-xs); line-height: var(--line-height-snug); }
+.f-fs-sm { font-size: var(--font-size-sm); line-height: var(--line-height-snug); }
+.f-fs-md { font-size: var(--font-size-md); line-height: var(--line-height-snug); }
+.f-fs-lg { font-size: var(--font-size-lg); line-height: var(--line-height-snug); }
+.f-fs-xl { font-size: var(--font-size-xl); line-height: var(--line-height-snug); }
+.f-fs-2xl { font-size: var(--font-size-2xl); line-height: var(--line-height-snug); }
+.f-fs-3xl { font-size: var(--font-size-3xl); line-height: var(--line-height-snug); }
+.f-fs-4xl { font-size: var(--font-size-4xl); line-height: var(--line-height-snug); }
+.f-fs-5xl { font-size: var(--font-size-5xl); line-height: var(--line-height-snug); }
+.f-fw-regular { font-weight: var(--font-weight-regular); font-size: var(--font-size-xl); }
+.f-fw-medium { font-weight: var(--font-weight-medium); font-size: var(--font-size-xl); }
+.f-fw-semibold { font-weight: var(--font-weight-semibold); font-size: var(--font-size-xl); }
+.f-fw-bold { font-weight: var(--font-weight-bold); font-size: var(--font-size-xl); }
+.f-fw-extrabold { font-weight: var(--font-weight-extrabold); font-size: var(--font-size-xl); }
+.f-text-display { font: var(--text-display); overflow-wrap: anywhere; }
+.f-text-h1 { font: var(--text-h1); overflow-wrap: anywhere; }
+.f-text-h2 { font: var(--text-h2); overflow-wrap: anywhere; }
+.f-text-h3 { font: var(--text-h3); overflow-wrap: anywhere; }
+.f-text-h4 { font: var(--text-h4); overflow-wrap: anywhere; }
+.f-text-body-lg { font: var(--text-body-lg); overflow-wrap: anywhere; }
+.f-text-body { font: var(--text-body); overflow-wrap: anywhere; }
+.f-text-body-sm { font: var(--text-body-sm); overflow-wrap: anywhere; }
+.f-text-caption { font: var(--text-caption); overflow-wrap: anywhere; }
+.f-text-label { font: var(--text-label); overflow-wrap: anywhere; }
+.f-text-overline { font: var(--text-overline); overflow-wrap: anywhere; }
+.f-text-code { font: var(--text-code); overflow-wrap: anywhere; }
+.f-text-overline { letter-spacing: var(--letter-spacing-wide); text-transform: uppercase; }
+.f-text-display, .f-text-h1, .f-text-h2 { letter-spacing: var(--letter-spacing-tight); }
+.f-text-code { white-space: pre-wrap; }
+.f-lh { font: var(--text-body); max-width: 32rem; background: var(--color-bg-surface-sunken); padding: var(--space-2) var(--space-3); border-radius: var(--radius-sm); }
+.f-lh-tight { line-height: var(--line-height-tight); } .f-lh-snug { line-height: var(--line-height-snug); } .f-lh-normal { line-height: var(--line-height-normal); } .f-lh-relaxed { line-height: var(--line-height-relaxed); }
+.f-ls { font-size: var(--font-size-2xl); font-weight: var(--font-weight-extrabold); }
+.f-ls-wordmark { letter-spacing: var(--letter-spacing-wordmark); } .f-ls-tight { letter-spacing: var(--letter-spacing-tight); } .f-ls-normal { letter-spacing: var(--letter-spacing-normal); } .f-ls-wide { letter-spacing: var(--letter-spacing-wide); text-transform: uppercase; font-size: var(--font-size-sm); }
+.f-family-sans { font-family: var(--font-family-sans); font-size: var(--font-size-2xl); } .f-family-mono { font-family: var(--font-family-mono); font-size: var(--font-size-lg); }
+</style>
+</head>
+<body id="top">
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="ds-shell">
+  <nav class="ds-nav" aria-label="Design system"><div class="ds-nav__brand"><a href="../index.html">Stride Link DS</a><button class="ds-theme-toggle" type="button" aria-pressed="false">☾ Dark</button></div><details open><summary>Foundations</summary><ul><li><a href="../foundations/color.html">Color</a></li><li><a href="../foundations/typography.html">Typography</a></li><li><a href="../foundations/spacing.html">Spacing</a></li><li><a href="../foundations/layout.html">Layout</a></li><li><a href="../foundations/elevation.html">Elevation</a></li><li><a href="../foundations/shape.html">Shape</a></li><li><a href="../foundations/motion.html">Motion</a></li><li><a href="../foundations/iconography.html">Iconography</a></li><li><a href="../foundations/theming.html">Theming</a></li><li><a href="../foundations/responsive.html">Responsive</a></li><li><a href="../foundations/accessibility.html">Accessibility</a></li><li><a href="../foundations/content.html">Content</a></li></ul></details><details open><summary>Components</summary><ul><li><a href="../components/button.html">Button</a></li><li><a href="../components/link.html">Link</a></li><li><a href="../components/text-field.html">Text field</a></li><li><a href="../components/checkbox.html">Checkbox</a></li><li><a href="../components/form-field.html">Form field</a></li><li><a href="../components/inline-message.html">Inline message</a></li><li><a href="../components/top-bar.html">Top bar</a></li><li><a href="../components/brand.html">Brand lockup</a></li><li><a href="../components/privacy-pill.html">Privacy pill</a></li><li><a href="../components/skip-link.html">Skip link</a></li><li><a href="../components/footer.html">Footer</a></li><li><a href="../components/layout-primitives.html">Layout primitives</a></li><li><a href="../components/panel.html">Panel</a></li><li><a href="../components/dialog.html">Dialog</a></li><li><a href="../components/description-list.html">Description list</a></li><li><a href="../components/badge.html">Badge</a></li><li><a href="../components/status-line.html">Status line</a></li><li><a href="../components/notice.html">Notice</a></li><li><a href="../components/telemetry.html">Telemetry</a></li><li><a href="../components/verdict.html">Verdict</a></li><li><a href="../components/packet-log.html">Packet log</a></li><li><a href="../components/device-list.html">Device list</a></li><li><a href="../components/belt-controls.html">Belt controls</a></li><li><a href="../components/stop-bar.html">Stop bar</a></li><li><a href="../components/alert.html">Alert</a></li><li><a href="../components/toast.html">Toast</a></li><li><a href="../components/progress-bar.html">Progress bar</a></li><li><a href="../components/spinner.html">Spinner</a></li><li><a href="../components/empty-state.html">Empty state</a></li></ul></details><details open><summary>Patterns</summary><ul><li><a href="../patterns/forms.html">Forms</a></li><li><a href="../patterns/feedback-and-loading.html">Feedback and loading</a></li><li><a href="../patterns/empty-and-error-states.html">Empty and error states</a></li><li><a href="../patterns/navigation-and-page-structure.html">Navigation and page structure</a></li><li><a href="../patterns/dialogs-and-overlays.html">Dialogs and overlays</a></li><li><a href="../patterns/data-tables-and-lists.html">Data tables and lists</a></li><li><a href="../patterns/notifications.html">Notifications</a></li><li><a href="../patterns/content-and-tone.html">Content and tone</a></li></ul></details></nav>
+  <main id="main" class="ds-main">
+    <header class="ds-header">
+      <p class="ds-kicker">Foundation</p>
+      <h1>Typography</h1>
+      <p class="ds-lead">Inter Tight for words, JetBrains Mono for frames; a nine-step rem scale with a 16 px body floor.</p>
+      
+      <ul class="ds-toc"><li><a href="#overview">Overview</a></li><li><a href="#scale">Size scale</a></li><li><a href="#weights">Weights</a></li><li><a href="#line-height">Line height</a></li><li><a href="#letter-spacing">Letter spacing</a></li><li><a href="#roles">Role shorthands</a></li><li><a href="#measure">Measure and numbers</a></li><li><a href="#responsive">Responsive type</a></li><li><a href="#usage">Usage</a></li><li><a href="#accessibility">Accessibility</a></li><li><a href="#tokens">Tokens</a></li></ul>
+    </header>
+<section class="ds-section" id="overview"><h2><a href="#overview">Overview</a></h2>
+
+<p>Two families, both from the logo sheet and both bundled locally under the SIL Open Font License (<code>assets/fonts/</code>), so pages render offline: <b>Inter Tight</b> for everything readable and <b>JetBrains Mono</b> for frames, hex, device names and the packet log. Base body text is 16 px and never smaller (L2-067); nothing renders below 12 px.</p>
+<div class="ds-grid-2"><div class="ds-example"><div class="ds-example__canvas"><span class="f-family-sans">Inter Tight · Aa Gg 0123</span></div><div class="ds-example__caption"><span><code>--font-family-sans</code>: variable 100–900</span></div></div>
+<div class="ds-example"><div class="ds-example__canvas"><span class="f-family-mono">F0 A4 00 94</span></div><div class="ds-example__caption"><span><code>--font-family-mono</code>: variable 100–800</span></div></div></div>
+
+</section>
+<section class="ds-section" id="scale"><h2><a href="#scale">Size scale</a></h2>
+<p>A nine-step scale in <code>rem</code>, so it follows the user's font size and zoom.</p><div class="ds-example"><div class="ds-specimen"><div class="ds-specimen__meta">--font-size-xs · 12px</div><div class="f-fs-xs">Speed 3.00 km/h</div></div><div class="ds-specimen"><div class="ds-specimen__meta">--font-size-sm · 14px</div><div class="f-fs-sm">Speed 3.00 km/h</div></div><div class="ds-specimen"><div class="ds-specimen__meta">--font-size-md · 16px</div><div class="f-fs-md">Speed 3.00 km/h</div></div><div class="ds-specimen"><div class="ds-specimen__meta">--font-size-lg · 18px</div><div class="f-fs-lg">Speed 3.00 km/h</div></div><div class="ds-specimen"><div class="ds-specimen__meta">--font-size-xl · 20px</div><div class="f-fs-xl">Speed 3.00 km/h</div></div><div class="ds-specimen"><div class="ds-specimen__meta">--font-size-2xl · 24px</div><div class="f-fs-2xl">Speed 3.00 km/h</div></div><div class="ds-specimen"><div class="ds-specimen__meta">--font-size-3xl · 30px</div><div class="f-fs-3xl">Speed 3.00 km/h</div></div><div class="ds-specimen"><div class="ds-specimen__meta">--font-size-4xl · 36px</div><div class="f-fs-4xl">Speed 3.00 km/h</div></div><div class="ds-specimen"><div class="ds-specimen__meta">--font-size-5xl · 48px</div><div class="f-fs-5xl">Speed 3.00 km/h</div></div></div>
+</section>
+<section class="ds-section" id="weights"><h2><a href="#weights">Weights</a></h2>
+<div class="ds-example"><div class="ds-specimen"><div class="ds-specimen__meta">--font-weight-regular</div><div class="f-fw-regular">Stride Link · Talks</div></div><div class="ds-specimen"><div class="ds-specimen__meta">--font-weight-medium</div><div class="f-fw-medium">Stride Link · Talks</div></div><div class="ds-specimen"><div class="ds-specimen__meta">--font-weight-semibold</div><div class="f-fw-semibold">Stride Link · Talks</div></div><div class="ds-specimen"><div class="ds-specimen__meta">--font-weight-bold</div><div class="f-fw-bold">Stride Link · Talks</div></div><div class="ds-specimen"><div class="ds-specimen__meta">--font-weight-extrabold</div><div class="f-fw-extrabold">Stride Link · Talks</div></div></div>
+</section>
+<section class="ds-section" id="line-height"><h2><a href="#line-height">Line height</a></h2>
+
+<div class="ds-example"><div class="ds-example__canvas ds-example__canvas--stack">
+<p class="f-lh f-lh-tight"><b>tight 1.1</b> · headings and the verdict word. Couldn't connect within 10 seconds. Move closer to the treadmill and try again.</p>
+<p class="f-lh f-lh-snug"><b>snug 1.3</b> · h3, h4 and dialog titles. Couldn't connect within 10 seconds. Move closer to the treadmill and try again.</p>
+<p class="f-lh f-lh-normal"><b>normal 1.5</b> · body and every role shorthand. Couldn't connect within 10 seconds. Move closer to the treadmill and try again.</p>
+<p class="f-lh f-lh-relaxed"><b>relaxed 1.65</b> · reserved for long prose. Couldn't connect within 10 seconds. Move closer to the treadmill and try again.</p>
+</div></div>
+<p>The log uses its own 1.6 inside <code>.log__list</code> and telemetry values use <code>--line-height-tight</code>.</p>
+
+</section>
+<section class="ds-section" id="letter-spacing"><h2><a href="#letter-spacing">Letter spacing</a></h2>
+
+<div class="ds-example"><div class="ds-example__canvas ds-example__canvas--stack">
+<span class="f-ls f-ls-wordmark">Stride Link · wordmark −0.035em</span>
+<span class="f-ls f-ls-tight">Treadmill smoke test · tight −0.02em</span>
+<span class="f-ls f-ls-normal">Treadmill smoke test · normal 0</span>
+<span class="f-ls-wide">Packet log · wide 0.06em</span>
+</div></div>
+
+</section>
+<section class="ds-section" id="roles"><h2><a href="#roles">Role shorthands</a></h2>
+<p>Each <code>--text-*</code> token is a complete <code>font</code> shorthand (weight, size / line height, family). Components set <code>font: var(--text-label)</code> and adjust only what they must.</p><div class="ds-example"><div class="ds-specimen"><div class="ds-specimen__meta">--text-display<br>Verdict word</div><div class="f-text-display">Unlocked</div></div><div class="ds-specimen"><div class="ds-specimen__meta">--text-h1<br>Page heading (30 px below 768 px)</div><div class="f-text-h1">Treadmill smoke test</div></div><div class="ds-specimen"><div class="ds-specimen__meta">--text-h2<br>Section headings (panel titles use overline)</div><div class="f-text-h2">Connection</div></div><div class="ds-specimen"><div class="ds-specimen__meta">--text-h3<br>Dialog title</div><div class="f-text-h3">Connection lost</div></div><div class="ds-specimen"><div class="ds-specimen__meta">--text-h4<br>Small headings</div><div class="f-text-h4">Stride Link</div></div><div class="ds-specimen"><div class="ds-specimen__meta">--text-body-lg<br>Status line (semibold)</div><div class="f-text-body-lg">Connected to the treadmill.</div></div><div class="ds-specimen"><div class="ds-specimen__meta">--text-body<br>Body text</div><div class="f-text-body">Use Stride Link only on a treadmill you own.</div></div><div class="ds-specimen"><div class="ds-specimen__meta">--text-body-sm<br>Help, notices, facts</div><div class="f-text-body-sm">0 to 3 km/h, in steps of 0.1</div></div><div class="ds-specimen"><div class="ds-specimen__meta">--text-caption<br>Counts, telemetry note</div><div class="f-text-caption">33 entries</div></div><div class="ds-specimen"><div class="ds-specimen__meta">--text-label<br>Field labels, buttons, metric labels</div><div class="f-text-label">Target speed (km/h)</div></div><div class="ds-specimen"><div class="ds-specimen__meta">--text-overline<br>Panel titles, verdict label (uppercase, wide tracking)</div><div class="f-text-overline">Packet log</div></div><div class="ds-specimen"><div class="ds-specimen__meta">--text-code<br>Log lines, hex, device names</div><div class="f-text-code">      12.3 TX f2 F0 A4 00 94 init</div></div></div>
+</section>
+<section class="ds-section" id="measure"><h2><a href="#measure">Measure and numbers</a></h2>
+<ul><li>Paragraphs cap at <code>--layout-measure</code> (65ch); status lines, notices and alerts opt out with <code>max-width: none</code> because they sit inside narrow panels already.</li><li>Numbers that change in place use <code>font-variant-numeric: tabular-nums</code>: telemetry values, counts, the Stop bar meta and the speed input, so digits do not jitter.</li><li>Headings use <code>text-wrap: balance</code>; paragraphs <code>text-wrap: pretty</code>.</li></ul>
+</section>
+<section class="ds-section" id="responsive"><h2><a href="#responsive">Responsive type</a></h2>
+<ul><li>Type uses fixed steps, never viewport units, so browser zoom to 200 % works (L2-067).</li><li>The page h1 is 30 px (<code>--font-size-3xl</code>) below 768 px and 36 px from 768 px.</li><li>Telemetry values are 24 px in the stacked layout below 576 px and 30 px in the three-up row.</li><li>Log lines are 12 px below 576 px and 14 px from 576 px.</li></ul>
+</section>
+<section class="ds-section" id="usage"><h2><a href="#usage">Usage</a></h2>
+<ul><li>Use a role shorthand, not a raw size. A new role is a new token, not a one-off.</li><li>Mono is for machine text only: hex frames, UUIDs, device names in facts, reasons, the log, version and commit. Never for prose.</li><li>Panel titles are overline (uppercase, 12 px bold, wide tracking) and are still real <code>&lt;h2&gt;</code> elements.</li><li>Sentence case everywhere; uppercase comes from CSS only, so screen readers read words, not letters.</li></ul>
+</section>
+<section class="ds-section" id="accessibility"><h2><a href="#accessibility">Accessibility</a></h2>
+<ul><li>Body text is 16 CSS px (L2-067 criterion 4); the smallest text is 12 px (captions, badges, narrow log lines).</li><li>All sizes are <code>rem</code>, so text resizes with the browser setting (WCAG 1.4.4).</li><li>Nothing breaks with WCAG 1.4.12 text spacing: components use <code>min-height</code>, not fixed heights, and wrap.</li><li>The verdict word is 48 px display text and also carries the meaning in words beside it (L2-062).</li></ul>
+</section>
+<section class="ds-section" id="tokens"><h2><a href="#tokens">Tokens</a></h2>
+<div class="ds-table-wrap"><table class="ds-table"><thead><tr><th scope="col">Token</th><th scope="col">Value</th><th scope="col">Use</th></tr></thead><tbody><tr><td><code>--font-family-sans</code></td><td><span data-token="--font-family-sans"></span></td><td>Inter Tight stack</td></tr><tr><td><code>--font-family-mono</code></td><td><span data-token="--font-family-mono"></span></td><td>JetBrains Mono stack</td></tr><tr><td><code>--font-size-xs</code></td><td><span data-token="--font-size-xs"></span></td><td>Captions, badges, log lines below 576 px, key caps</td></tr><tr><td><code>--font-size-sm</code></td><td><span data-token="--font-size-sm"></span></td><td>Secondary text, labels, log lines</td></tr><tr><td><code>--font-size-md</code></td><td><span data-token="--font-size-md"></span></td><td>Body; the floor for base text (L2-067)</td></tr><tr><td><code>--font-size-lg</code></td><td><span data-token="--font-size-lg"></span></td><td>Lead, status line, large buttons</td></tr><tr><td><code>--font-size-xl</code></td><td><span data-token="--font-size-xl"></span></td><td>h4, top-bar lockup, Stop belt label</td></tr><tr><td><code>--font-size-2xl</code></td><td><span data-token="--font-size-2xl"></span></td><td>h3, telemetry values below 576 px</td></tr><tr><td><code>--font-size-3xl</code></td><td><span data-token="--font-size-3xl"></span></td><td>h2, telemetry values, page h1 below 768 px</td></tr><tr><td><code>--font-size-4xl</code></td><td><span data-token="--font-size-4xl"></span></td><td>h1, large lockup</td></tr><tr><td><code>--font-size-5xl</code></td><td><span data-token="--font-size-5xl"></span></td><td>Verdict word (display)</td></tr><tr><td><code>--font-weight-regular</code></td><td><span data-token="--font-weight-regular"></span></td><td>Body, wordmark “Link”</td></tr><tr><td><code>--font-weight-medium</code></td><td><span data-token="--font-weight-medium"></span></td><td>Labels, fact values</td></tr><tr><td><code>--font-weight-semibold</code></td><td><span data-token="--font-weight-semibold"></span></td><td>Status line, belt-gate label</td></tr><tr><td><code>--font-weight-bold</code></td><td><span data-token="--font-weight-bold"></span></td><td>Headings, primary button, metric values</td></tr><tr><td><code>--font-weight-extrabold</code></td><td><span data-token="--font-weight-extrabold"></span></td><td>Wordmark “Stride”, verdict word, Stop belt</td></tr><tr><td><code>--line-height-tight</code></td><td><span data-token="--line-height-tight"></span></td><td>Headings, display</td></tr><tr><td><code>--line-height-snug</code></td><td><span data-token="--line-height-snug"></span></td><td>h3, h4</td></tr><tr><td><code>--line-height-normal</code></td><td><span data-token="--line-height-normal"></span></td><td>Body and roles</td></tr><tr><td><code>--line-height-relaxed</code></td><td><span data-token="--line-height-relaxed"></span></td><td>Long prose</td></tr><tr><td><code>--letter-spacing-wordmark</code></td><td><span data-token="--letter-spacing-wordmark"></span></td><td>Wordmark, verdict word</td></tr><tr><td><code>--letter-spacing-tight</code></td><td><span data-token="--letter-spacing-tight"></span></td><td>h1, h2, metric values, Stop belt</td></tr><tr><td><code>--letter-spacing-normal</code></td><td><span data-token="--letter-spacing-normal"></span></td><td>Default</td></tr><tr><td><code>--letter-spacing-wide</code></td><td><span data-token="--letter-spacing-wide"></span></td><td>Overline, panel titles, badges</td></tr><tr><td><code>--text-display</code></td><td><span data-token="--text-display"></span></td><td>Verdict word</td></tr><tr><td><code>--text-h1</code></td><td><span data-token="--text-h1"></span></td><td>Page heading (30 px below 768 px)</td></tr><tr><td><code>--text-h2</code></td><td><span data-token="--text-h2"></span></td><td>Section headings (panel titles use overline)</td></tr><tr><td><code>--text-h3</code></td><td><span data-token="--text-h3"></span></td><td>Dialog title</td></tr><tr><td><code>--text-h4</code></td><td><span data-token="--text-h4"></span></td><td>Small headings</td></tr><tr><td><code>--text-body-lg</code></td><td><span data-token="--text-body-lg"></span></td><td>Status line (semibold)</td></tr><tr><td><code>--text-body</code></td><td><span data-token="--text-body"></span></td><td>Body text</td></tr><tr><td><code>--text-body-sm</code></td><td><span data-token="--text-body-sm"></span></td><td>Help, notices, facts</td></tr><tr><td><code>--text-caption</code></td><td><span data-token="--text-caption"></span></td><td>Counts, telemetry note</td></tr><tr><td><code>--text-label</code></td><td><span data-token="--text-label"></span></td><td>Field labels, buttons, metric labels</td></tr><tr><td><code>--text-overline</code></td><td><span data-token="--text-overline"></span></td><td>Panel titles, verdict label (uppercase, wide tracking)</td></tr><tr><td><code>--text-code</code></td><td><span data-token="--text-code"></span></td><td>Log lines, hex, device names</td></tr></tbody></table></div>
+</section>
+    <footer class="ds-footer"><span>Stride Link design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-11-20</span><a href="#top">Back to top</a></footer>
+  </main>
+</div>
+<script src="../assets/ds.js"></script>
+</body>
+</html>
