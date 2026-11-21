@@ -1,0 +1,68 @@
+# Incremental implementation plan
+
+Source of truth: `specs/L2.md`, then `specs/L1.md`, then the sixteen features
+in `detailed-designs/README.md`. Scope is all 71 L2 requirements, including
+failure paths, safety, accessibility, performance, build and release.
+
+## Starting evidence
+
+On 2026-11-20 the repository contains requirements, detailed designs and mock
+assets, but no application, package manifest, tests, mock pages or design system.
+Node 24.22.0 and npm 11.19.1 are available. Origin is
+`https://github.com/QuinntyneBrown/stride-link.git`.
+Existing uncommitted edits to unlock/parser designs, diagrams, review log and
+mock CSS predate implementation; preserve them and stage only task-owned changes.
+AGENTS.md takes precedence over older design paths: use `scripts/build.ts` and
+`e2e/`, not `build.mjs` and `tests/acceptance/`.
+
+## Delivery rules
+
+Save and commit this plan before implementation. For each numbered slice, begin
+with failing behavioral acceptance criteria, implement the smallest complete
+path, run applicable typecheck/lint/unit/build/acceptance checks, record results
+below, commit and push. No real Bluetooth or hardware tests. Install the fake
+before every browser page script; use Playwright's clock for timing. Protocol
+coverage must reach 100% lines and branches. Keep unimplemented controls disabled
+until their complete path lands. No architecture tests or specification scans.
+
+## Slices
+
+| # | Deliverable and verification | Requirements | Status |
+|---|---|---|---|
+| 0 | Complete static mock states using existing assets; coverage matrix and visual review; extract verified design system before product UI | All visible states, 060–067 | Pending |
+| 1 | Strict TS tooling, deterministic single-file build, CSP/size enforcement, fake-only acceptance harness and initial support screen | 001–005, 049–052, 068, 070 | Pending |
+| 2 | Chooser, variant/bike handling, cancel/security errors and basic exportable diagnostics | 004, 006–009, 037–041 | Pending |
+| 3 | GATT discovery/subscriptions, timeout, disconnect and serialized writes with failure recovery | 010–012, 056, 058 | Pending |
+| 4 | Pure encoding/parsing and standard/Stride 4 paced init through the real fake transport | 013–019, 069 | Pending |
+| 5 | Challenge arithmetic, unlock response/acknowledgement, timeout and retry handling | 020–025, 069 | Pending |
+| 6 | Keepalive and echo scheduling, cancellation and concurrent queue behavior | 026–027, 055–056 | Pending |
+| 7 | Telemetry rendering, all four verdicts and exact explanatory copy | 028–036 | Pending |
+| 8 | Bounded packet log, filters, follow/pause, clear, downloads and metadata | 037–041, 057 | Pending |
+| 9 | Unlock-only belt gate, standing-clear interlock, start sequence, priority Stop/Escape and disconnect safety | 042–045, 048 | Pending |
+| 10 | Validated speed/incline controls with hard 3 km/h cap and safe input errors | 046–047 | Pending |
+| 11 | Complete responsive/accessibility states, keyboard/touch/zoom checks and axe audits | 060–067 | Pending |
+| 12 | Offline/privacy/CSP runtime checks, startup/load/one-hour performance verification | 001, 049–055, 057–058 | Pending |
+| 13 | CI, release integrity, hosted deployment configuration, human-only hardware documentation | 005, 053, 059, 068–071 | Pending |
+| 14 | Requirement-by-requirement completion audit and full `npm run check`; verify pushed commits and release/deployment evidence where authorized | 001–071 | Pending |
+
+Slices may be split further when verification reveals independent work; retain
+the full scope and record each additional commit here. Shared foundational code
+is introduced only when the next behavioral slice needs it.
+
+## External inputs and completion gates
+
+The hosted HTTPS URL and static host are unspecified in the designs. Request
+these while independent work proceeds; do not invent a live deployment or claim
+L2-053 verified without response/header/hash evidence. Hardware confirmation is
+human-only, tracked separately from automated fake verification. Commit/push is
+authorized; publishing a release or provisioning external hosting is not inferred
+from that instruction.
+
+Final evidence must map every acceptance criterion to behavioral checks, compiler,
+linter/build enforcement, or explicit manual/external evidence. Passing a subset
+does not establish completion. Record any unavailable external gate candidly.
+
+## Execution record
+
+- Planning: inspected repository, local guidance, skill, L2 requirements and design
+  index; saved this plan before writing application code.
