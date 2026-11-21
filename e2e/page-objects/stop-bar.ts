@@ -45,8 +45,10 @@ export class StopBar {
   async tabToStop(maxPresses = 80): Promise<number | null> {
     await this.page.evaluate(() => {
       if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
-      window.scrollTo(0, 0);
+      window.scrollTo({ top: 0, behavior: "instant" });
     });
+    // Clicking an inert spot moves the sequential focus starting point to the top.
+    await this.page.mouse.click(1, 1);
     for (let presses = 1; presses <= maxPresses; presses += 1) {
       await this.page.keyboard.press("Tab");
       if (await this.button.evaluate((el) => el === document.activeElement)) return presses;

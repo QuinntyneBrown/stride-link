@@ -40,7 +40,7 @@ until their complete path lands. No architecture tests or specification scans.
 | 8 | Bounded packet log, filters, follow/pause, clear, downloads and metadata | 037–041, 057 | Done |
 | 9 | Unlock-only belt gate, standing-clear interlock, start sequence, priority Stop/Escape and disconnect safety | 042–045, 048 | Done |
 | 10 | Validated speed/incline controls with hard 3 km/h cap and safe input errors | 046–047 | Done |
-| 11 | Complete responsive/accessibility states, keyboard/touch/zoom checks and axe audits | 060–067 | Pending |
+| 11 | Complete responsive/accessibility states, keyboard/touch/zoom checks and axe audits | 060–067 | Done |
 | 12 | Offline/privacy/CSP runtime checks, startup/load/one-hour performance verification | 001, 049–055, 057–058 | Pending |
 | 13 | CI, release integrity, hosted deployment configuration, human-only hardware documentation | 005, 053, 059, 068–071 | Pending |
 | 14 | Requirement-by-requirement completion audit and full `npm run check`; verify pushed commits and release/deployment evidence where authorized | 001–071 | Pending |
@@ -143,3 +143,14 @@ does not establish completion. Record any unavailable external gate candidly.
   stop-on-end.spec), Stop on screen 320–1920 px at every scroll position and Escape
   from any focus (stop-reachable.spec), Stop within 50 ms after a one-hour session
   (long-session.spec). 135 acceptance and 146 unit tests pass.
+- Slice 11: axe-core (tests only) runs against 14 page states in light and dark with
+  zero serious or critical violations; it found `aria-label` on a bare `<span>` (the
+  brand), now `role="img"`. Other fixes from the audits: telemetry moved above belt
+  controls (L2-064 order); the gate checkbox is a 44 px target; the body clears the
+  stop bar's border so nothing sits behind it. The probe measures focus rings
+  (>= 2 px, >= 3:1), targets, label-in-name, reduced motion, breakpoints, rotation
+  and 200 % zoom (640 CSS px). L2-062 "greyscale" is checked as luminance contrast
+  (>= 4.5:1), which greyscale preserves; L2-067 "base body text" is the body, status
+  line and subtitle, not the smaller notice. axe needs the page clock resumed, and
+  probes scroll with `behavior: "instant"` because the page scrolls smoothly. 233
+  acceptance tests pass.

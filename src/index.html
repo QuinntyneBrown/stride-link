@@ -10,7 +10,7 @@
 </head>
 <body>
 <header class="topbar app-topbar">
-  <span class="brand" aria-label="Stride Link">
+  <span class="brand" role="img" aria-label="Stride Link">
     <svg class="brand__mark" viewBox="0 0 72 56" aria-hidden="true" focusable="false"><rect class="mark__ink" x="4" y="12" width="48" height="32" rx="16" fill="none" stroke-width="5"/><circle class="mark__ink-fill" cx="20" cy="28" r="4"/><circle class="mark__signal-fill" cx="36" cy="28" r="4"/><path class="mark__signal" d="M57.3 13.09 A26 26 0 0 1 57.3 42.91" fill="none" stroke-width="5" stroke-linecap="round"/><path class="mark__signal" d="M63.85 8.5 A34 34 0 0 1 63.85 47.5" fill="none" stroke-width="5" stroke-linecap="round"/></svg>
     <span class="brand__word" aria-hidden="true"><strong>Stride</strong><span>Link</span></span>
   </span>
@@ -58,6 +58,15 @@
       </div>
     </section>
 
+    <section class="panel" id="telemetry-panel" aria-labelledby="telemetry-title">
+      <div class="panel__header"><h2 class="panel__title" id="telemetry-title">Telemetry</h2></div>
+      <dl class="telemetry">
+        <div class="metric"><dt class="metric__label">Speed</dt><dd class="metric__value metric__value--empty" id="telemetry-speed">—</dd></div>
+        <div class="metric"><dt class="metric__label">Incline</dt><dd class="metric__value metric__value--empty" id="telemetry-incline">—</dd></div>
+        <div class="metric"><dt class="metric__label">Heart rate</dt><dd class="metric__value metric__value--empty" id="telemetry-heart-rate">—</dd></div>
+      </dl>
+    </section>
+
     <section class="panel" id="belt-panel" aria-labelledby="belt-title" hidden>
       <div class="panel__header"><h2 class="panel__title" id="belt-title">Belt controls</h2></div>
       <ul class="safety-list">
@@ -80,15 +89,6 @@
           <p class="field__error" id="incline-error" role="alert" hidden></p>
         </div>
       </div>
-    </section>
-
-    <section class="panel" id="telemetry-panel" aria-labelledby="telemetry-title">
-      <div class="panel__header"><h2 class="panel__title" id="telemetry-title">Telemetry</h2></div>
-      <dl class="telemetry">
-        <div class="metric"><dt class="metric__label">Speed</dt><dd class="metric__value metric__value--empty" id="telemetry-speed">—</dd></div>
-        <div class="metric"><dt class="metric__label">Incline</dt><dd class="metric__value metric__value--empty" id="telemetry-incline">—</dd></div>
-        <div class="metric"><dt class="metric__label">Heart rate</dt><dd class="metric__value metric__value--empty" id="telemetry-heart-rate">—</dd></div>
-      </dl>
     </section>
   </div>
 

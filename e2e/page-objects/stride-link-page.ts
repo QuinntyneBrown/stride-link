@@ -4,15 +4,37 @@ import { join } from "node:path";
 import type { Page } from "@playwright/test";
 import { installFakeBluetooth, type FakeOverrides } from "../fake-bluetooth/install.ts";
 import { FakeControl } from "../fake-bluetooth/fake-control.ts";
+import { F } from "../fake-bluetooth/frames.ts";
+import { locked, silent, talks, unlocked, UNTIL_SILENT_MS, UNTIL_VERDICT_MS } from "../fake-bluetooth/scenarios.ts";
 import { ConnectPanel } from "./connect-panel.ts";
 import { StatusRegion } from "./status-region.ts";
 import { PageFooter } from "./page-footer.ts";
 import { LogPanel } from "./log-panel.ts";
 import { BeltControls } from "./belt-controls.ts";
+import { PageProbe } from "./page-probe.ts";
 import { RunFacts } from "./run-facts.ts";
 import { StopBar } from "./stop-bar.ts";
 import { TelemetryPanel } from "./telemetry-panel.ts";
 import { VerdictCard } from "./verdict-card.ts";
+
+/** Every state the accessibility and layout audits visit (L2-062, L2-064). */
+export const PAGE_STATES = [
+  "idle",
+  "unsupported",
+  "adapter-off",
+  "blocked-from-disk",
+  "connecting",
+  "error",
+  "silent",
+  "talks",
+  "unlocked",
+  "locked",
+  "gate-open",
+  "belt-active",
+  "stop-failed",
+  "connection-lost",
+] as const;
+export type PageStateName = (typeof PAGE_STATES)[number];
 
 export const PAGE_URL = pathToFileURL(join(process.cwd(), "dist", "stride-link.html")).href;
 
@@ -28,6 +50,7 @@ export class StrideLinkPage {
   readonly telemetry: TelemetryPanel;
   readonly belt: BeltControls;
   readonly stop: StopBar;
+  readonly probe: PageProbe;
 
   constructor(page: Page) {
     this.page = page;
@@ -41,6 +64,76 @@ export class StrideLinkPage {
     this.telemetry = new TelemetryPanel(page);
     this.belt = new BeltControls(page);
     this.stop = new StopBar(page);
+    this.probe = new PageProbe(page);
+  }
+
+  /** Opens the page and drives it into a named state through the fake. */
+  async reach(state: PageStateName): Promise<void> {
+    switch (state) {
+      case "idle":
+        await this.open();
+        await this.settle();
+        return;
+      case "unsupported":
+        await this.open({ availability: "absent" });
+        await this.settle();
+        return;
+      case "adapter-off":
+        await this.open({ availability: false });
+        await this.settle();
+        return;
+      case "blocked-from-disk":
+        await this.open({ chooser: "SecurityError" });
+        await this.connection.connect();
+        await this.settle();
+        return;
+      case "connecting":
+        await this.open({ connect: "hang" });
+        await this.connection.connect();
+        await this.settle();
+        return;
+      case "error":
+        await this.open({ service: false });
+        await this.connection.connect();
+        await this.advance(1_000);
+        return;
+      case "silent":
+        await this.open(silent);
+        await this.connection.connect();
+        await this.advance(UNTIL_SILENT_MS);
+        return;
+      case "talks":
+      case "unlocked":
+      case "locked":
+        await this.open({ talks, unlocked, locked }[state]);
+        await this.connection.connect();
+        await this.advance(UNTIL_VERDICT_MS);
+        return;
+      case "gate-open":
+        await this.reach("talks");
+        await this.belt.standClear();
+        return;
+      case "belt-active":
+        await this.reach("gate-open");
+        await this.belt.start();
+        await this.advance(100);
+        return;
+      case "stop-failed":
+        await this.open({ ...talks, failWritesStartingWith: F.STOP });
+        await this.connection.connect();
+        await this.advance(UNTIL_VERDICT_MS);
+        await this.belt.standClear();
+        await this.belt.start();
+        await this.advance(100);
+        await this.stop.press();
+        await this.advance(100);
+        return;
+      case "connection-lost":
+        await this.reach("belt-active");
+        await this.fake.dropConnection();
+        await this.settle();
+        return;
+    }
   }
 
   async resize(width: number, height: number): Promise<void> {
@@ -49,7 +142,10 @@ export class StrideLinkPage {
 
   /** Scrolls the page to a fraction of its scrollable height. */
   async scrollPageTo(fraction: number): Promise<void> {
-    await this.page.evaluate((f) => { window.scrollTo(0, (document.documentElement.scrollHeight - window.innerHeight) * f); }, fraction);
+    // Instant: the page scrolls smoothly, which would wait on the paused clock.
+    await this.page.evaluate((f) => {
+      window.scrollTo({ top: (document.documentElement.scrollHeight - window.innerHeight) * f, behavior: "instant" });
+    }, fraction);
   }
 
   async viewport(): Promise<{ width: number; height: number }> {
