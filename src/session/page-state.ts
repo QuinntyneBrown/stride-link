@@ -1,5 +1,6 @@
 // Everything the UI renders, as plain data owned by the session.
 import type { SupportStatus } from "../ble/bluetooth-gateway.ts";
+import type { VerdictRecord } from "./verdict-types.ts";
 
 export type StatusKey =
   | "checking"
@@ -17,6 +18,7 @@ export type StatusKey =
   | "connected"
   | "initialising"
   | "awaiting-verdict"
+  | "verdict"
   | "disconnected"
   | "export-failed";
 
@@ -25,12 +27,22 @@ export interface DeviceFacts {
   readonly variant: string;
 }
 
+export interface Telemetry {
+  readonly speedKmh: number | null;
+  readonly incline: number | null;
+  readonly heartRateBpm: number | null;
+}
+
+export const emptyTelemetry: Telemetry = { speedKmh: null, incline: null, heartRateBpm: null };
+
 export interface PageState {
   readonly status: StatusKey;
   readonly connectEnabled: boolean;
   readonly device: DeviceFacts | null;
   readonly canExport: boolean;
   readonly disconnectVisible: boolean;
+  readonly verdict: VerdictRecord | null;
+  readonly telemetry: Telemetry;
 }
 
 export const initialPageState: PageState = {
@@ -39,4 +51,6 @@ export const initialPageState: PageState = {
   device: null,
   canExport: false,
   disconnectVisible: false,
+  verdict: null,
+  telemetry: emptyTelemetry,
 };

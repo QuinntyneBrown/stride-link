@@ -27,6 +27,17 @@
       </div>
       <p class="status" id="status" role="status" aria-live="polite"><span class="dot" aria-hidden="true"></span><span id="status-text">Checking Bluetooth…</span></p>
       <p id="hosted-link-row" hidden><a class="btn btn--link" id="hosted-link" href="#">Open the hosted copy</a></p>
+      <div id="verdict-region" aria-live="polite" aria-atomic="true">
+        <div class="verdict" id="verdict" hidden>
+          <div class="verdict__head"><div><p class="verdict__label">Verdict</p><h2 class="verdict__word" id="verdict-word"></h2></div></div>
+          <dl class="verdict__facts">
+            <dt>Meaning</dt><dd id="verdict-meaning"></dd>
+            <dt id="verdict-reason-term">Reason</dt><dd class="mono" id="verdict-reason"></dd>
+            <dt>Next step</dt><dd id="verdict-next-step"></dd>
+          </dl>
+          <div class="panel__actions"><button type="button" class="btn" id="verdict-export">Export log</button></div>
+        </div>
+      </div>
     </section>
 
     <section class="panel" id="connect-panel" aria-labelledby="connect-title">
@@ -40,6 +51,15 @@
         <button type="button" class="btn btn--primary btn--lg" id="connect" disabled>Connect</button>
         <button type="button" class="btn btn--lg" id="disconnect" hidden>Disconnect</button>
       </div>
+    </section>
+
+    <section class="panel" id="telemetry-panel" aria-labelledby="telemetry-title">
+      <div class="panel__header"><h2 class="panel__title" id="telemetry-title">Telemetry</h2></div>
+      <dl class="telemetry">
+        <div class="metric"><dt class="metric__label">Speed</dt><dd class="metric__value metric__value--empty" id="telemetry-speed">—</dd></div>
+        <div class="metric"><dt class="metric__label">Incline</dt><dd class="metric__value metric__value--empty" id="telemetry-incline">—</dd></div>
+        <div class="metric"><dt class="metric__label">Heart rate</dt><dd class="metric__value metric__value--empty" id="telemetry-heart-rate">—</dd></div>
+      </dl>
     </section>
   </div>
 

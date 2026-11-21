@@ -9,6 +9,8 @@ import { StatusRegion } from "./status-region.ts";
 import { PageFooter } from "./page-footer.ts";
 import { LogPanel } from "./log-panel.ts";
 import { RunFacts } from "./run-facts.ts";
+import { TelemetryPanel } from "./telemetry-panel.ts";
+import { VerdictCard } from "./verdict-card.ts";
 
 export const PAGE_URL = pathToFileURL(join(process.cwd(), "dist", "stride-link.html")).href;
 
@@ -20,6 +22,8 @@ export class StrideLinkPage {
   readonly footer: PageFooter;
   readonly log: LogPanel;
   readonly facts: RunFacts;
+  readonly verdict: VerdictCard;
+  readonly telemetry: TelemetryPanel;
 
   constructor(page: Page) {
     this.page = page;
@@ -29,6 +33,19 @@ export class StrideLinkPage {
     this.footer = new PageFooter(page);
     this.log = new LogPanel(page);
     this.facts = new RunFacts(page);
+    this.verdict = new VerdictCard(page);
+    this.telemetry = new TelemetryPanel(page);
+  }
+
+  /** The page clock's current performance.now(). */
+  async now(): Promise<number> {
+    return this.page.evaluate(() => performance.now());
+  }
+
+  /** Advances the page clock to an absolute performance.now() time. */
+  async advanceTo(t: number): Promise<void> {
+    const now = await this.now();
+    if (t > now) await this.page.clock.runFor(t - now);
   }
 
   /** Installs the fake and the fake clock, then opens the built page from disk. */

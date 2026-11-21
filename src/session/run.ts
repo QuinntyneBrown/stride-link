@@ -7,7 +7,9 @@ import type { Clock, TimerId } from "./clock.ts";
 import { InitSequencer } from "./init-sequencer.ts";
 import { LinkKeeper } from "./link-keeper.ts";
 import type { FrameTag, SectionLog } from "./packet-log.ts";
-import { UnlockFlow, type UnlockListener } from "./unlock-flow.ts";
+import { UnlockFlow } from "./unlock-flow.ts";
+import { VerdictEngine } from "./verdict-engine.ts";
+import type { VerdictRecord } from "./verdict-types.ts";
 
 export class Run {
   readonly log: SectionLog;
@@ -16,6 +18,7 @@ export class Run {
   readonly init: InitSequencer;
   readonly unlock: UnlockFlow;
   readonly keeper: LinkKeeper;
+  readonly verdict: VerdictEngine;
   link: TreadmillLink | null = null;
   queue: WriteQueue<FrameTag> | null = null;
   private live = true;
@@ -23,12 +26,16 @@ export class Run {
   private readonly timers = new Set<TimerId>();
   private readonly endListeners: (() => void)[] = [];
 
-  constructor(log: SectionLog, variant: ModelVariant, clock: Clock, unlockListener: UnlockListener) {
+  constructor(log: SectionLog, variant: ModelVariant, clock: Clock, onVerdict: (record: VerdictRecord) => void) {
     this.log = log;
     this.variant = variant;
     this.clock = clock;
     this.init = new InitSequencer(this);
-    this.unlock = new UnlockFlow(this, unlockListener);
+    this.verdict = new VerdictEngine(this, onVerdict);
+    this.unlock = new UnlockFlow(this, {
+      challengeSeen: () => { this.verdict.onChallenge(); },
+      outcome: (outcome) => { this.verdict.onUnlockOutcome(outcome); },
+    });
     this.keeper = new LinkKeeper(this);
   }
 

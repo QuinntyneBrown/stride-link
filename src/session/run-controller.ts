@@ -10,7 +10,8 @@ import { detectVariant, displayName, isBikeName, variantLabel } from "../protoco
 import type { Clock } from "./clock.ts";
 import { buildExport, exportFileName, type ExportEnvironment } from "./log-export.ts";
 import type { PacketLog } from "./packet-log.ts";
-import { initialPageState, type PageState, type StatusKey } from "./page-state.ts";
+import { emptyTelemetry, initialPageState, type PageState, type StatusKey } from "./page-state.ts";
+import { decodeTelemetry } from "../protocol/telemetry.ts";
 import { Run } from "./run.ts";
 import { Store } from "./store.ts";
 
@@ -68,14 +69,18 @@ export class RunController {
       return;
     }
     const variant = detectVariant(device.name);
-    const run = new Run(this.log.startRun(name, variant), variant, this.clock, {
-      challengeSeen: () => undefined,
-      outcome: () => undefined,
+    const run = new Run(this.log.startRun(name, variant), variant, this.clock, (verdict) => {
+      if (this.run === run) this.state.update({ verdict, status: "verdict" });
     });
     this.run = run;
     run.log.recordEvent(`Device selected: ${name}`);
     run.log.recordEvent(`Model variant: ${variantLabel(variant)}`);
-    this.state.update({ status: "connecting", device: { name, variant: variant === "stride4" ? "Stride 4" : "Standard" } });
+    this.state.update({
+      status: "connecting",
+      device: { name, variant: variant === "stride4" ? "Stride 4" : "Standard" },
+      verdict: null,
+      telemetry: emptyTelemetry,
+    });
     await this.open(run, device);
   }
 
@@ -147,10 +152,12 @@ export class RunController {
     run.log.recordEvent(`isNotifying f4: ${String(link.isNotifying("f4"))}`);
     run.log.recordEvent(`Write method: ${link.writeMethod}`);
     this.state.update({ status: "initialising", disconnectVisible: true });
+    run.verdict.onInitStarted();
     const result = await run.init.start();
     if (result.status === "cancelled" || !run.isAlive()) return;
     run.keeper.start();
-    this.state.update({ status: "awaiting-verdict" });
+    run.verdict.onInitComplete();
+    if (run.verdict.current === null) this.state.update({ status: "awaiting-verdict" });
   }
 
   /** Every notification: logged, then counted for pacing, then handled by kind. */
@@ -159,8 +166,23 @@ export class RunController {
     const frame = parseFrame(bytes);
     run.log.recordRx(char, bytes, rxNote(frame));
     run.init.notifyReceived();
+    run.verdict.onNotification(frame.kind === "E0");
     run.keeper.onFrame(frame);
     if (frame.kind === "E0") run.unlock.onE0(frame);
+    this.applyTelemetry(run, frame);
+  }
+
+  private applyTelemetry(run: Run, frame: ParsedFrame): void {
+    const update = decodeTelemetry(frame, run.variant);
+    const current = this.state.get().telemetry;
+    const next = {
+      speedKmh: update.speedKmh ?? current.speedKmh,
+      incline: update.incline ?? current.incline,
+      heartRateBpm: update.heartRateBpm ?? current.heartRateBpm,
+    };
+    if (next.speedKmh !== current.speedKmh || next.incline !== current.incline || next.heartRateBpm !== current.heartRateBpm) {
+      this.state.update({ telemetry: next });
+    }
   }
 
   /** A failure before the run got going: logged, disconnected, back to idle. */
@@ -175,6 +197,8 @@ export class RunController {
 
   /** Tester disconnect or connection loss (L2-012). Log and verdict are kept. */
   private teardown(run: Run): void {
+    if (!run.isAlive()) return;
+    run.verdict.onDisconnect(run.unlock.awaitingAck());
     if (!run.end("disconnected")) return;
     run.link?.dispose();
     run.log.recordEvent("Disconnected");

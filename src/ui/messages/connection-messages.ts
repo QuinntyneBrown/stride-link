@@ -21,6 +21,7 @@ export const statusMessages: Record<StatusKey, string> = {
   connected: "Connected to the treadmill.",
   initialising: "Connected. Sending the init sequence…",
   "awaiting-verdict": "Init sent. Waiting for the treadmill to answer…",
+  verdict: "Connected to the treadmill.",
   disconnected: "Disconnected",
   "export-failed": "Couldn't save the log file. Press Export log to try again.",
 };
