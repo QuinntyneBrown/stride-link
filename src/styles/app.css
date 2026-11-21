@@ -16,6 +16,8 @@
 .privacy-pill { display: inline-flex; align-items: center; gap: var(--space-2); min-height: var(--space-8); padding: 0 var(--space-3); border: 1px solid var(--color-border-default); border-radius: var(--radius-full); font: var(--text-label); color: var(--color-fg-muted); white-space: nowrap; }
 .privacy-pill .icon { width: 1rem; height: 1rem; }
 .privacy-pill__long { display: none; }
+/* The Dismiss button keeps its own height beside wrapped alert text. */
+.alert > .btn { align-self: flex-start; }
 @media (min-width: 36rem) { .privacy-pill__long { display: inline; } }
 
 /* ---------- Page layout ---------------------------------------------------- */
@@ -117,8 +119,14 @@ body.has-stop-bar .app__log { height: auto; }
 .stop-bar__btn kbd { color: var(--color-fg-default); font-size: var(--font-size-xs); font-weight: var(--font-weight-medium); letter-spacing: 0; }
 .stop-bar__error { flex: 1; margin: 0; font: var(--text-label); color: var(--color-danger-fg); }
 .stop-bar__meta { display: none; font: var(--text-body-sm); color: var(--color-fg-muted); font-variant-numeric: tabular-nums; }
-@media (min-width: 48rem) { .stop-bar__error { flex: 1; margin: 0; font: var(--text-label); color: var(--color-danger-fg); }
-.stop-bar__meta { display: block; } .stop-bar__btn { flex: 0 1 24rem; } }
+@media (min-width: 48rem) { .stop-bar__meta { display: block; } .stop-bar__btn { flex: 0 1 24rem; } }
+/* Narrow phones: the failure message wraps under Stop, and the decorative Esc hint
+   (aria-hidden) gives way so the label always fits inside the button. */
+.stop-bar__inner { flex-wrap: wrap; }
+.stop-bar__btn { min-width: 0; }
+.stop-bar__error { flex-basis: 100%; }
+@media (min-width: 48rem) { .stop-bar__inner { flex-wrap: nowrap; } .stop-bar__error { flex-basis: auto; } }
+@media (max-width: 22.49rem) { .stop-bar__btn kbd { display: none; } }
 
 /* ---------- Packet log (role="log") ---------------------------------------- */
 .log-panel { gap: var(--space-3); }

@@ -29,7 +29,7 @@ until their complete path lands. No architecture tests or specification scans.
 
 | # | Deliverable and verification | Requirements | Status |
 |---|---|---|---|
-| 0 | Complete static mock states using existing assets; coverage matrix and visual review; extract verified design system before product UI | All visible states, 060–067 | Pending |
+| 0 | Complete static mock states using existing assets; coverage matrix and visual review; extract verified design system before product UI | All visible states, 060–067 | Done (owner picks the mock set) |
 | 1 | Strict TS tooling, deterministic single-file build, CSP/size enforcement, fake-only acceptance harness and initial support screen | 001–005, 049–052, 068, 070 | Done |
 | 2 | Chooser, variant/bike handling, cancel/security errors and basic exportable diagnostics | 004, 006–009, 037–041 | Done |
 | 3 | GATT discovery/subscriptions, timeout, disconnect and serialized writes with failure recovery | 010–012, 056, 058 | Done |
@@ -199,3 +199,18 @@ does not establish completion. Record any unavailable external gate candidly.
   - Slice 0: two sessions wrote conflicting mock sets into `docs/mocks/` (see the
     slice 0 note above). The owner must choose which set to keep before the design
     system is extracted. `docs/mocks/` was not staged by this work.
+- Slice 0: `docs/design-system/` extracted from the shared mock assets and matched
+  to the shipped styles: tokens (CSS and DTCG JSON, 270 entries), 12 foundations,
+  29 components and 8 patterns. Contrast passes 172 of 172 checks (86 pairs, light
+  and dark). Visual review: 200 screenshots of every page at 360 and 1280 px in
+  both themes, with no sideways scroll, console errors or requests. The 84 mock
+  files, pointed at the system's CSS in a scratch copy, match the originals pixel
+  for pixel except set A's three belt toasts, which the system moves above the
+  Stop bar on purpose. The extraction found five defects in the shipped page,
+  all fixed in the next commit: a duplicate CSS rule, the privacy pill's double
+  gap, a stretched Dismiss button, focus falling to the body after Dismiss, and
+  Stop's label overflowing at 320 px. Both mock sets (set A: pages/start, run,
+  verdict and belt; set B: pages/stride-link) stay in the working tree,
+  unstaged, untouched since the collision note above. Choosing which set to keep,
+  and committing it, is the owner's decision. The design system does not depend
+  on that choice: both sets share the assets it was built from.

@@ -15,6 +15,21 @@ test.describe("extra small and small (under 768 px)", () => {
     });
   }
 
+  for (const state of ["belt-active", "stop-failed"] as const) {
+    test(`L2-045, L2-064: in ${state} at 320 px the Stop label fits inside the button`, async ({ app }) => {
+      await app.reach(state);
+      expect(await app.probe.contentOverflows(app.stop.button)).toBe(false);
+      await expect(app.stop.button).toBeInViewport({ ratio: 1 });
+    });
+  }
+
+  test("L2-061: the connection-lost Dismiss button keeps its own height beside wrapped text", async ({ app }) => {
+    await app.reach("connection-lost");
+    const box = await app.stop.dismissConnectionLost.boundingBox();
+    expect(box?.height).toBeGreaterThanOrEqual(44);
+    expect(box?.height).toBeLessThanOrEqual(48);
+  });
+
   test("L2-064: one column in the order status, connection, telemetry, belt, log", async ({ app }) => {
     await app.reach("gate-open");
     const boxes = await Promise.all(ORDER.map((r) => app.probe.box(r)));

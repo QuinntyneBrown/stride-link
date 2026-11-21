@@ -66,6 +66,7 @@ test("L2-048: losing the connection with the belt active shows the banner until 
   await expect(app.stop.connectionLost).toBeVisible();
   await app.stop.dismissConnectionLost.click();
   await expect(app.stop.connectionLost).toBeHidden();
+  await expect(app.connection.connectButton).toBeFocused();
 });
 
 test("L2-048: losing the connection with the belt idle shows no banner", async ({ app }) => {

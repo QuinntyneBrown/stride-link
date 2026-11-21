@@ -83,7 +83,11 @@ export class AppShell {
     );
     const connectionLost = byId(doc, "connection-lost", HTMLElement);
     setText(byId(doc, "connection-lost-text", HTMLElement), CONNECTION_LOST);
-    byId(doc, "connection-lost-dismiss", HTMLButtonElement).addEventListener("click", () => { controller.dismissConnectionLost(); });
+    // After Dismiss, focus moves to Connect rather than falling to the page body.
+    byId(doc, "connection-lost-dismiss", HTMLButtonElement).addEventListener("click", () => {
+      controller.dismissConnectionLost();
+      connect.focus();
+    });
     doc.defaultView?.addEventListener("pagehide", () => { controller.onPageHide(); });
 
     new LogView(

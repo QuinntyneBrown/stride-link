@@ -167,17 +167,19 @@ differences apply to both mock sets unless a set is named.
 
 Recorded only. Nothing in `src/` was changed.
 
-- `.stop-bar__error` is declared twice in `src/styles/app.css`, once inside a
-  media query.
-- The privacy pill shows a double gap before "·": the flex `gap` adds to the
-  `&nbsp;` in the markup.
-- The connection-lost Dismiss button stretches to the height of the wrapped
-  alert text on phones, because `.alert` uses the default `align-items:
-  stretch`. A fix would be `.alert > .btn { align-self: flex-start; }`.
-- After Dismiss, focus falls to the document body. Moving it to Connect would
-  keep keyboard users in place.
-- At 320 px the Stop button's label and `Esc` hint are 3 px wider than the
-  button (156 px of content in a 153 px button). At 360 px and wider it fits.
+All five were fixed in the shipped page after extraction, each with an
+acceptance test where it is behaviour:
+
+- `.stop-bar__error` was declared twice in `src/styles/app.css`; the duplicate
+  inside the media query is gone.
+- The privacy pill's double gap before "·": the `&nbsp;` is removed; the flex
+  `gap` alone spaces it.
+- The connection-lost Dismiss button no longer stretches: `.alert > .btn {
+  align-self: flex-start; }` (layout.spec, L2-061).
+- After Dismiss, focus moves to Connect (stop-on-end.spec, L2-048).
+- At 320 px the Stop label fits: below 360 px the decorative `Esc` hint is hidden,
+  and a Stop failure message wraps onto its own row under Stop below 768 px
+  (layout.spec, L2-045 and L2-064).
 
 ## Drift found in the mocks
 

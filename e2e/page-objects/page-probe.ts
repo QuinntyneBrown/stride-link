@@ -57,6 +57,11 @@ export class PageProbe {
     return this.region(name).boundingBox();
   }
 
+  /** Whether a control's content is wider or taller than the control itself. */
+  async contentOverflows(control: Locator): Promise<boolean> {
+    return control.evaluate((el) => el.scrollWidth > el.clientWidth || el.scrollHeight > el.clientHeight);
+  }
+
   async hasHorizontalScroll(): Promise<boolean> {
     return this.page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth);
   }
