@@ -6,12 +6,14 @@ import type { ModelVariant } from "../protocol/variant.ts";
 import type { Clock, TimerId } from "./clock.ts";
 import { InitSequencer } from "./init-sequencer.ts";
 import type { FrameTag, SectionLog } from "./packet-log.ts";
+import { UnlockFlow, type UnlockListener } from "./unlock-flow.ts";
 
 export class Run {
   readonly log: SectionLog;
   readonly variant: ModelVariant;
   readonly abort = new AbortController();
   readonly init: InitSequencer;
+  readonly unlock: UnlockFlow;
   link: TreadmillLink | null = null;
   queue: WriteQueue<FrameTag> | null = null;
   private live = true;
@@ -19,11 +21,12 @@ export class Run {
   private readonly timers = new Set<TimerId>();
   private readonly endListeners: (() => void)[] = [];
 
-  constructor(log: SectionLog, variant: ModelVariant, clock: Clock) {
+  constructor(log: SectionLog, variant: ModelVariant, clock: Clock, unlockListener: UnlockListener) {
     this.log = log;
     this.variant = variant;
     this.clock = clock;
     this.init = new InitSequencer(this);
+    this.unlock = new UnlockFlow(this, unlockListener);
   }
 
   /** A method, not a getter, so callers re-check it after every await. */

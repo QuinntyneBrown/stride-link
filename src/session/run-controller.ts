@@ -68,7 +68,10 @@ export class RunController {
       return;
     }
     const variant = detectVariant(device.name);
-    const run = new Run(this.log.startRun(name, variant), variant, this.clock);
+    const run = new Run(this.log.startRun(name, variant), variant, this.clock, {
+      challengeSeen: () => undefined,
+      outcome: () => undefined,
+    });
     this.run = run;
     run.log.recordEvent(`Device selected: ${name}`);
     run.log.recordEvent(`Model variant: ${variantLabel(variant)}`);
@@ -155,6 +158,7 @@ export class RunController {
     const frame = parseFrame(bytes);
     run.log.recordRx(char, bytes, rxNote(frame));
     run.init.notifyReceived();
+    if (frame.kind === "E0") run.unlock.onE0(frame);
   }
 
   /** A failure before the run got going: logged, disconnected, back to idle. */
