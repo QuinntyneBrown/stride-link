@@ -38,8 +38,8 @@ until their complete path lands. No architecture tests or specification scans.
 | 6 | Keepalive and echo scheduling, cancellation and concurrent queue behavior | 026–027, 055–056 | Done |
 | 7 | Telemetry rendering, all four verdicts and exact explanatory copy | 028–036 | Done |
 | 8 | Bounded packet log, filters, follow/pause, clear, downloads and metadata | 037–041, 057 | Done |
-| 9 | Unlock-only belt gate, standing-clear interlock, start sequence, priority Stop/Escape and disconnect safety | 042–045, 048 | Pending |
-| 10 | Validated speed/incline controls with hard 3 km/h cap and safe input errors | 046–047 | Pending |
+| 9 | Unlock-only belt gate, standing-clear interlock, start sequence, priority Stop/Escape and disconnect safety | 042–045, 048 | Done |
+| 10 | Validated speed/incline controls with hard 3 km/h cap and safe input errors | 046–047 | Done |
 | 11 | Complete responsive/accessibility states, keyboard/touch/zoom checks and axe audits | 060–067 | Pending |
 | 12 | Offline/privacy/CSP runtime checks, startup/load/one-hour performance verification | 001, 049–055, 057–058 | Pending |
 | 13 | CI, release integrity, hosted deployment configuration, human-only hardware documentation | 005, 053, 059, 068–071 | Pending |
@@ -129,3 +129,17 @@ does not establish completion. Record any unavailable external gate candidly.
   through CDP, at most 500 rows, export starting in under 2 s; L2-057 criterion 3
   (Stop within 50 ms) is verified in slice 9 once Stop exists. Playwright pins
   `timezoneId: "UTC"` so export names are exact. 97 acceptance tests pass.
+- Slices 9 and 10 (one commit: the speed and incline controls live inside the gate,
+  so they could not be accepted apart from it): `BeltController` per run refuses
+  Start, speed and incline unless the gate is offered and open, never refuses Stop,
+  and sends Stop with `enqueueFirst`. The plan row says "unlock-only gate"; L2-042
+  offers it under Talks or Unlocked, and the spec wins. Belt active = Start pressed
+  or a decoded speed above 0; after Stop resolves only a speed reported since keeps
+  it active. Disconnect waits for Stop or 1,000 ms; `pagehide` puts Stop first; a
+  drop with the belt active shows the connection-lost banner until dismissed. Pure
+  `parseSpeed`/`parseIncline` (100 % covered) plus the encoder's RangeError make the
+  3 km/h cap two layers deep. Interlock tests: gate (belt-gate.spec), cap
+  (belt-input.test, belt-commands.spec), Stop jumps the queue (belt-commands.spec,
+  stop-on-end.spec), Stop on screen 320–1920 px at every scroll position and Escape
+  from any focus (stop-reachable.spec), Stop within 50 ms after a one-hour session
+  (long-session.spec). 135 acceptance and 146 unit tests pass.

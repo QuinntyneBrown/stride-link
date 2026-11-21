@@ -213,18 +213,19 @@ class FakeBluetooth extends EventTarget {
     const bytes = value instanceof ArrayBuffer ? new Uint8Array(value.slice(0)) : new Uint8Array(value.buffer.slice(value.byteOffset, value.byteOffset + value.byteLength));
     const hex = toHex(bytes);
     const t = performance.now();
+    const realT = realNow();
     this.call(method === "withResponse" ? "writeValueWithResponse" : "writeValueWithoutResponse", hex);
     if (this.inFlight > 0) {
       this.overlaps += 1;
-      this.writes.push({ t, char: char.name, hex, method, ok: false });
+      this.writes.push({ t, realT, char: char.name, hex, method, ok: false });
       return Promise.reject(domError("NetworkError", "GATT operation already in progress."));
     }
     if (!this.device.gatt.connected) {
-      this.writes.push({ t, char: char.name, hex, method, ok: false });
+      this.writes.push({ t, realT, char: char.name, hex, method, ok: false });
       return Promise.reject(domError("NetworkError", "GATT Server is disconnected. Cannot perform GATT operations."));
     }
     const index = this.writes.length + 1;
-    const record: FakeWrite = { t, char: char.name, hex, method, ok: true };
+    const record: FakeWrite = { t, realT, char: char.name, hex, method, ok: true };
     this.writes.push(record);
     this.inFlight += 1;
     const { failWrites, failWritesStartingWith } = this.config;
@@ -241,7 +242,7 @@ class FakeBluetooth extends EventTarget {
         }
         const drop = this.config.disconnectAfterWrite;
         if (drop && drop.write === index) setTimeout(() => { this.dropConnection(); }, drop.delayMs);
-      }, this.config.writeLatencyMs);
+      }, this.config.slowWrites && hex.startsWith(this.config.slowWrites.prefix) ? this.config.slowWrites.latencyMs : this.config.writeLatencyMs);
     });
   }
 
@@ -277,6 +278,11 @@ class FakeBluetooth extends EventTarget {
       setTimeout(next, intervalMs);
     };
     setTimeout(next, intervalMs);
+  }
+
+  /** Real milliseconds, unaffected by the page clock. */
+  realNow(): number {
+    return realNow();
   }
 
   /** Test control: the treadmill drops the link. */

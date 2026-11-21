@@ -1,5 +1,6 @@
 // Everything the UI renders, as plain data owned by the session.
 import type { SupportStatus } from "../ble/bluetooth-gateway.ts";
+import { idleBelt, type BeltView } from "./belt-controller.ts";
 import type { VerdictRecord } from "./verdict-types.ts";
 
 export type StatusKey =
@@ -43,6 +44,9 @@ export interface PageState {
   readonly disconnectVisible: boolean;
   readonly verdict: VerdictRecord | null;
   readonly telemetry: Telemetry;
+  readonly belt: BeltView;
+  /** Shown when the link drops with the belt active, until dismissed (L2-048). */
+  readonly connectionLost: boolean;
 }
 
 export const initialPageState: PageState = {
@@ -53,4 +57,6 @@ export const initialPageState: PageState = {
   disconnectVisible: false,
   verdict: null,
   telemetry: emptyTelemetry,
+  belt: idleBelt,
+  connectionLost: false,
 };

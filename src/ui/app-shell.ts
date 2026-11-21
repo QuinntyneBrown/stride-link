@@ -5,7 +5,10 @@ import type { RunController } from "../session/run-controller.ts";
 import { byId, setText } from "./dom.ts";
 import { downloadText } from "./file-downloader.ts";
 import { LogView } from "./log-view.ts";
+import { BeltPanel } from "./belt-panel.ts";
+import { CONNECTION_LOST } from "./messages/belt-messages.ts";
 import { statusMessages } from "./messages/connection-messages.ts";
+import { StopBar } from "./stop-bar.ts";
 import { TelemetryPanel } from "./telemetry-panel.ts";
 import { VerdictPanel } from "./verdict-panel.ts";
 
@@ -48,6 +51,41 @@ export class AppShell {
       heartRate: byId(doc, "telemetry-heart-rate", HTMLElement),
     });
 
+    const controller = this.controller;
+    const belt = new BeltPanel(
+      {
+        panel: byId(doc, "belt-panel", HTMLElement),
+        gate: byId(doc, "belt-gate", HTMLInputElement),
+        gateLabel: byId(doc, "belt-gate-label", HTMLElement),
+        controls: byId(doc, "belt-controls", HTMLElement),
+        start: byId(doc, "belt-start", HTMLButtonElement),
+        speed: byId(doc, "speed", HTMLInputElement),
+        speedApply: byId(doc, "speed-apply", HTMLButtonElement),
+        speedError: byId(doc, "speed-error", HTMLElement),
+        incline: byId(doc, "incline", HTMLInputElement),
+        inclineApply: byId(doc, "incline-apply", HTMLButtonElement),
+        inclineError: byId(doc, "incline-error", HTMLElement),
+      },
+      {
+        setGate: (open) => { controller.setBeltGate(open); },
+        start: () => { controller.startBelt(); },
+        setSpeed: (raw) => controller.setSpeed(raw),
+        setIncline: (raw) => controller.setIncline(raw),
+      },
+    );
+    const stopBar = new StopBar(
+      {
+        bar: byId(doc, "stop-bar", HTMLElement),
+        button: byId(doc, "stop-belt", HTMLButtonElement),
+        failed: byId(doc, "stop-failed", HTMLElement),
+      },
+      () => { controller.stopBelt(); },
+    );
+    const connectionLost = byId(doc, "connection-lost", HTMLElement);
+    setText(byId(doc, "connection-lost-text", HTMLElement), CONNECTION_LOST);
+    byId(doc, "connection-lost-dismiss", HTMLButtonElement).addEventListener("click", () => { controller.dismissConnectionLost(); });
+    doc.defaultView?.addEventListener("pagehide", () => { controller.onPageHide(); });
+
     new LogView(
       {
         scroller: byId(doc, "log", HTMLElement),
@@ -64,7 +102,7 @@ export class AppShell {
     });
 
     connect.addEventListener("click", () => { void this.controller.connect(); });
-    disconnect.addEventListener("click", () => { this.controller.disconnect(); });
+    disconnect.addEventListener("click", () => { void this.controller.disconnect(); });
     exportButton.addEventListener("click", () => { this.exportLog(); });
     verdictExport.addEventListener("click", () => { this.exportLog(); });
 
@@ -79,6 +117,9 @@ export class AppShell {
       exportButton.disabled = !state.canExport;
       verdict.render(state.verdict);
       telemetry.render(state.telemetry);
+      belt.render(state.belt);
+      stopBar.render(state.belt);
+      connectionLost.hidden = !state.connectionLost;
     });
   }
 

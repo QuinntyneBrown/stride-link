@@ -20,6 +20,11 @@
 
 <main class="app" id="main">
   <div class="app__primary">
+    <div class="alert alert--danger" id="connection-lost" role="alert" hidden>
+      <div class="alert__body"><p id="connection-lost-text"></p></div>
+      <button type="button" class="btn btn--sm" id="connection-lost-dismiss">Dismiss</button>
+    </div>
+
     <section class="panel" id="status-panel" aria-labelledby="status-title">
       <div class="app__intro">
         <h1 id="status-title">Treadmill smoke test</h1>
@@ -53,6 +58,30 @@
       </div>
     </section>
 
+    <section class="panel" id="belt-panel" aria-labelledby="belt-title" hidden>
+      <div class="panel__header"><h2 class="panel__title" id="belt-title">Belt controls</h2></div>
+      <ul class="safety-list">
+        <li>Keep the treadmill's safety key within reach.</li>
+        <li>Speed is capped at 3 km/h.</li>
+      </ul>
+      <div class="belt-gate"><label class="choice"><input type="checkbox" id="belt-gate"><span class="choice__text" id="belt-gate-label"></span></label></div>
+      <div class="belt-controls" id="belt-controls" hidden>
+        <div class="belt-controls__start"><button type="button" class="btn btn--lg" id="belt-start">Start</button></div>
+        <div class="field">
+          <label class="field__label" for="speed">Target speed (km/h)</label>
+          <div class="control-row"><input class="input" id="speed" type="number" min="0" max="3" step="0.1" inputmode="decimal" aria-describedby="speed-help speed-error"><button type="button" class="btn" id="speed-apply">Set speed</button></div>
+          <p class="field__help" id="speed-help">0 to 3 km/h, in steps of 0.1</p>
+          <p class="field__error" id="speed-error" role="alert" hidden></p>
+        </div>
+        <div class="field">
+          <label class="field__label" for="incline">Target incline</label>
+          <div class="control-row"><input class="input" id="incline" type="number" min="0" max="15" step="1" inputmode="numeric" aria-describedby="incline-help incline-error"><button type="button" class="btn" id="incline-apply">Set incline</button></div>
+          <p class="field__help" id="incline-help">Whole numbers from 0 to 15</p>
+          <p class="field__error" id="incline-error" role="alert" hidden></p>
+        </div>
+      </div>
+    </section>
+
     <section class="panel" id="telemetry-panel" aria-labelledby="telemetry-title">
       <div class="panel__header"><h2 class="panel__title" id="telemetry-title">Telemetry</h2></div>
       <dl class="telemetry">
@@ -77,6 +106,13 @@
     </div>
   </section>
 </main>
+
+<div class="stop-bar" id="stop-bar" role="region" aria-label="Belt stop" hidden>
+  <div class="stop-bar__inner">
+    <button type="button" class="btn btn--danger stop-bar__btn" id="stop-belt" aria-keyshortcuts="Escape"><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><rect x="5" y="5" width="14" height="14" rx="2"/></svg>Stop belt <kbd aria-hidden="true">Esc</kbd></button>
+    <p class="stop-bar__error" id="stop-failed" role="alert" hidden></p>
+  </div>
+</div>
 
 <footer class="footer app-footer">
   <span>Stride Link <span class="mono" id="build-version"></span> · <span class="mono" id="build-commit"></span></span>

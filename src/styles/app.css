@@ -113,8 +113,10 @@ body.has-stop-bar .app__log { height: auto; }
 .stop-bar__btn { flex: 1; min-height: var(--target-stop); min-width: var(--target-stop); font-size: var(--font-size-xl); font-weight: var(--font-weight-extrabold); letter-spacing: var(--letter-spacing-tight); gap: var(--space-3); }
 .stop-bar__btn .icon { width: 1.5rem; height: 1.5rem; fill: currentColor; stroke: none; }
 .stop-bar__btn kbd { color: var(--color-fg-default); font-size: var(--font-size-xs); font-weight: var(--font-weight-medium); letter-spacing: 0; }
+.stop-bar__error { flex: 1; margin: 0; font: var(--text-label); color: var(--color-danger-fg); }
 .stop-bar__meta { display: none; font: var(--text-body-sm); color: var(--color-fg-muted); font-variant-numeric: tabular-nums; }
-@media (min-width: 48rem) { .stop-bar__meta { display: block; } .stop-bar__btn { flex: 0 1 24rem; } }
+@media (min-width: 48rem) { .stop-bar__error { flex: 1; margin: 0; font: var(--text-label); color: var(--color-danger-fg); }
+.stop-bar__meta { display: block; } .stop-bar__btn { flex: 0 1 24rem; } }
 
 /* ---------- Packet log (role="log") ---------------------------------------- */
 .log-panel { gap: var(--space-3); }

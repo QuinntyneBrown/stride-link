@@ -8,7 +8,9 @@ import { ConnectPanel } from "./connect-panel.ts";
 import { StatusRegion } from "./status-region.ts";
 import { PageFooter } from "./page-footer.ts";
 import { LogPanel } from "./log-panel.ts";
+import { BeltControls } from "./belt-controls.ts";
 import { RunFacts } from "./run-facts.ts";
+import { StopBar } from "./stop-bar.ts";
 import { TelemetryPanel } from "./telemetry-panel.ts";
 import { VerdictCard } from "./verdict-card.ts";
 
@@ -24,6 +26,8 @@ export class StrideLinkPage {
   readonly facts: RunFacts;
   readonly verdict: VerdictCard;
   readonly telemetry: TelemetryPanel;
+  readonly belt: BeltControls;
+  readonly stop: StopBar;
 
   constructor(page: Page) {
     this.page = page;
@@ -35,6 +39,21 @@ export class StrideLinkPage {
     this.facts = new RunFacts(page);
     this.verdict = new VerdictCard(page);
     this.telemetry = new TelemetryPanel(page);
+    this.belt = new BeltControls(page);
+    this.stop = new StopBar(page);
+  }
+
+  async resize(width: number, height: number): Promise<void> {
+    await this.page.setViewportSize({ width, height });
+  }
+
+  /** Scrolls the page to a fraction of its scrollable height. */
+  async scrollPageTo(fraction: number): Promise<void> {
+    await this.page.evaluate((f) => { window.scrollTo(0, (document.documentElement.scrollHeight - window.innerHeight) * f); }, fraction);
+  }
+
+  async viewport(): Promise<{ width: number; height: number }> {
+    return this.page.evaluate(() => ({ width: window.innerWidth, height: window.innerHeight }));
   }
 
   /** JS heap in use after a forced garbage collection, through the DevTools protocol. */

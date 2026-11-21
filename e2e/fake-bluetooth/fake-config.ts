@@ -40,6 +40,8 @@ export interface FakeConfig {
   failWrites: number[] | "all";
   /** 1-based indices of f2 writes whose hex starts with a prefix that reject, e.g. Stop. */
   failWritesStartingWith: string | null;
+  /** Writes whose hex starts with `prefix` take `latencyMs` instead, e.g. a Stop that hangs. */
+  slowWrites: { prefix: string; latencyMs: number } | null;
   replies: Reply[];
   /** Notifications sent once both subscriptions are on, relative to that moment. */
   onSubscribed: ScriptedNotification[];
@@ -59,6 +61,7 @@ export const baseConfig: FakeConfig = {
   writeLatencyMs: 5,
   failWrites: [],
   failWritesStartingWith: null,
+  slowWrites: null,
   replies: [],
   onSubscribed: [],
   disconnectAfterWrite: null,
@@ -71,6 +74,8 @@ export interface FakeWrite {
   hex: string;
   method: "withResponse" | "withoutResponse";
   ok: boolean;
+  /** Real milliseconds (not the page clock), for latency checks (L2-057). */
+  realT: number;
 }
 
 export interface FakeCall {

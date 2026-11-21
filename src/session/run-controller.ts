@@ -2,6 +2,7 @@
 // lifetime (L2-002..012, L2-058).
 import { ConnectionFailure, type BluetoothGateway, type SupportStatus } from "../ble/bluetooth-gateway.ts";
 import type { TreadmillLink } from "../ble/treadmill-link.ts";
+import type { InclineInput, SpeedInput } from "../protocol/belt-input.ts";
 import { chooserOptions } from "../protocol/chooser-filters.ts";
 import { errorFacts, type ErrorFacts } from "../protocol/errors.ts";
 import { parseFrame, type ParsedFrame } from "../protocol/frame-parser.ts";
@@ -10,12 +11,15 @@ import { detectVariant, displayName, isBikeName, variantLabel } from "../protoco
 import type { Clock } from "./clock.ts";
 import { buildExport, exportFileName, type ExportEnvironment } from "./log-export.ts";
 import type { PacketLog } from "./packet-log.ts";
+import { idleBelt } from "./belt-controller.ts";
 import { emptyTelemetry, initialPageState, type PageState, type StatusKey } from "./page-state.ts";
 import { decodeTelemetry } from "../protocol/telemetry.ts";
 import { Run } from "./run.ts";
 import { Store } from "./store.ts";
 
 export const CONNECT_TIMEOUT_MS = 10_000;
+/** Disconnect waits this long at most for Stop to resolve (L2-048). */
+export const STOP_BEFORE_DISCONNECT_MS = 1_000;
 
 type RunFailure = "connect-timeout" | "missing-service" | "connect-failed" | "subscribe-failed";
 
@@ -69,8 +73,13 @@ export class RunController {
       return;
     }
     const variant = detectVariant(device.name);
-    const run = new Run(this.log.startRun(name, variant), variant, this.clock, (verdict) => {
-      if (this.run === run) this.state.update({ verdict, status: "verdict" });
+    const run: Run = new Run(this.log.startRun(name, variant), variant, this.clock, {
+      verdict: (verdict) => {
+        if (this.run === run) this.state.update({ verdict, status: "verdict" });
+      },
+      belt: () => {
+        if (this.run === run) this.state.update({ belt: run.belt.view() });
+      },
     });
     this.run = run;
     run.log.recordEvent(`Device selected: ${name}`);
@@ -80,17 +89,57 @@ export class RunController {
       device: { name, variant: variant === "stride4" ? "Stride 4" : "Standard" },
       verdict: null,
       telemetry: emptyTelemetry,
+      belt: idleBelt,
     });
     await this.open(run, device);
   }
 
-  /** The Disconnect press. */
-  disconnect(): void {
+  /** The Disconnect press. With the belt active, Stop is tried first (L2-048). */
+  async disconnect(): Promise<void> {
     const run = this.run;
-    if (!run) return;
+    if (!run?.isAlive()) return;
     run.log.recordEvent("Disconnect requested");
-    run.link?.disconnect();
+    if (run.belt.isActive()) {
+      const wait = run.wait(STOP_BEFORE_DISCONNECT_MS);
+      await Promise.race([run.belt.stop(), wait.done]);
+      wait.wake();
+      if (!run.isAlive()) return;
+    }
+    const link = run.link;
     this.teardown(run);
+    link?.disconnect();
+  }
+
+  /** Stop belt, from the button, Enter, Space or Escape. Never gated. */
+  stopBelt(): void {
+    const run = this.run;
+    if (run?.isAlive() && run.queue) void run.belt.stop();
+  }
+
+  startBelt(): void {
+    this.run?.belt.start();
+  }
+
+  setBeltGate(open: boolean): void {
+    this.run?.belt.setGate(open);
+  }
+
+  setSpeed(raw: string): SpeedInput | null {
+    return this.run?.belt.setSpeed(raw) ?? null;
+  }
+
+  setIncline(raw: string): InclineInput | null {
+    return this.run?.belt.setIncline(raw) ?? null;
+  }
+
+  /** Best effort: the page may be gone before the write is delivered (L2-048). */
+  onPageHide(): void {
+    const run = this.run;
+    if (run?.isAlive() && run.belt.isActive()) void run.belt.stop();
+  }
+
+  dismissConnectionLost(): void {
+    this.state.update({ connectionLost: false });
   }
 
   /** Builds the export from a snapshot; call completeExport once the download starts. */
@@ -139,7 +188,10 @@ export class RunController {
     run.cancel(timeout);
     for (const line of link.describeCharacteristics()) run.log.recordEvent(line);
     run.attach(link);
-    link.onDisconnected(() => { this.teardown(run); });
+    link.onDisconnected(() => {
+      if (run.isAlive() && run.belt.isActive()) this.state.update({ connectionLost: true });
+      this.teardown(run);
+    });
     try {
       await link.subscribe((char, bytes) => { this.onNotification(run, char, bytes); });
     } catch (error) {
@@ -183,6 +235,7 @@ export class RunController {
     if (next.speedKmh !== current.speedKmh || next.incline !== current.incline || next.heartRateBpm !== current.heartRateBpm) {
       this.state.update({ telemetry: next });
     }
+    if (update.speedKmh !== undefined) run.belt.onSpeed(update.speedKmh);
   }
 
   /** A failure before the run got going: logged, disconnected, back to idle. */
@@ -203,7 +256,7 @@ export class RunController {
     run.link?.dispose();
     run.log.recordEvent("Disconnected");
     if (this.run === run) this.run = null;
-    this.finish("disconnected", { disconnectVisible: false });
+    this.finish("disconnected", { disconnectVisible: false, belt: idleBelt });
   }
 
   private finish(status: StatusKey, extra: Partial<PageState> = {}): void {

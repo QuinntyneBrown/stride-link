@@ -8,6 +8,7 @@ interface FakeInPage {
   dropConnection(): void;
   setAvailability(value: boolean): void;
   notifyEvery(char: "f3" | "f4", hex: string, intervalMs: number, count: number): void;
+  realNow(): number;
 }
 
 declare global {
@@ -50,5 +51,9 @@ export class FakeControl {
 
   notifyEvery(char: "f3" | "f4", hex: string, intervalMs: number, count: number): Promise<void> {
     return this.page.evaluate(([c, h, i, n]) => { window.__fakeBluetooth.notifyEvery(c, h, i, n); }, [char, hex, intervalMs, count] as const);
+  }
+
+  realNow(): Promise<number> {
+    return this.page.evaluate(() => window.__fakeBluetooth.realNow());
   }
 }

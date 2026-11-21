@@ -4,6 +4,7 @@ import type { TreadmillLink } from "../ble/treadmill-link.ts";
 import { WriteQueue, type WriteOutcome } from "../ble/write-queue.ts";
 import type { ModelVariant } from "../protocol/variant.ts";
 import type { Clock, TimerId } from "./clock.ts";
+import { BeltController } from "./belt-controller.ts";
 import { InitSequencer } from "./init-sequencer.ts";
 import { LinkKeeper } from "./link-keeper.ts";
 import type { FrameTag, SectionLog } from "./packet-log.ts";
@@ -19,6 +20,7 @@ export class Run {
   readonly unlock: UnlockFlow;
   readonly keeper: LinkKeeper;
   readonly verdict: VerdictEngine;
+  readonly belt: BeltController;
   link: TreadmillLink | null = null;
   queue: WriteQueue<FrameTag> | null = null;
   private live = true;
@@ -26,12 +28,21 @@ export class Run {
   private readonly timers = new Set<TimerId>();
   private readonly endListeners: (() => void)[] = [];
 
-  constructor(log: SectionLog, variant: ModelVariant, clock: Clock, onVerdict: (record: VerdictRecord) => void) {
+  constructor(
+    log: SectionLog,
+    variant: ModelVariant,
+    clock: Clock,
+    listener: { verdict: (record: VerdictRecord) => void; belt: () => void },
+  ) {
     this.log = log;
     this.variant = variant;
     this.clock = clock;
     this.init = new InitSequencer(this);
-    this.verdict = new VerdictEngine(this, onVerdict);
+    this.belt = new BeltController(this, listener.belt);
+    this.verdict = new VerdictEngine(this, (record) => {
+      listener.verdict(record);
+      this.belt.onVerdict(record.verdict);
+    });
     this.unlock = new UnlockFlow(this, {
       challengeSeen: () => { this.verdict.onChallenge(); },
       outcome: (outcome) => { this.verdict.onUnlockOutcome(outcome); },
